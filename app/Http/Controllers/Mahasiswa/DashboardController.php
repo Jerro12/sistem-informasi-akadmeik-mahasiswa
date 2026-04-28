@@ -11,10 +11,12 @@ use Illuminate\Support\Facades\Auth;
 class DashboardController extends Controller
 {
     protected AkademikCalculationService $calculationService;
+    protected \App\Services\PaymentService $paymentService;
 
-    public function __construct(AkademikCalculationService $calculationService)
+    public function __construct(AkademikCalculationService $calculationService, \App\Services\PaymentService $paymentService)
     {
         $this->calculationService = $calculationService;
+        $this->paymentService = $paymentService;
     }
 
     public function index()
@@ -55,6 +57,9 @@ class DashboardController extends Controller
             ->where('tahun_akademik_id', $activeTA?->id)
             ->first();
 
+        // Check payment status
+        $isPaid = $activeTA ? $this->paymentService->isPaid($mahasiswa, $activeTA) : false;
+
         // Grade distribution
         $gradeDistribution = $this->calculationService->getGradeDistribution($mahasiswa);
 
@@ -73,7 +78,7 @@ class DashboardController extends Controller
         return view('mahasiswa.dashboard.index', compact(
             'user', 'mahasiswa', 'ipkData', 'ipsHistory', 'currentIps',
             'maxSks', 'sksHistory', 'currentKrs', 'gradeDistribution', 
-            'greeting', 'activeTA'
+            'greeting', 'activeTA', 'isPaid'
         ));
     }
 }

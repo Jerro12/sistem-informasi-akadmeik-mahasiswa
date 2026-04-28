@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Fakultas;
 use App\Models\MataKuliah;
+use App\Models\Kurikulum;
+use App\Models\Konsentrasi;
 use App\Models\Prodi;
 use App\Services\AkademikService;
 use Illuminate\Http\Request;
@@ -73,7 +75,17 @@ class MataKuliahController extends Controller
         }
         $prodiList = $prodiQuery->get();
 
-        return view('admin.mata-kuliah.index', compact('mataKuliah', 'prodiList', 'fakultasList', 'isSuperAdmin'));
+        // Kurikulum and Konsentrasi lists for dropdowns
+        $kurikulumQuery = Kurikulum::query();
+        $konsentrasiQuery = Konsentrasi::query();
+        if ($request->get('fakultas_scoped') && $request->get('fakultas_scope')) {
+            $kurikulumQuery->whereHas('prodi', fn($q) => $q->where('fakultas_id', $request->get('fakultas_scope')));
+            $konsentrasiQuery->whereHas('prodi', fn($q) => $q->where('fakultas_id', $request->get('fakultas_scope')));
+        }
+        $kurikulumList = $kurikulumQuery->get();
+        $konsentrasiList = $konsentrasiQuery->get();
+
+        return view('admin.mata-kuliah.index', compact('mataKuliah', 'prodiList', 'fakultasList', 'isSuperAdmin', 'kurikulumList', 'konsentrasiList'));
     }
 
     public function export(Request $request)
@@ -137,9 +149,12 @@ class MataKuliahController extends Controller
         $validated = $request->validate([
             'kode_mk'  => 'required|string|unique:mata_kuliah,kode_mk',
             'nama_mk'  => 'required|string',
+            'jenis'    => 'required|in:wajib,pilihan',
             'sks'      => 'required|integer|min:1',
             'semester' => 'required|integer|min:1',
             'prodi_id' => 'nullable|exists:prodi,id',
+            'kurikulum_id' => 'nullable|exists:kurikulum,id',
+            'konsentrasi_id' => 'nullable|exists:konsentrasi,id',
         ]);
         
         // Auto-assign prodi for admin_fakultas if not provided
@@ -159,9 +174,12 @@ class MataKuliahController extends Controller
         $validated = $request->validate([
             'kode_mk'  => 'required|string|unique:mata_kuliah,kode_mk,' . $mataKuliah->id,
             'nama_mk'  => 'required|string',
+            'jenis'    => 'required|in:wajib,pilihan',
             'sks'      => 'required|integer|min:1',
             'semester' => 'required|integer|min:1',
             'prodi_id' => 'nullable|exists:prodi,id',
+            'kurikulum_id' => 'nullable|exists:kurikulum,id',
+            'konsentrasi_id' => 'nullable|exists:konsentrasi,id',
         ]);
         $mataKuliah->update($validated);
         return redirect()->back()->with('success', 'Mata Kuliah berhasil diupdate');

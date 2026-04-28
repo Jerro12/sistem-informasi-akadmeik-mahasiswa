@@ -30,90 +30,98 @@
 
 ### Highlights
 
-- **Modern UI** - Responsive design dengan TailwindCSS dan Alpine.js
-- **AI-Powered** - Academic Advisor berbasis Gemini AI
-- **Secure** - Role-based access control, rate limiting, dan security headers
-- **Fast** - Optimized queries, caching strategy, dan database indexes
-- **Responsive** - Mobile-friendly interface
-- **Indonesian Locale** - Fully localized untuk bahasa Indonesia
+-   **Modern UI** - Responsive design dengan TailwindCSS dan Alpine.js
+-   **AI-Powered** - Academic Advisor berbasis Gemini AI
+-   **Secure** - Role-based access control, rate limiting, dan security headers
+-   **Fast** - Optimized queries, caching strategy, dan database indexes
+-   **Responsive** - Mobile-friendly interface
+-   **Indonesian Locale** - Fully localized untuk bahasa Indonesia
 
 ---
 
 ## Features
 
 ### Mahasiswa
-| Feature | Description |
-|---------|-------------|
-| **KRS Online** | Pengisian Kartu Rencana Studi dengan validasi SKS otomatis |
-| **Transkrip Nilai** | Lihat transkrip akademik lengkap dengan IPK/IPS |
-| **KHS** | Kartu Hasil Studi per semester |
-| **Presensi** | Riwayat kehadiran per mata kuliah |
-| **Jadwal Kuliah** | Jadwal perkuliahan mingguan |
-| **E-Learning (LMS)** | Akses materi dan tugas kuliah |
-| **AI Academic Advisor** | Konsultasi akademik dengan AI Gemini |
-| **Skripsi** | Tracking progress skripsi dan bimbingan |
-| **Kerja Praktek** | Manajemen KP dan logbook |
-| **Export PDF** | Download transkrip dan KHS dalam format PDF |
+
+| Feature                 | Description                                                |
+| ----------------------- | ---------------------------------------------------------- |
+| **KRS Online**          | Pengisian Kartu Rencana Studi dengan validasi SKS otomatis |
+| **Transkrip Nilai**     | Lihat transkrip akademik lengkap dengan IPK/IPS            |
+| **KHS**                 | Kartu Hasil Studi per semester                             |
+| **Presensi**            | Riwayat kehadiran per mata kuliah                          |
+| **Jadwal Kuliah**       | Jadwal perkuliahan mingguan                                |
+| **E-Learning (LMS)**    | Akses materi dan tugas kuliah                              |
+| **AI Academic Advisor** | Konsultasi akademik dengan AI Gemini                       |
+| **Skripsi**             | Tracking progress skripsi dan bimbingan                    |
+| **Kerja Praktek**       | Manajemen KP dan logbook                                   |
+| **Export PDF**          | Download transkrip dan KHS dalam format PDF                |
 
 ### Dosen
-| Feature | Description |
-|---------|-------------|
-| **Input Nilai** | Input nilai mahasiswa per kelas |
-| **Presensi Kelas** | Kelola pertemuan dan presensi mahasiswa |
-| **Bimbingan PA** | Persetujuan KRS mahasiswa bimbingan |
+
+| Feature               | Description                                |
+| --------------------- | ------------------------------------------ |
+| **Input Nilai**       | Input nilai mahasiswa per kelas            |
+| **Presensi Kelas**    | Kelola pertemuan dan presensi mahasiswa    |
+| **Bimbingan PA**      | Persetujuan KRS mahasiswa bimbingan        |
 | **Bimbingan Skripsi** | Review bimbingan dan update status skripsi |
-| **Bimbingan KP** | Review logbook kerja praktek |
-| **LMS Management** | Upload materi dan kelola tugas |
-| **Kehadiran** | Absensi kehadiran dosen |
+| **Bimbingan KP**      | Review logbook kerja praktek               |
+| **LMS Management**    | Upload materi dan kelola tugas             |
+| **Kehadiran**         | Absensi kehadiran dosen                    |
 
 ### Admin
-| Feature | Description |
-|---------|-------------|
-| **Dashboard** | Statistik dan overview akademik |
-| **Master Data** | Kelola Fakultas, Prodi, Mata Kuliah, Kelas |
-| **User Management** | Kelola akun Dosen dan Mahasiswa |
-| **KRS Approval** | Monitoring dan approval KRS (view only) |
-| **Skripsi & KP** | Assign pembimbing dan update status |
-| **Ruangan** | Manajemen ruang kuliah |
-| **Kehadiran Dosen** | Monitoring kehadiran dosen |
+
+| Feature             | Description                                |
+| ------------------- | ------------------------------------------ |
+| **Dashboard**       | Statistik dan overview akademik            |
+| **Master Data**     | Kelola Fakultas, Prodi, Mata Kuliah, Kelas |
+| **User Management** | Kelola akun Dosen dan Mahasiswa            |
+| **KRS Approval**    | Monitoring dan approval KRS (view only)    |
+| **Skripsi & KP**    | Assign pembimbing dan update status        |
+| **Ruangan**         | Manajemen ruang kuliah                     |
+| **Kehadiran Dosen** | Monitoring kehadiran dosen                 |
 
 ### Security Features
-- ✅ Role-based access control (RBAC)
-- ✅ Faculty-scoped admin access
-- ✅ Rate limiting pada endpoint sensitif
-- ✅ CSRF protection
-- ✅ Security headers middleware
-- ✅ Input validation & sanitization
+
+-   ✅ Role-based access control (RBAC)
+-   ✅ Faculty-scoped admin access
+-   ✅ Rate limiting pada endpoint sensitif
+-   ✅ CSRF protection
+-   ✅ Security headers middleware
+-   ✅ Input validation & sanitization
 
 ---
 
 ## Tech Stack
 
 ### Backend
-| Technology | Version | Description |
-|------------|---------|-------------|
-| **PHP** | 8.2 | Server-side language |
-| **Laravel** | 12 | PHP Framework |
-| **Laravel Breeze** | 2 | Authentication scaffolding |
-| **Spatie Permission** | 6 | Role & permission management |
+
+| Technology            | Version | Description                  |
+| --------------------- | ------- | ---------------------------- |
+| **PHP**               | 8.2     | Server-side language         |
+| **Laravel**           | 12      | PHP Framework                |
+| **Laravel Breeze**    | 2       | Authentication scaffolding   |
+| **Spatie Permission** | 6       | Role & permission management |
 
 ### Frontend
-| Technology | Version | Description |
-|------------|---------|-------------|
-| **TailwindCSS** | 3 | Utility-first CSS framework |
-| **Alpine.js** | 3 | Lightweight JavaScript framework |
-| **Vite** | 7 | Frontend build tool |
+
+| Technology      | Version | Description                      |
+| --------------- | ------- | -------------------------------- |
+| **TailwindCSS** | 3       | Utility-first CSS framework      |
+| **Alpine.js**   | 3       | Lightweight JavaScript framework |
+| **Vite**        | 7       | Frontend build tool              |
 
 ### Database
-| Technology | Description |
-|------------|-------------|
-| **MySQL** | Recommended for production |
+
+| Technology     | Description                     |
+| -------------- | ------------------------------- |
+| **MySQL**      | Recommended for production      |
 | **PostgreSQL** | Alternative production database |
-| **SQLite** | Development & testing |
+| **SQLite**     | Development & testing           |
 
 ### AI Integration
-| Technology | Description |
-|------------|-------------|
+
+| Technology            | Description         |
+| --------------------- | ------------------- |
 | **Google Gemini API** | AI Academic Advisor |
 
 ---
@@ -122,10 +130,10 @@
 
 ### Prerequisites
 
-- PHP 8.2 or higher
-- Composer 2..x
-- Node.js 18+ & npm
-- MySQL 8.0+ / PostgreSQL 14+ (for production)
+-   PHP 8.2 or higher
+-   Composer 2..x
+-   Node.js 18+ & npm
+-   MySQL 8.0+ / PostgreSQL 14+ (for production)
 
 ### Quick Start
 
@@ -163,12 +171,13 @@ composer setup
 ```
 
 This will automatically:
-- Install Composer dependencies
-- Copy `.env.example` to `.env`
-- Generate application key
-- Run migrations
-- Install npm dependencies
-- Build frontend assets
+
+-   Install Composer dependencies
+-   Copy `.env.example` to `.env`
+-   Generate application key
+-   Run migrations
+-   Install npm dependencies
+-   Build frontend assets
 
 ### Development Mode
 
@@ -177,10 +186,11 @@ composer dev
 ```
 
 This starts all development services concurrently:
-- Laravel development server (`php artisan serve`)
-- Queue worker (`php artisan queue:listen`)
-- Log viewer (`php artisan pail`)
-- Vite dev server (`npm run dev`)
+
+-   Laravel development server (`php artisan serve`)
+-   Queue worker (`php artisan queue:listen`)
+-   Log viewer (`php artisan pail`)
+-   Vite dev server (`npm run dev`)
 
 ---
 
@@ -189,6 +199,7 @@ This starts all development services concurrently:
 ### Environment Variables
 
 #### Database (MySQL - Production)
+
 ```env
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
@@ -199,17 +210,20 @@ DB_PASSWORD=your_password
 ```
 
 #### Database (SQLite - Development)
+
 ```env
 DB_CONNECTION=sqlite
 ```
 
 #### AI Integration (Gemini)
+
 ```env
 # Get your API key at: https://aistudio.google.com/
 GEMINI_API_KEY=your_gemini_api_key
 ```
 
 #### Cache & Session (Production)
+
 ```env
 SESSION_DRIVER=database
 CACHE_STORE=database
@@ -249,7 +263,7 @@ return [
 
     // Default class capacity
     'kelas_kapasitas_default' => 40,
-    
+
     // Pagination
     'pagination' => 15,
 ];
@@ -261,12 +275,12 @@ return [
 
 After running seeders, you can login with:
 
-| Role | Email | Password | Description |
-|------|-------|----------|-------------|
-| **Superadmin** | `superadmin@siakad.test` | `password` | Full system access |
-| **Admin Fakultas** | `admin.ftik@siakad.test` | `password` | Faculty-scoped admin |
-| **Dosen** | `dosen@siakad.test` | `password` | Dr. Ahmad Fauzi, M.Kom. |
-| **Mahasiswa** | `mahasiswa@siakad.test` | `password` | Budi Santoso (Semester 5, NIM: 2022101001) |
+| Role               | Email                    | Password   | Description                                |
+| ------------------ | ------------------------ | ---------- | ------------------------------------------ |
+| **Superadmin**     | `superadmin@siakad.test` | `password` | Full system access                         |
+| **Admin Fakultas** | `admin.ftik@siakad.test` | `password` | Faculty-scoped admin                       |
+| **Dosen**          | `dosen@siakad.test`      | `password` | Dr. Ahmad Fauzi, M.Kom.                    |
+| **Mahasiswa**      | `mahasiswa@siakad.test`  | `password` | Budi Santoso (Semester 5, NIM: 2022101001) |
 
 > **Important**: Change these passwords immediately in production!
 
@@ -357,19 +371,20 @@ siakad/
 ```
 
 ### Additional Tables
-- `nilai` - Student grades
-- `jadwal_kuliah` - Class schedules
-- `pertemuan` - Class meetings
-- `presensi` - Attendance records
-- `skripsi` - Thesis management
-- `bimbingan_skripsi` - Thesis guidance
-- `kerja_praktek` - Internship
-- `logbook_kp` - Internship logbook
-- `materi` - Learning materials
-- `tugas` - Assignments
-- `tugas_submission` - Assignment submissions
-- `notifications` - System notifications
-- `ai_conversation_logs` - AI chat logs
+
+-   `nilai` - Student grades
+-   `jadwal_kuliah` - Class schedules
+-   `pertemuan` - Class meetings
+-   `presensi` - Attendance records
+-   `skripsi` - Thesis management
+-   `bimbingan_skripsi` - Thesis guidance
+-   `kerja_praktek` - Internship
+-   `logbook_kp` - Internship logbook
+-   `materi` - Learning materials
+-   `tugas` - Assignments
+-   `tugas_submission` - Assignment submissions
+-   `notifications` - System notifications
+-   `ai_conversation_logs` - AI chat logs
 
 ---
 
@@ -412,31 +427,36 @@ php artisan test --coverage
 ## Security
 
 ### Rate Limiting
-- AI Chat: 10 requests/minute per user
-- KRS Operations: 10 requests/minute per user
-- Penilaian: 20 requests/minute per user
+
+-   AI Chat: 10 requests/minute per user
+-   KRS Operations: 10 requests/minute per user
+-   Penilaian: 20 requests/minute per user
 
 ### Middleware
-- `role` - Role-based access control
-- `fakultas.scope` - Faculty-scoped data access
-- `SecurityHeadersMiddleware` - Security headers
+
+-   `role` - Role-based access control
+-   `fakultas.scope` - Faculty-scoped data access
+-   `SecurityHeadersMiddleware` - Security headers
 
 ### Validation
-- All inputs are validated using Laravel Form Requests
-- Custom exceptions for business logic errors
-- CSRF protection on all forms
+
+-   All inputs are validated using Laravel Form Requests
+-   Custom exceptions for business logic errors
+-   CSRF protection on all forms
 
 ---
 
 ## Performance
 
 ### Optimizations
-- Database indexes on frequently queried columns
-- Query optimization (N+1 prevention)
-- Master data caching (1 hour TTL)
-- Eager loading relationships
+
+-   Database indexes on frequently queried columns
+-   Query optimization (N+1 prevention)
+-   Master data caching (1 hour TTL)
+-   Eager loading relationships
 
 ### Caching Strategy
+
 ```php
 // Master data cached:
 - Tahun Akademik Aktif
@@ -459,10 +479,11 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 5. Open a Pull Request
 
 ### Development Guidelines
-- Follow PSR-12 coding standards
-- Write tests for new features
-- Update documentation as needed
-- Keep commits atomic and well-described
+
+-   Follow PSR-12 coding standards
+-   Write tests for new features
+-   Update documentation as needed
+-   Keep commits atomic and well-described
 
 ---
 
@@ -472,18 +493,12 @@ This project is open-sourced software licensed under the [MIT license](https://o
 
 ---
 
-## Author
-
-Developed with ❤️ by Ryanda
-
----
-
 ## 🙏 Acknowledgments
 
-- [Laravel](https://laravel.com/) - The PHP Framework for Web Artisans
-- [TailwindCSS](https://tailwindcss.com/) - A utility-first CSS framework
-- [Alpine.js](https://alpinejs.dev/) - A rugged, minimal JavaScript framework
-- [Google Gemini](https://deepmind.google/technologies/gemini/) - AI for Academic Advisor
+-   [Laravel](https://laravel.com/) - The PHP Framework for Web Artisans
+-   [TailwindCSS](https://tailwindcss.com/) - A utility-first CSS framework
+-   [Alpine.js](https://alpinejs.dev/) - A rugged, minimal JavaScript framework
+-   [Google Gemini](https://deepmind.google/technologies/gemini/) - AI for Academic Advisor
 
 ---
 

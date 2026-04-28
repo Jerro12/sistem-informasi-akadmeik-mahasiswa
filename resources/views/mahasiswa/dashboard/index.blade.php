@@ -107,6 +107,20 @@
                 <h3 class="font-semibold text-siakad-dark mb-1">Biodata</h3>
                 <p class="text-sm text-siakad-secondary">Data Diri</p>
             </a>
+
+            <!-- Pembayaran -->
+            <a href="{{ route('mahasiswa.pembayaran.index') }}" class="relative card-saas p-5 hover:border-siakad-primary/30 group overflow-hidden">
+                @if($isPaid)
+                <span class="absolute top-4 right-4 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-semibold rounded-full">Lunas</span>
+                @else
+                <span class="absolute top-4 right-4 px-2 py-0.5 bg-red-100 text-red-700 text-[10px] font-semibold rounded-full">Belum Bayar</span>
+                @endif
+                <div class="w-11 h-11 bg-siakad-primary/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-siakad-primary/20 transition">
+                    <svg class="w-5 h-5 text-siakad-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                </div>
+                <h3 class="font-semibold text-siakad-dark mb-1">Pembayaran</h3>
+                <p class="text-sm text-siakad-secondary">Biaya Kuliah/KRS</p>
+            </a>
         </div>
     </div>
 

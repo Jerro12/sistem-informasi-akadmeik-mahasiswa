@@ -87,7 +87,18 @@ class KrsService
                 throw KrsException::courseAlreadyTaken($kelas->mataKuliah->nama_mk);
             }
 
-            // 3. Cek Batas SKS berdasarkan IPS semester lalu
+            // 3. Cek Batas Mata Kuliah Pilihan (Maksimal 3)
+            if ($kelas->mataKuliah->jenis == 'pilihan') {
+                $pilihanCount = $krs->krsDetail()->whereHas('kelas.mataKuliah', function($q) {
+                    $q->where('jenis', 'pilihan');
+                })->count();
+
+                if ($pilihanCount >= 3) {
+                    throw new \Exception("Batas pengambilan mata kuliah pilihan semester ini adalah 3 mata kuliah.");
+                }
+            }
+
+            // 4. Cek Batas SKS berdasarkan IPS semester lalu
             $sksSaatIni = $krs->krsDetail->sum(fn($detail) => $detail->kelas->mataKuliah->sks);
             $sksBaru = $kelas->mataKuliah->sks;
             

@@ -35,11 +35,14 @@ return Application::configure(basePath: dirname(__DIR__))
         // Global middleware - applies to all requests
         $middleware->append(\App\Http\Middleware\SecurityHeadersMiddleware::class);
         
-        // Middleware aliases
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'log.requests' => \App\Http\Middleware\RequestLoggingMiddleware::class,
             'fakultas.scope' => \App\Http\Middleware\FakultasScopeMiddleware::class,
+        ]);
+
+        $middleware->validateCsrfTokens(except: [
+            '/payment/webhook',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

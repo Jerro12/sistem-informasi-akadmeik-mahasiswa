@@ -109,6 +109,8 @@
                             </a>
                         </th>
 
+                        <th class="py-3 px-5 text-xs font-semibold text-siakad-secondary dark:text-gray-400 uppercase tracking-wider w-24 text-center">Jenis</th>
+
                         <th class="text-right py-3 px-5 text-xs font-semibold text-siakad-secondary dark:text-gray-400 uppercase tracking-wider w-32">Aksi</th>
                     </tr>
                 </thead>
@@ -131,9 +133,16 @@
                         <td class="py-4 px-5 text-center">
                             <span class="inline-flex px-2.5 py-1 text-xs font-medium bg-siakad-secondary/10 text-siakad-secondary dark:bg-gray-700 dark:text-gray-300 rounded-full">Sem {{ $mk->semester }}</span>
                         </td>
+                        <td class="py-4 px-5 text-center">
+                            @if($mk->jenis == 'pilihan')
+                                <span class="inline-flex px-2 py-1 text-[10px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 rounded-lg uppercase">Pilihan</span>
+                            @else
+                                <span class="inline-flex px-2 py-1 text-[10px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded-lg uppercase">Wajib</span>
+                            @endif
+                        </td>
                         <td class="py-4 px-5 text-right">
                             <div class="flex items-center justify-end gap-2">
-                            <button onclick="editMK({{ $mk->id }}, '{{ $mk->kode_mk }}', '{{ addslashes($mk->nama_mk) }}', {{ $mk->sks }}, {{ $mk->semester }}, {{ $mk->prodi_id ?? 'null' }}, {{ $mk->prodi?->fakultas_id ?? 'null' }})" class="p-2 text-siakad-secondary hover:text-siakad-primary hover:bg-siakad-primary/10 rounded-lg transition" title="Edit">
+                            <button onclick="editMK({{ $mk->id }}, '{{ $mk->kode_mk }}', '{{ addslashes($mk->nama_mk) }}', {{ $mk->sks }}, {{ $mk->semester }}, {{ $mk->prodi_id ?? 'null' }}, {{ $mk->prodi?->fakultas_id ?? 'null' }}, {{ $mk->kurikulum_id ?? 'null' }}, {{ $mk->konsentrasi_id ?? 'null' }}, '{{ $mk->jenis }}')" class="p-2 text-siakad-secondary hover:text-siakad-primary hover:bg-siakad-primary/10 rounded-lg transition" title="Edit">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                 </button>
                                 <form action="{{ route('admin.mata-kuliah.destroy', $mk) }}" method="POST" onsubmit="return confirm('Hapus mata kuliah ini?')">
@@ -188,7 +197,7 @@
             </div>
 
             <div class="flex items-center gap-2 pt-3 border-t border-siakad-light dark:border-gray-700">
-                <button onclick="editMK({{ $mk->id }}, '{{ $mk->kode_mk }}', '{{ addslashes($mk->nama_mk) }}', {{ $mk->sks }}, {{ $mk->semester }}, {{ $mk->prodi_id ?? 'null' }}, {{ $mk->prodi?->fakultas_id ?? 'null' }})" class="flex-1 py-2 text-sm font-medium text-siakad-secondary bg-siakad-light/50 dark:bg-gray-700 dark:text-gray-300 rounded-lg hover:bg-siakad-light hover:text-siakad-primary dark:hover:bg-gray-600 transition text-center">
+                <button onclick="editMK({{ $mk->id }}, '{{ $mk->kode_mk }}', '{{ addslashes($mk->nama_mk) }}', {{ $mk->sks }}, {{ $mk->semester }}, {{ $mk->prodi_id ?? 'null' }}, {{ $mk->prodi?->fakultas_id ?? 'null' }}, {{ $mk->kurikulum_id ?? 'null' }}, {{ $mk->konsentrasi_id ?? 'null' }})" class="flex-1 py-2 text-sm font-medium text-siakad-secondary bg-siakad-light/50 dark:bg-gray-700 dark:text-gray-300 rounded-lg hover:bg-siakad-light hover:text-siakad-primary dark:hover:bg-gray-600 transition text-center">
                     Edit
                 </button>
                 <form action="{{ route('admin.mata-kuliah.destroy', $mk) }}" method="POST" onsubmit="return confirm('Hapus mata kuliah ini?')" class="flex-1">
@@ -238,12 +247,33 @@
                     <!-- Prodi dropdown -->
                     <div>
                         <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Program Studi</label>
-                        <select name="prodi_id" id="createProdiSelect" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
+                        <select name="prodi_id" id="createProdiSelect" onchange="filterKurikulumKonsentrasiCreate()" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
                             <option value="">Pilih Program Studi</option>
                             @foreach($prodiList as $prodi)
                             <option value="{{ $prodi->id }}" data-fakultas="{{ $prodi->fakultas_id }}">{{ $prodi->nama }}</option>
                             @endforeach
                         </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Kurikulum</label>
+                            <select name="kurikulum_id" id="createKurikulumSelect" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                                <option value="">Umum / Bebas Kurikulum</option>
+                                @foreach($kurikulumList as $k)
+                                <option value="{{ $k->id }}" data-prodi="{{ $k->prodi_id }}">{{ $k->nama }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Konsentrasi</label>
+                            <select name="konsentrasi_id" id="createKonsentrasiSelect" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                                <option value="">Umum / Semua Konsentrasi</option>
+                                @foreach($konsentrasiList as $k)
+                                <option value="{{ $k->id }}" data-prodi="{{ $k->prodi_id }}">{{ $k->nama_konsentrasi }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
                     
                     <div>
@@ -264,6 +294,13 @@
                             <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Semester</label>
                             <input type="number" name="semester" min="1" max="8" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" placeholder="1" required>
                         </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Jenis Mata Kuliah</label>
+                        <select name="jenis" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
+                            <option value="wajib">WAJIB</option>
+                            <option value="pilihan">PILIHAN</option>
+                        </select>
                     </div>
                 </div>
                 <div class="px-6 py-4 border-t border-siakad-light dark:border-gray-700 flex items-center justify-end gap-3">
@@ -299,12 +336,33 @@
                     <!-- Prodi dropdown -->
                     <div>
                         <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Program Studi</label>
-                        <select name="prodi_id" id="editProdiSelect" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
+                        <select name="prodi_id" id="editProdiSelect" onchange="filterKurikulumKonsentrasiEdit()" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
                             <option value="">Pilih Program Studi</option>
                             @foreach($prodiList as $prodi)
                             <option value="{{ $prodi->id }}" data-fakultas="{{ $prodi->fakultas_id }}">{{ $prodi->nama }}</option>
                             @endforeach
                         </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Kurikulum</label>
+                            <select name="kurikulum_id" id="editKurikulumSelect" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                                <option value="">Umum / Bebas Kurikulum</option>
+                                @foreach($kurikulumList as $k)
+                                <option value="{{ $k->id }}" data-prodi="{{ $k->prodi_id }}">{{ $k->nama }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Konsentrasi</label>
+                            <select name="konsentrasi_id" id="editKonsentrasiSelect" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                                <option value="">Umum / Semua Konsentrasi</option>
+                                @foreach($konsentrasiList as $k)
+                                <option value="{{ $k->id }}" data-prodi="{{ $k->prodi_id }}">{{ $k->nama_konsentrasi }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
                     
                     <div>
@@ -324,6 +382,13 @@
                             <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Semester</label>
                             <input type="number" name="semester" id="editSemester" min="1" max="8" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
                         </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Jenis Mata Kuliah</label>
+                        <select name="jenis" id="editJenis" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
+                            <option value="wajib">WAJIB</option>
+                            <option value="pilihan">PILIHAN</option>
+                        </select>
                     </div>
                 </div>
                 <div class="px-6 py-4 border-t border-siakad-light dark:border-gray-700 flex items-center justify-end gap-3">
@@ -364,14 +429,45 @@
             });
             
             prodiSelect.value = '';
+            filterKurikulumKonsentrasiEdit();
+        }
+
+        function filterKurikulumKonsentrasiCreate() {
+            const prodiId = document.getElementById('createProdiSelect').value;
+            const kurikulumSelect = document.getElementById('createKurikulumSelect');
+            const konsentrasiSelect = document.getElementById('createKonsentrasiSelect');
+            
+            Array.from(kurikulumSelect.options).forEach(opt => {
+                if(opt.value !== '') opt.style.display = (opt.getAttribute('data-prodi') === prodiId) ? '' : 'none';
+            });
+            Array.from(konsentrasiSelect.options).forEach(opt => {
+                if(opt.value !== '') opt.style.display = (opt.getAttribute('data-prodi') === prodiId) ? '' : 'none';
+            });
+            kurikulumSelect.value = '';
+            konsentrasiSelect.value = '';
+        }
+
+        function filterKurikulumKonsentrasiEdit() {
+            const prodiId = document.getElementById('editProdiSelect').value;
+            const kurikulumSelect = document.getElementById('editKurikulumSelect');
+            const konsentrasiSelect = document.getElementById('editKonsentrasiSelect');
+            
+            Array.from(kurikulumSelect.options).forEach(opt => {
+                if(opt.value !== '') opt.style.display = (opt.getAttribute('data-prodi') === prodiId) ? '' : 'none';
+            });
+            Array.from(konsentrasiSelect.options).forEach(opt => {
+                if(opt.value !== '') opt.style.display = (opt.getAttribute('data-prodi') === prodiId) ? '' : 'none';
+            });
+            // We don't reset values here because editMK needs to set them
         }
         
-        function editMK(id, kode, nama, sks, semester, prodiId, fakultasId) {
+        function editMK(id, kode, nama, sks, semester, prodiId, fakultasId, kurikulumId, konsentrasiId) {
             document.getElementById('editForm').action = `/admin/mata-kuliah/${id}`;
             document.getElementById('editKode').value = kode;
             document.getElementById('editNama').value = nama;
             document.getElementById('editSks').value = sks;
             document.getElementById('editSemester').value = semester;
+            document.getElementById('editJenis').value = jenis;
             
             // Set fakultas and prodi
             const fakultasSelect = document.getElementById('editFakultasSelect');
@@ -380,6 +476,10 @@
                 filterProdiEdit();
             }
             document.getElementById('editProdiSelect').value = prodiId || '';
+            filterKurikulumKonsentrasiEdit();
+
+            document.getElementById('editKurikulumSelect').value = kurikulumId || '';
+            document.getElementById('editKonsentrasiSelect').value = konsentrasiId || '';
             
             document.getElementById('editModal').classList.remove('hidden');
         }

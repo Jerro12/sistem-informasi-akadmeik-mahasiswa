@@ -33,48 +33,32 @@
                 </div>
             </div>
             
-            @if($krs->status == 'draft')
-            <div class="mt-5 pt-5 border-t border-white/20">
-                <form action="{{ url('mahasiswa/krs/submit') }}" method="POST" class="flex items-center justify-between">
-                    @csrf
-                    <p class="text-sm opacity-80">Setelah diajukan, KRS tidak dapat diubah lagi.</p>
-                    <button type="submit" onclick="return confirm('Yakin ingin mengajukan KRS? Anda tidak dapat mengubah lagi setelah ini.')"
-                        class="px-5 py-2 bg-white text-siakad-primary rounded-lg font-semibold text-sm hover:bg-siakad-light transition">
-                        Ajukan KRS
-                    </button>
-                </form>
-            </div>
-            @elseif($krs->status == 'rejected')
-            <div class="mt-5 pt-5 border-t border-white/20">
-                <div class="flex items-start justify-between gap-4">
-                    <div>
-                        <p class="text-sm font-semibold text-red-200 mb-1">❌ KRS Ditolak</p>
-                        <p class="text-sm opacity-80">{{ $krs->catatan ?? 'Silakan revisi KRS Anda dan ajukan kembali.' }}</p>
-                    </div>
-                    <form action="{{ url('mahasiswa/krs/revise') }}" method="POST">
+            <div class="mt-5 pt-5 border-t border-white/20 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                @if($krs->status == 'draft' || empty($krs->status))
+                    <p class="text-sm opacity-80 italic">Status: Draft. Silakan pilih mata kuliah lalu klik patenkan untuk mengunci dan mencetak.</p>
+                    @if($krs->krsDetail->count() > 0)
+                    <form action="{{ route('mahasiswa.krs.finalize') }}" method="POST" onsubmit="return confirm('Patenkan KRS? Setelah dikunci, mata kuliah tidak bisa diubah lagi.')">
                         @csrf
-                        <button type="submit" onclick="return confirm('Ubah status KRS menjadi draft untuk direvisi?')"
-                            class="px-5 py-2 bg-white text-siakad-primary rounded-lg font-semibold text-sm hover:bg-siakad-light transition whitespace-nowrap">
-                            Revisi KRS
+                        <button type="submit" class="px-5 py-2 bg-amber-400 text-siakad-dark rounded-lg font-bold text-sm hover:bg-amber-300 transition flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                            Finalkan & Kunci KRS
                         </button>
                     </form>
-                </div>
+                    @endif
+                @else
+                    <p class="text-sm opacity-80"><span class="font-bold">KRS TERKUNCI.</span> Silakan cetak KRS untuk ditandatangani Kaprodi.</p>
+                    <a href="{{ route('mahasiswa.krs.print') }}" target="_blank" class="px-5 py-2 bg-white text-siakad-primary rounded-lg font-semibold text-sm hover:bg-siakad-light transition flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        Cetak KRS
+                    </a>
+                @endif
             </div>
-            @elseif($krs->status == 'pending')
-            <div class="mt-5 pt-5 border-t border-white/20">
-                <p class="text-sm opacity-80">⏳ KRS Anda sedang menunggu persetujuan dari Dosen PA.</p>
-            </div>
-            @elseif($krs->status == 'approved')
-            <div class="mt-5 pt-5 border-t border-white/20">
-                <p class="text-sm opacity-80">✅ KRS Anda telah disetujui oleh Dosen PA.</p>
-            </div>
-            @endif
         </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Taken Classes -->
-        <div class="{{ $krs->status == 'draft' ? 'lg:col-span-2' : 'lg:col-span-3' }}">
+        <div class="lg:col-span-2">
             <div class="card-saas overflow-hidden">
                 <div class="px-6 py-4 border-b border-siakad-light">
                     <h3 class="font-semibold text-siakad-dark">Mata Kuliah Diambil</h3>
@@ -94,7 +78,7 @@
                             </span>
                             <p class="text-[10px] text-siakad-secondary mt-1">SKS</p>
                         </div>
-                        @if($krs->status == 'draft')
+                        @if($krs->status == 'draft' || empty($krs->status))
                         <form action="{{ url('mahasiswa/krs/'.$detail->id) }}" method="POST">
                             @csrf
                             @method('DELETE')
@@ -123,7 +107,7 @@
         </div>
 
         <!-- Available Classes -->
-        @if($krs->status == 'draft')
+        @if($krs->status == 'draft' || empty($krs->status))
         <div class="lg:col-span-1">
             <div class="card-saas overflow-hidden sticky top-24">
                 <div class="px-6 py-4 border-b border-siakad-light">
@@ -148,7 +132,14 @@
                             <div class="p-4">
                                 <div class="flex items-start gap-3">
                                     <div class="flex-1 min-w-0">
-                                        <p class="font-medium text-siakad-dark text-sm truncate">{{ $k->mataKuliah->nama_mk }}</p>
+                                        <div class="flex items-center gap-2">
+                                            <p class="font-medium text-siakad-dark text-sm truncate">{{ $k->mataKuliah->nama_mk }}</p>
+                                            @if($k->mataKuliah->jenis == 'pilihan')
+                                                <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-700 uppercase">Pilihan</span>
+                                            @else
+                                                <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-100 text-blue-700 uppercase">Wajib</span>
+                                            @endif
+                                        </div>
                                         <p class="text-[11px] text-siakad-secondary mt-0.5">{{ $k->mataKuliah->sks }} SKS • {{ $k->dosen->user->name ?? '-' }}</p>
                                         <div class="flex items-center gap-2 mt-2">
                                             <div class="flex-1 h-1 bg-siakad-light rounded-full overflow-hidden">

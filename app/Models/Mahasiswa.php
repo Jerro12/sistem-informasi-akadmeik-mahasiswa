@@ -17,7 +17,10 @@ class Mahasiswa extends Model
         'prodi_id',
         'dosen_pa_id',
         'angkatan',
+        'semester_sekarang',
         'status',
+        'kurikulum_id',
+        'konsentrasi_id',
     ];
 
     public function user()
@@ -28,6 +31,16 @@ class Mahasiswa extends Model
     public function prodi()
     {
         return $this->belongsTo(Prodi::class);
+    }
+
+    public function kurikulum()
+    {
+        return $this->belongsTo(Kurikulum::class);
+    }
+
+    public function konsentrasi()
+    {
+        return $this->belongsTo(Konsentrasi::class);
     }
 
     public function dosenPa()
@@ -63,6 +76,11 @@ class Mahasiswa extends Model
     public function tugasSubmissions()
     {
         return $this->hasMany(TugasSubmission::class);
+    }
+
+    public function pembayaran()
+    {
+        return $this->hasMany(Pembayaran::class);
     }
 }
 

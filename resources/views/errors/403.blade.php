@@ -69,7 +69,10 @@
         </div>
         <h1>Akses Ditolak</h1>
         <p>{{ $message ?? 'Anda tidak memiliki izin untuk mengakses halaman ini.' }}</p>
-        <a href="{{ url('/dashboard') }}">Kembali ke Dashboard</a>
+        <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Kembali ke Login</a>
+        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+            @csrf
+        </form>
     </div>
 </body>
 </html>

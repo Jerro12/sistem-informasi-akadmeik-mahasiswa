@@ -17,11 +17,24 @@ class MataKuliah extends Model
         'sks',
         'semester',
         'prodi_id',
+        'kurikulum_id',
+        'konsentrasi_id',
+        'jenis',
     ];
 
     public function prodi()
     {
         return $this->belongsTo(Prodi::class);
+    }
+
+    public function kurikulum()
+    {
+        return $this->belongsTo(Kurikulum::class);
+    }
+
+    public function konsentrasi()
+    {
+        return $this->belongsTo(Konsentrasi::class);
     }
 
     public function kelas()

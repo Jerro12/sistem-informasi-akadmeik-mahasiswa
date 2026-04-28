@@ -14,6 +14,7 @@ class TahunAkademik extends Model
     protected $fillable = [
         'tahun',
         'semester',
+        'biaya_krs',
         'is_active',
         'tanggal_mulai',
         'tanggal_selesai',

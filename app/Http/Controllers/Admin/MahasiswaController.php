@@ -11,6 +11,8 @@ use App\Services\AkademikCalculationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use App\Models\Kurikulum;
+use App\Models\Konsentrasi;
 
 class MahasiswaController extends Controller
 {
@@ -78,7 +80,16 @@ class MahasiswaController extends Controller
         $angkatanList = Mahasiswa::distinct()->pluck('angkatan')->sort()->reverse();
         $dosenList = Dosen::with('user')->get();
 
-        return view('admin.mahasiswa.index', compact('mahasiswa', 'fakultasList', 'prodiList', 'angkatanList', 'dosenList'));
+        $kurikulumQuery = Kurikulum::query();
+        $konsentrasiQuery = Konsentrasi::query();
+        if ($request->get('fakultas_scoped') && $request->get('fakultas_scope')) {
+            $kurikulumQuery->whereHas('prodi', fn($q) => $q->where('fakultas_id', $request->get('fakultas_scope')));
+            $konsentrasiQuery->whereHas('prodi', fn($q) => $q->where('fakultas_id', $request->get('fakultas_scope')));
+        }
+        $kurikulumList = $kurikulumQuery->get();
+        $konsentrasiList = $konsentrasiQuery->get();
+
+        return view('admin.mahasiswa.index', compact('mahasiswa', 'fakultasList', 'prodiList', 'angkatanList', 'dosenList', 'kurikulumList', 'konsentrasiList'));
     }
 
     public function store(Request $request)
@@ -90,7 +101,10 @@ class MahasiswaController extends Controller
             'nim' => 'required|string|unique:mahasiswa,nim',
             'prodi_id' => 'required|exists:prodi,id',
             'angkatan' => 'required|numeric|min:2000|max:' . (date('Y') + 1),
+            'semester_sekarang' => 'required|integer|min:1|max:14',
             'dosen_pa_id' => 'nullable|exists:dosen,id',
+            'kurikulum_id' => 'nullable|exists:kurikulum,id',
+            'konsentrasi_id' => 'nullable|exists:konsentrasi,id',
         ]);
 
         DB::transaction(function () use ($validated) {
@@ -106,8 +120,11 @@ class MahasiswaController extends Controller
                 'nim' => $validated['nim'],
                 'prodi_id' => $validated['prodi_id'],
                 'angkatan' => $validated['angkatan'],
+                'semester_sekarang' => $validated['semester_sekarang'],
                 'dosen_pa_id' => $validated['dosen_pa_id'] ?? null,
                 'status' => 'aktif',
+                'kurikulum_id' => $validated['kurikulum_id'] ?? null,
+                'konsentrasi_id' => $validated['konsentrasi_id'] ?? null,
             ]);
         });
 
@@ -122,9 +139,12 @@ class MahasiswaController extends Controller
             'nim' => 'required|string|unique:mahasiswa,nim,' . $mahasiswa->id,
             'prodi_id' => 'required|exists:prodi,id',
             'angkatan' => 'required|numeric',
+            'semester_sekarang' => 'required|integer|min:1|max:14',
             'dosen_pa_id' => 'nullable|exists:dosen,id',
             'status' => 'required|in:aktif,cuti,lulus,do',
             'password' => 'nullable|string|min:8',
+            'kurikulum_id' => 'nullable|exists:kurikulum,id',
+            'konsentrasi_id' => 'nullable|exists:konsentrasi,id',
         ]);
 
         DB::transaction(function () use ($validated, $mahasiswa) {
@@ -141,8 +161,11 @@ class MahasiswaController extends Controller
                 'nim' => $validated['nim'],
                 'prodi_id' => $validated['prodi_id'],
                 'angkatan' => $validated['angkatan'],
+                'semester_sekarang' => $validated['semester_sekarang'],
                 'dosen_pa_id' => $validated['dosen_pa_id'] ?? null,
                 'status' => $validated['status'],
+                'kurikulum_id' => $validated['kurikulum_id'] ?? null,
+                'konsentrasi_id' => $validated['konsentrasi_id'] ?? null,
             ]);
         });
 
