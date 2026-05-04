@@ -136,7 +136,7 @@ class KrsController extends Controller
             return redirect()->back()->with('error', 'Pilih minimal satu mata kuliah sebelum mematenkan KRS.');
         }
 
-        $krs->update(['status' => 'approved']);
-        return redirect()->back()->with('success', 'KRS Berhasil dipatenkan dan dikunci. Silakan cetak KRS Anda.');
+        $krs->update(['status' => 'pending']);
+        return redirect()->back()->with('success', 'KRS Berhasil dipatenkan. Silakan tunggu verifikasi admin/dosen untuk mencetak.');
     }
 }

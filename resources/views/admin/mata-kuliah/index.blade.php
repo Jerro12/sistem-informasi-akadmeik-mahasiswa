@@ -15,14 +15,21 @@
                     <option value="">Semua Kategori</option>
                     @php
                         $categories = [
+                            'AIK' => 'Al-Islam Kemuhammadiyahan',
+                            'MK' => 'Mata Kuliah Umum',
+                            'UN' => 'Mata Kuliah Universitas',
                             'TI' => 'Teknik Informatika',
                             'SI' => 'Sistem Informasi',
                             'TE' => 'Teknik Elektro',
                             'MN' => 'Manajemen',
                             'AK' => 'Akuntansi',
                             'MT' => 'Matematika',
-                            'MK' => 'Mata Kuliah Umum',
-                            'UN' => 'Mata Kuliah Universitas'
+                            'UP' => 'Ujian Proposal',
+                            'UH' => 'Ujian Hasil',
+                            'UT' => 'Ujian Tutup / Sidang',
+                            'SK' => 'Skripsi',
+                            'TA' => 'Tugas Akhir',
+                            'KP' => 'Kerja Praktek',
                         ];
                     @endphp
                     @foreach($categories as $code => $name)
@@ -123,9 +130,17 @@
                         </td>
                         <td class="py-4 px-5">
                             <span class="text-sm font-medium text-siakad-dark dark:text-white">{{ $mk->nama_mk }}</span>
-                            <!-- Show full category/prodi name based on prefix, implicitly -->
-                            @php $prefix = substr($mk->kode_mk, 0, 2); @endphp
-                            <div class="text-[10px] text-siakad-secondary mt-0.5">{{ $categories[$prefix] ?? '' }}</div>
+                            @php 
+                                $code = strtoupper($mk->kode_mk);
+                                $categoryName = '';
+                                foreach($categories as $prefix => $name) {
+                                    if (strpos($code, $prefix) === 0) {
+                                        $categoryName = $name;
+                                        break;
+                                    }
+                                }
+                            @endphp
+                            <div class="text-[10px] text-siakad-secondary mt-0.5">{{ $categoryName }}</div>
                         </td>
                         <td class="py-4 px-5 text-center">
                             <span class="inline-flex px-2.5 py-1 text-xs font-medium bg-siakad-primary/10 text-siakad-primary dark:bg-blue-500/10 dark:text-blue-400 rounded-full">{{ $mk->sks }}</span>
@@ -180,8 +195,17 @@
                 <div>
                     <span class="inline-flex px-2.5 py-1 text-xs font-semibold bg-blue-50 text-siakad-primary dark:bg-blue-900/20 dark:text-blue-400 rounded-md font-mono mb-2">{{ $mk->kode_mk }}</span>
                     <h4 class="font-bold text-siakad-dark dark:text-white">{{ $mk->nama_mk }}</h4>
-                    @php $prefix = substr($mk->kode_mk, 0, 2); @endphp
-                    <p class="text-[10px] text-siakad-secondary mt-0.5">{{ $categories[$prefix] ?? '' }}</p>
+                    @php 
+                        $code = strtoupper($mk->kode_mk);
+                        $categoryName = '';
+                        foreach($categories as $prefix => $name) {
+                            if (strpos($code, $prefix) === 0) {
+                                $categoryName = $name;
+                                break;
+                            }
+                        }
+                    @endphp
+                    <p class="text-[10px] text-siakad-secondary mt-0.5">{{ $categoryName }}</p>
                 </div>
             </div>
 
@@ -197,7 +221,7 @@
             </div>
 
             <div class="flex items-center gap-2 pt-3 border-t border-siakad-light dark:border-gray-700">
-                <button onclick="editMK({{ $mk->id }}, '{{ $mk->kode_mk }}', '{{ addslashes($mk->nama_mk) }}', {{ $mk->sks }}, {{ $mk->semester }}, {{ $mk->prodi_id ?? 'null' }}, {{ $mk->prodi?->fakultas_id ?? 'null' }}, {{ $mk->kurikulum_id ?? 'null' }}, {{ $mk->konsentrasi_id ?? 'null' }})" class="flex-1 py-2 text-sm font-medium text-siakad-secondary bg-siakad-light/50 dark:bg-gray-700 dark:text-gray-300 rounded-lg hover:bg-siakad-light hover:text-siakad-primary dark:hover:bg-gray-600 transition text-center">
+                <button onclick="editMK({{ $mk->id }}, '{{ $mk->kode_mk }}', '{{ addslashes($mk->nama_mk) }}', {{ $mk->sks }}, {{ $mk->semester }}, {{ $mk->prodi_id ?? 'null' }}, {{ $mk->prodi?->fakultas_id ?? 'null' }}, {{ $mk->kurikulum_id ?? 'null' }}, {{ $mk->konsentrasi_id ?? 'null' }}, '{{ $mk->jenis }}')" class="flex-1 py-2 text-sm font-medium text-siakad-secondary bg-siakad-light/50 dark:bg-gray-700 dark:text-gray-300 rounded-lg hover:bg-siakad-light hover:text-siakad-primary dark:hover:bg-gray-600 transition text-center">
                     Edit
                 </button>
                 <form action="{{ route('admin.mata-kuliah.destroy', $mk) }}" method="POST" onsubmit="return confirm('Hapus mata kuliah ini?')" class="flex-1">
@@ -223,8 +247,9 @@
     @endif
     </div>
     <!-- Create Modal -->
-    <div id="createModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md animate-fade-in">
+    <div id="createModal" class="hidden fixed inset-0 bg-black/40 z-50 p-4">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md animate-fade-in">
             <div class="px-6 py-4 border-b border-siakad-light dark:border-gray-700">
                 <h3 class="text-lg font-semibold text-siakad-dark dark:text-white">Tambah Mata Kuliah</h3>
             </div>
@@ -310,10 +335,12 @@
             </form>
         </div>
     </div>
+</div>
 
     <!-- Edit Modal -->
-    <div id="editModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md animate-fade-in">
+    <div id="editModal" class="hidden fixed inset-0 bg-black/40 z-50 p-4">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md animate-fade-in">
             <div class="px-6 py-4 border-b border-siakad-light dark:border-gray-700">
                 <h3 class="text-lg font-semibold text-siakad-dark dark:text-white">Edit Mata Kuliah</h3>
             </div>
@@ -398,6 +425,7 @@
             </form>
         </div>
     </div>
+</div>
 
     <script>
         // Filter prodi based on fakultas for Create modal
@@ -461,7 +489,7 @@
             // We don't reset values here because editMK needs to set them
         }
         
-        function editMK(id, kode, nama, sks, semester, prodiId, fakultasId, kurikulumId, konsentrasiId) {
+        function editMK(id, kode, nama, sks, semester, prodiId, fakultasId, kurikulumId, konsentrasiId, jenis) {
             document.getElementById('editForm').action = `/admin/mata-kuliah/${id}`;
             document.getElementById('editKode').value = kode;
             document.getElementById('editNama').value = nama;

@@ -97,8 +97,9 @@
     @endif
 
     <!-- Create Modal -->
-    <div id="createModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md animate-fade-in">
+    <div id="createModal" class="hidden fixed inset-0 bg-black/40 z-50 p-4">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md animate-fade-in">
             <div class="px-6 py-4 border-b border-siakad-light dark:border-gray-700">
                 <h3 class="text-lg font-semibold text-siakad-dark dark:text-white">Tambah Konsentrasi</h3>
             </div>
@@ -136,10 +137,12 @@
             </form>
         </div>
     </div>
+</div>
 
     <!-- Edit Modal -->
-    <div id="editModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md animate-fade-in">
+    <div id="editModal" class="hidden fixed inset-0 bg-black/40 z-50 p-4">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md animate-fade-in">
             <div class="px-6 py-4 border-b border-siakad-light dark:border-gray-700">
                 <h3 class="text-lg font-semibold text-siakad-dark dark:text-white">Edit Konsentrasi</h3>
             </div>
@@ -176,6 +179,7 @@
             </form>
         </div>
     </div>
+</div>
 
     <script>
         function editKonsentrasi(id, nama, kode, active, prodiId) {

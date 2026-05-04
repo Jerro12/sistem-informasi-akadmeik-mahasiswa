@@ -14,23 +14,23 @@ class RuanganController extends Controller
         $query = Ruangan::with('fakultas');
 
         // Search
-        if ($request->filled('search')) {
+        $query->when($request->filled('search'), function ($q) use ($request) {
             $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('nama_ruangan', 'like', "%{$search}%")
+            $q->where(function ($sq) use ($search) {
+                $sq->where('nama_ruangan', 'like', "%{$search}%")
                   ->orWhere('kode_ruangan', 'like', "%{$search}%")
                   ->orWhere('gedung', 'like', "%{$search}%");
             });
-        }
+        });
 
         // Faculty scoping for admin_fakultas
-        if ($request->get('fakultas_scoped') && $request->get('fakultas_scope')) {
+        $query->when($request->get('fakultas_scoped') && $request->get('fakultas_scope'), function($q) use ($request) {
             $fakultasId = $request->get('fakultas_scope');
-            $query->where(function($q) use ($fakultasId) {
-                $q->where('fakultas_id', $fakultasId)
-                  ->orWhereNull('fakultas_id'); // Also show unassigned ones
+            $q->where(function($sq) use ($fakultasId) {
+                $sq->where('fakultas_id', $fakultasId)
+                  ->orWhereNull('fakultas_id');
             });
-        }
+        });
 
         // Sorting
         $sortColumn = $request->get('sort', 'kode_ruangan');
@@ -54,11 +54,12 @@ class RuanganController extends Controller
                   ->orWhereNull('fakultas_id');
             });
         }
+        
         $stats = [
             'total' => (clone $statsQuery)->count(),
             'active' => (clone $statsQuery)->where('is_active', true)->count(),
             'capacity' => (clone $statsQuery)->sum('kapasitas'),
-            'gedung_count' => (clone $statsQuery)->distinct('gedung')->count('gedung'),
+            'gedung_count' => (clone $statsQuery)->whereNotNull('gedung')->distinct('gedung')->count('gedung'),
         ];
         
         // Fakultas list for dropdown (only for superadmin)
@@ -76,11 +77,10 @@ class RuanganController extends Controller
             'gedung' => 'nullable|string|max:50',
             'lantai' => 'nullable|integer|min:1',
             'fasilitas' => 'nullable|string',
-            'is_active' => 'boolean',
             'fakultas_id' => 'nullable|exists:fakultas,id',
         ]);
 
-        $validated['is_active'] = $request->has('is_active');
+        $validated['is_active'] = $request->boolean('is_active');
         
         // Auto-assign fakultas for admin_fakultas
         if (empty($validated['fakultas_id']) && $request->get('fakultas_scoped')) {
@@ -101,11 +101,10 @@ class RuanganController extends Controller
             'gedung' => 'nullable|string|max:50',
             'lantai' => 'nullable|integer|min:1',
             'fasilitas' => 'nullable|string',
-            'is_active' => 'boolean',
             'fakultas_id' => 'nullable|exists:fakultas,id',
         ]);
 
-        $validated['is_active'] = $request->has('is_active');
+        $validated['is_active'] = $request->boolean('is_active');
 
         $ruangan->update($validated);
 

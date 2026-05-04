@@ -3,6 +3,21 @@
         Master Data Ruangan
     </x-slot>
 
+    @if($errors->any())
+    <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl flex items-start gap-3">
+        <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div>
+            <p class="font-bold text-sm">Gagal menyimpan data:</p>
+            <ul class="list-disc list-inside text-xs mt-1">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    </div>
+    @endif
+
+
     <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
             <p class="text-sm text-siakad-secondary dark:text-gray-400">Kelola data ruangan kelas dalam sistem</p>
@@ -248,11 +263,9 @@
         {{ $ruanganList->links() }}
     </div>
     @endif
-    </div>
-
-    <!-- Create Modal -->
-    <div id="createModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-lg animate-fade-in max-h-[90vh] overflow-y-auto">
+    <div id="createModal" class="hidden fixed inset-0 bg-black/40 z-50 p-4">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-lg animate-fade-in max-h-[90vh] overflow-y-auto">
             <div class="px-6 py-4 border-b border-siakad-light dark:border-gray-700">
                 <h3 class="text-lg font-semibold text-siakad-dark dark:text-white">Tambah Ruangan</h3>
             </div>
@@ -288,9 +301,22 @@
                         <textarea name="fasilitas" rows="2" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" placeholder="AC, Proyektor, Whiteboard"></textarea>
                     </div>
                     <div class="flex items-center gap-2">
-                        <input type="checkbox" name="is_active" id="createIsActive" checked class="rounded border-siakad-light text-siakad-primary focus:ring-siakad-primary dark:border-gray-700 dark:bg-gray-900">
+                        <input type="checkbox" name="is_active" id="createIsActive" value="1" checked class="rounded border-siakad-light text-siakad-primary focus:ring-siakad-primary dark:border-gray-700 dark:bg-gray-900">
                         <label for="createIsActive" class="text-sm text-siakad-dark dark:text-gray-300">Ruangan aktif</label>
                     </div>
+
+                    @if(auth()->user()->isSuperAdmin())
+                    <div>
+                        <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Fakultas (Opsional)</label>
+                        <select name="fakultas_id" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                            <option value="">-- Semua Fakultas --</option>
+                            @foreach($fakultasList as $fakultas)
+                                <option value="{{ $fakultas->id }}">{{ $fakultas->nama }}</option>
+                            @endforeach
+                        </select>
+                        <p class="text-[10px] text-siakad-secondary mt-1">Kosongkan jika ruangan digunakan lintas fakultas</p>
+                    </div>
+                    @endif
                 </div>
                 <div class="px-6 py-4 border-t border-siakad-light dark:border-gray-700 flex items-center justify-end gap-3">
                     <button type="button" onclick="document.getElementById('createModal').classList.add('hidden')" class="btn-ghost-saas px-4 py-2 rounded-lg text-sm font-medium dark:text-white">Batal</button>
@@ -301,8 +327,9 @@
     </div>
 
     <!-- Edit Modal -->
-    <div id="editModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-lg animate-fade-in max-h-[90vh] overflow-y-auto">
+    <div id="editModal" class="hidden fixed inset-0 bg-black/40 z-50 p-4">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-lg animate-fade-in max-h-[90vh] overflow-y-auto">
             <div class="px-6 py-4 border-b border-siakad-light dark:border-gray-700">
                 <h3 class="text-lg font-semibold text-siakad-dark dark:text-white">Edit Ruangan</h3>
             </div>
@@ -338,9 +365,21 @@
                         <textarea name="fasilitas" id="editFasilitas" rows="2" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white"></textarea>
                     </div>
                     <div class="flex items-center gap-2">
-                        <input type="checkbox" name="is_active" id="editIsActive" class="rounded border-siakad-light text-siakad-primary focus:ring-siakad-primary dark:border-gray-700 dark:bg-gray-900">
+                        <input type="checkbox" name="is_active" id="editIsActive" value="1" class="rounded border-siakad-light text-siakad-primary focus:ring-siakad-primary dark:border-gray-700 dark:bg-gray-900">
                         <label for="editIsActive" class="text-sm text-siakad-dark dark:text-gray-300">Ruangan aktif</label>
                     </div>
+
+                    @if(auth()->user()->isSuperAdmin())
+                    <div>
+                        <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Fakultas (Opsional)</label>
+                        <select name="fakultas_id" id="editFakultas" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                            <option value="">-- Semua Fakultas --</option>
+                            @foreach($fakultasList as $fakultas)
+                                <option value="{{ $fakultas->id }}">{{ $fakultas->nama }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    @endif
                 </div>
                 <div class="px-6 py-4 border-t border-siakad-light dark:border-gray-700 flex items-center justify-end gap-3">
                     <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="btn-ghost-saas px-4 py-2 rounded-lg text-sm font-medium dark:text-white">Batal</button>
@@ -360,6 +399,11 @@
             document.getElementById('editLantai').value = data.lantai || '';
             document.getElementById('editFasilitas').value = data.fasilitas || '';
             document.getElementById('editIsActive').checked = data.is_active;
+            
+            if (document.getElementById('editFakultas')) {
+                document.getElementById('editFakultas').value = data.fakultas_id || '';
+            }
+            
             document.getElementById('editModal').classList.remove('hidden');
         }
     </script>
