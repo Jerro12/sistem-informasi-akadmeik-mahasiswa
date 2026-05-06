@@ -15,6 +15,12 @@ class Dosen extends Model
         'user_id',
         'nidn',
         'prodi_id',
+        'no_hp',
+        'jenis_kelamin',
+        'tempat_lahir',
+        'tanggal_lahir',
+        'alamat',
+        'foto',
     ];
 
     public function user()

@@ -14,9 +14,15 @@ class Krs extends Model
     protected $fillable = [
         'mahasiswa_id',
         'tahun_akademik_id',
+        'konsentrasi_id',
         'status',
         'catatan',
     ];
+
+    public function konsentrasi()
+    {
+        return $this->belongsTo(Konsentrasi::class);
+    }
 
     public function mahasiswa()
     {

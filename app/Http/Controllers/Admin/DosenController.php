@@ -69,7 +69,6 @@ class DosenController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8',
             'nidn' => 'required|string|unique:dosen,nidn',
             'prodi_id' => 'required|exists:prodi,id',
@@ -78,8 +77,10 @@ class DosenController extends Controller
         DB::transaction(function () use ($validated) {
             $user = User::create([
                 'name' => $validated['name'],
-                'email' => $validated['email'],
+                'username' => $validated['nidn'],
+                'email' => $validated['nidn'] . '@dosen.siakad.com',
                 'password' => Hash::make($validated['password']),
+                'password_plain' => $validated['password'],
                 'role' => 'dosen',
             ]);
 
@@ -97,21 +98,24 @@ class DosenController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $dosen->user_id,
-            'nidn' => 'required|string|unique:dosen,nidn,' . $dosen->id,
+            'nidn' => 'required|string|unique:dosen,nidn,' . $dosen->id . '|unique:users,username,' . $dosen->user_id,
             'prodi_id' => 'required|exists:prodi,id',
             'password' => 'nullable|string|min:8',
         ]);
 
         DB::transaction(function () use ($validated, $dosen) {
-            $dosen->user->update([
+            $userUpdate = [
                 'name' => $validated['name'],
-                'email' => $validated['email'],
-            ]);
+                'username' => $validated['nidn'],
+                'email' => $validated['nidn'] . '@dosen.siakad.com',
+            ];
 
             if (!empty($validated['password'])) {
-                $dosen->user->update(['password' => Hash::make($validated['password'])]);
+                $userUpdate['password'] = Hash::make($validated['password']);
+                $userUpdate['password_plain'] = $validated['password'];
             }
+
+            $dosen->user->update($userUpdate);
 
             $dosen->update([
                 'nidn' => $validated['nidn'],

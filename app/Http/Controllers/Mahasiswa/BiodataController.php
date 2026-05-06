@@ -35,8 +35,12 @@ class BiodataController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:500',
+            'no_hp' => 'nullable|string|max:20',
+            'jenis_kelamin' => 'nullable|in:L,P',
+            'tempat_lahir' => 'nullable|string|max:100',
+            'tanggal_lahir' => 'nullable|date',
+            'alamat' => 'nullable|string|max:500',
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         // Update user
@@ -45,12 +49,21 @@ class BiodataController extends Controller
             'email' => $validated['email'],
         ]);
 
-        // Update mahasiswa (if phone/address fields exist)
-        // Note: You may need to add these columns to mahasiswa table
-        // $mahasiswa->update([
-        //     'phone' => $validated['phone'],
-        //     'address' => $validated['address'],
-        // ]);
+        // Update mahasiswa
+        $mahasiswaData = [
+            'no_hp' => $validated['no_hp'],
+            'jenis_kelamin' => $validated['jenis_kelamin'],
+            'tempat_lahir' => $validated['tempat_lahir'],
+            'tanggal_lahir' => $validated['tanggal_lahir'],
+            'alamat' => $validated['alamat'],
+        ];
+
+        if ($request->hasFile('foto')) {
+            $path = $request->file('foto')->store('profile_photos', 'public');
+            $mahasiswaData['foto'] = $path;
+        }
+
+        $mahasiswa->update($mahasiswaData);
 
         return redirect()->back()->with('success', 'Biodata berhasil diperbarui');
     }
@@ -68,7 +81,10 @@ class BiodataController extends Controller
             return redirect()->back()->with('error', 'Password lama tidak sesuai');
         }
 
-        $user->update(['password' => Hash::make($request->password)]);
+        $user->update([
+            'password' => Hash::make($request->password),
+            'password_plain' => $request->password,
+        ]);
 
         return redirect()->back()->with('success', 'Password berhasil diperbarui');
     }

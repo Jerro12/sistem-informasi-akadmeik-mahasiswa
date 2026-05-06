@@ -81,6 +81,14 @@ class KelasController extends Controller
             'ruangan'        => 'nullable|string|max:50',
         ]);
         
+        // Check for conflicts if schedule is provided
+        if (!empty($validated['hari']) && !empty($validated['jam_mulai']) && !empty($validated['jam_selesai'])) {
+            $conflict = $this->checkConflict(null, $validated['hari'], $validated['jam_mulai'], $validated['jam_selesai'], $validated['ruangan'], $validated['dosen_id'], $validated['nama_kelas'], $validated['mata_kuliah_id']);
+            if ($conflict) {
+                return redirect()->back()->withInput()->with('error', "Gagal: " . $conflict);
+            }
+        }
+
         $kelas = $this->akademikService->createKelas($validated);
         
         // Create jadwal if provided
@@ -110,6 +118,14 @@ class KelasController extends Controller
             'ruangan'        => 'nullable|string|max:50',
         ]);
         
+        // Check for conflicts if schedule is provided
+        if (!empty($validated['hari']) && !empty($validated['jam_mulai']) && !empty($validated['jam_selesai'])) {
+            $conflict = $this->checkConflict($kelas->id, $validated['hari'], $validated['jam_mulai'], $validated['jam_selesai'], $validated['ruangan'], $validated['dosen_id'], $validated['nama_kelas'], $validated['mata_kuliah_id']);
+            if ($conflict) {
+                return redirect()->back()->withInput()->with('error', "Gagal: " . $conflict);
+            }
+        }
+
         $kelas->update([
             'mata_kuliah_id' => $validated['mata_kuliah_id'],
             'dosen_id' => $validated['dosen_id'],
@@ -166,6 +182,42 @@ class KelasController extends Controller
     {
         $kelas->delete();
         return redirect()->back()->with('success', 'Kelas berhasil dihapus');
+    }
+
+    private function checkConflict($kelasId, $hari, $jamMulai, $jamSelesai, $ruangan, $dosenId, $namaKelas, $mkId)
+    {
+        $mk = \App\Models\MataKuliah::find($mkId);
+        
+        $conflicts = \App\Models\JadwalKuliah::where('hari', $hari)
+            ->where(function ($q) use ($jamMulai, $jamSelesai) {
+                $q->where('jam_mulai', '<', $jamSelesai)
+                  ->where('jam_selesai', '>', $jamMulai);
+            })
+            ->whereHas('kelas', function ($q) use ($kelasId) {
+                if ($kelasId) $q->where('id', '!=', $kelasId);
+            })
+            ->get();
+
+        foreach ($conflicts as $conflict) {
+            // 1. Dosen Conflict
+            if ($conflict->kelas->dosen_id == $dosenId) {
+                return "Dosen sudah memiliki jadwal mengajar di kelas {$conflict->kelas->nama_kelas} ({$conflict->kelas->mataKuliah->nama_mk}) pada jam tersebut.";
+            }
+            
+            // 2. Room Conflict
+            if ($ruangan && $conflict->ruangan === $ruangan) {
+                return "Ruangan {$ruangan} sudah digunakan oleh kelas {$conflict->kelas->nama_kelas} ({$conflict->kelas->mataKuliah->nama_mk}) pada jam tersebut.";
+            }
+            
+            // 3. Class Group Conflict
+            if ($conflict->kelas->nama_kelas === $namaKelas && 
+                $conflict->kelas->mataKuliah->prodi_id === $mk->prodi_id && 
+                $conflict->kelas->mataKuliah->semester === $mk->semester) {
+                return "Kelompok Kelas {$namaKelas} (Semester {$mk->semester}) sudah memiliki jadwal mata kuliah {$conflict->kelas->mataKuliah->nama_mk} pada jam tersebut.";
+            }
+        }
+        
+        return null;
     }
 }
 

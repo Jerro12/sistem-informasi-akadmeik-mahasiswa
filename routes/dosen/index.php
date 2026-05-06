@@ -1,5 +1,6 @@
 <?php
 
+require __DIR__.'/biodata.php';
 require __DIR__.'/bimbingan.php';
 require __DIR__.'/dashboard.php';
 require __DIR__.'/kehadiran.php';

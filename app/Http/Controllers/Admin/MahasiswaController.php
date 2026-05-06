@@ -96,7 +96,6 @@ class MahasiswaController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8',
             'nim' => 'required|string|unique:mahasiswa,nim',
             'prodi_id' => 'required|exists:prodi,id',
@@ -104,14 +103,15 @@ class MahasiswaController extends Controller
             'semester_sekarang' => 'required|integer|min:1|max:14',
             'dosen_pa_id' => 'nullable|exists:dosen,id',
             'kurikulum_id' => 'nullable|exists:kurikulum,id',
-            'konsentrasi_id' => 'nullable|exists:konsentrasi,id',
         ]);
 
         DB::transaction(function () use ($validated) {
             $user = User::create([
                 'name' => $validated['name'],
-                'email' => $validated['email'],
+                'username' => $validated['nim'],
+                'email' => $validated['nim'] . '@mahasiswa.siakad.com',
                 'password' => Hash::make($validated['password']),
+                'password_plain' => $validated['password'],
                 'role' => 'mahasiswa',
             ]);
 
@@ -124,7 +124,6 @@ class MahasiswaController extends Controller
                 'dosen_pa_id' => $validated['dosen_pa_id'] ?? null,
                 'status' => 'aktif',
                 'kurikulum_id' => $validated['kurikulum_id'] ?? null,
-                'konsentrasi_id' => $validated['konsentrasi_id'] ?? null,
             ]);
         });
 
@@ -135,8 +134,7 @@ class MahasiswaController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $mahasiswa->user_id,
-            'nim' => 'required|string|unique:mahasiswa,nim,' . $mahasiswa->id,
+            'nim' => 'required|string|unique:mahasiswa,nim,' . $mahasiswa->id . '|unique:users,username,' . $mahasiswa->user_id,
             'prodi_id' => 'required|exists:prodi,id',
             'angkatan' => 'required|numeric',
             'semester_sekarang' => 'required|integer|min:1|max:14',
@@ -144,18 +142,21 @@ class MahasiswaController extends Controller
             'status' => 'required|in:aktif,cuti,lulus,do',
             'password' => 'nullable|string|min:8',
             'kurikulum_id' => 'nullable|exists:kurikulum,id',
-            'konsentrasi_id' => 'nullable|exists:konsentrasi,id',
         ]);
 
         DB::transaction(function () use ($validated, $mahasiswa) {
-            $mahasiswa->user->update([
+            $userUpdate = [
                 'name' => $validated['name'],
-                'email' => $validated['email'],
-            ]);
+                'username' => $validated['nim'],
+                'email' => $validated['nim'] . '@mahasiswa.siakad.com',
+            ];
 
             if (!empty($validated['password'])) {
-                $mahasiswa->user->update(['password' => Hash::make($validated['password'])]);
+                $userUpdate['password'] = Hash::make($validated['password']);
+                $userUpdate['password_plain'] = $validated['password'];
             }
+
+            $mahasiswa->user->update($userUpdate);
 
             $mahasiswa->update([
                 'nim' => $validated['nim'],
@@ -165,7 +166,6 @@ class MahasiswaController extends Controller
                 'dosen_pa_id' => $validated['dosen_pa_id'] ?? null,
                 'status' => $validated['status'],
                 'kurikulum_id' => $validated['kurikulum_id'] ?? null,
-                'konsentrasi_id' => $validated['konsentrasi_id'] ?? null,
             ]);
         });
 

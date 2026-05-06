@@ -29,7 +29,7 @@
                 </a>
             </div>
 
-            <div class="w-full max-w-[400px] mx-auto">
+            <div class="w-full max-w-[500px] mx-auto">
                 {{ $slot }}
             </div>
 

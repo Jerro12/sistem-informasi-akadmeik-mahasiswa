@@ -7,6 +7,8 @@ use App\Services\KrsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+use App\Models\Konsentrasi;
+
 class KrsController extends Controller
 {
     protected $krsService;
@@ -71,7 +73,27 @@ class KrsController extends Controller
         // Sort by semester number
         $availableKelas = $availableKelas->sortKeys();
 
-        return view('mahasiswa.krs.index', compact('krs', 'availableKelas'));
+        // Concentration logic: Show if semester >= 5
+        $concentrations = collect();
+        if ($mahasiswa->semester_sekarang >= 5) {
+            $concentrations = Konsentrasi::where('prodi_id', $mahasiswa->prodi_id)
+                ->where('is_active', true)
+                ->get();
+        }
+
+        return view('mahasiswa.krs.index', compact('krs', 'availableKelas', 'concentrations'));
+    }
+
+    public function updateConcentration(Request $request)
+    {
+        $request->validate(['konsentrasi_id' => 'required|exists:konsentrasi,id']);
+        
+        $mahasiswa = Auth::user()->mahasiswa;
+        $krs = $this->krsService->getActiveKrsOrNew($mahasiswa);
+
+        $krs->update(['konsentrasi_id' => $request->konsentrasi_id]);
+
+        return redirect()->back()->with('success', 'Konsentrasi berhasil dipilih');
     }
 
     public function store(Request $request)

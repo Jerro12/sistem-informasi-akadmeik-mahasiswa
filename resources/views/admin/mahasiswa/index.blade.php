@@ -145,9 +145,10 @@
                             </a>
                         </th>
 
-                        <th class="py-3 px-5 text-xs font-semibold text-siakad-secondary dark:text-gray-400 uppercase tracking-wider w-16 text-center">Smst</th>
+                        <th class="text-left py-3 px-5 text-xs font-semibold text-siakad-secondary dark:text-gray-400 uppercase tracking-wider w-16 text-center">Smst</th>
 
                         <th class="text-left py-3 px-5 text-xs font-semibold text-siakad-secondary dark:text-gray-400 uppercase tracking-wider">IPK</th>
+                        <th class="text-left py-3 px-5 text-xs font-semibold text-siakad-secondary dark:text-gray-400 uppercase tracking-wider">Password</th>
                         <th class="text-left py-3 px-5 text-xs font-semibold text-siakad-secondary dark:text-gray-400 uppercase tracking-wider">Status</th>
                         <th class="text-right py-3 px-5 text-xs font-semibold text-siakad-secondary dark:text-gray-400 uppercase tracking-wider">Aksi</th>
                     </tr>
@@ -180,6 +181,15 @@
                             <span class="text-sm font-semibold text-siakad-primary dark:text-blue-400">{{ number_format($m->ipk ?? 0, 2) }}</span>
                         </td>
                         <td class="py-4 px-5">
+                            <div class="flex items-center gap-2" x-data="{ show: false, pass: '{{ addslashes($m->user->password_plain ?? 'N/A') }}' }">
+                                <span class="text-xs font-mono text-gray-500 dark:text-gray-400" x-text="show ? pass : '••••••••'"></span>
+                                <button @click="show = !show" class="text-gray-400 hover:text-siakad-primary transition">
+                                    <svg x-show="!show" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                    <svg x-show="show" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.05 10.05 0 011.577-2.387M8 8.05A2.992 2.992 0 007.828 10.828l3.125 3.125a2.991 2.991 0 003.354-.055m1.515-2.074a2.992 2.992 0 00-.776-3.875" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18" /></svg>
+                                </button>
+                            </div>
+                        </td>
+                        <td class="py-4 px-5">
                             @if($m->status === 'aktif')
                             <span class="inline-flex px-2 py-0.5 text-[10px] font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300 rounded-full border dark:border-emerald-500/20">Aktif</span>
                             @elseif($m->status === 'cuti')
@@ -193,7 +203,7 @@
                                 <a href="{{ route('admin.mahasiswa.show', $m) }}" class="p-2 text-siakad-secondary hover:text-siakad-primary hover:bg-siakad-primary/10 rounded-lg transition" title="Detail">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                 </a>
-                                <button onclick="openEditModal({{ json_encode(['id'=>$m->id,'name'=>$m->user->name,'email'=>$m->user->email,'nim'=>$m->nim,'prodi_id'=>$m->prodi_id,'angkatan'=>$m->angkatan,'semester_sekarang'=>$m->semester_sekarang,'dosen_pa_id'=>$m->dosen_pa_id,'status'=>$m->status,'kurikulum_id'=>$m->kurikulum_id,'konsentrasi_id'=>$m->konsentrasi_id]) }})" class="p-2 text-blue-600 hover:bg-blue-100 rounded-lg" title="Edit">
+                                <button onclick="openEditModal({{ json_encode(['id'=>$m->id,'name'=>$m->user->name,'nim'=>$m->nim,'prodi_id'=>$m->prodi_id,'angkatan'=>$m->angkatan,'semester_sekarang'=>$m->semester_sekarang,'dosen_pa_id'=>$m->dosen_pa_id,'status'=>$m->status,'kurikulum_id'=>$m->kurikulum_id]) }})" class="p-2 text-blue-600 hover:bg-blue-100 rounded-lg" title="Edit">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                 </button>
                                 <form action="{{ route('admin.mahasiswa.destroy', $m) }}" method="POST" class="inline" onsubmit="return confirm('Yakin?')">@csrf @method('DELETE')
@@ -282,13 +292,11 @@
                 <h3 class="text-lg font-semibold text-siakad-dark dark:text-white mb-4">Tambah Mahasiswa</h3>
                 <form action="{{ route('admin.mahasiswa.store') }}" method="POST" class="space-y-4">@csrf
                     <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Nama</label><input type="text" name="name" required class="input-saas w-full dark:bg-gray-700"></div>
-                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Email</label><input type="email" name="email" required class="input-saas w-full dark:bg-gray-700"></div>
                     <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Password</label><input type="password" name="password" required minlength="8" class="input-saas w-full dark:bg-gray-700"></div>
                     <div><label class="block text-sm font-medium text-siakad-secondary mb-1">NIM</label><input type="text" name="nim" required class="input-saas w-full dark:bg-gray-700"></div>
                     <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Prodi</label><select name="prodi_id" id="createProdiSelect" onchange="filterKurikulumKonsentrasiCreate()" required class="input-saas w-full dark:bg-gray-700"><option value="">-- Pilih --</option>@foreach($prodiList as $p)<option value="{{ $p->id }}">{{ $p->nama }}</option>@endforeach</select></div>
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 gap-4">
                         <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Kurikulum</label><select name="kurikulum_id" id="createKurikulumSelect" class="input-saas w-full dark:bg-gray-700"><option value="">Bebas Kurikulum</option>@foreach($kurikulumList as $k)<option value="{{ $k->id }}" data-prodi="{{ $k->prodi_id }}">{{ $k->nama }}</option>@endforeach</select></div>
-                        <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Konsentrasi</label><select name="konsentrasi_id" id="createKonsentrasiSelect" class="input-saas w-full dark:bg-gray-700"><option value="">Semua Konsentrasi</option>@foreach($konsentrasiList as $k)<option value="{{ $k->id }}" data-prodi="{{ $k->prodi_id }}">{{ $k->nama_konsentrasi }}</option>@endforeach</select></div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Angkatan</label><input type="number" name="angkatan" required value="{{ date('Y') }}" class="input-saas w-full dark:bg-gray-700"></div>
@@ -309,13 +317,11 @@
                 <h3 class="text-lg font-semibold text-siakad-dark dark:text-white mb-4">Edit Mahasiswa</h3>
                 <form id="editForm" method="POST" class="space-y-4">@csrf @method('PUT')
                     <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Nama</label><input type="text" name="name" id="editName" required class="input-saas w-full dark:bg-gray-700"></div>
-                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Email</label><input type="email" name="email" id="editEmail" required class="input-saas w-full dark:bg-gray-700"></div>
                     <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Password (kosongkan jika tidak diubah)</label><input type="password" name="password" minlength="8" class="input-saas w-full dark:bg-gray-700"></div>
                     <div><label class="block text-sm font-medium text-siakad-secondary mb-1">NIM</label><input type="text" name="nim" id="editNim" required class="input-saas w-full dark:bg-gray-700"></div>
                     <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Prodi</label><select name="prodi_id" id="editProdiId" onchange="filterKurikulumKonsentrasiEdit()" required class="input-saas w-full dark:bg-gray-700"><option value="">-- Pilih --</option>@foreach($prodiList as $p)<option value="{{ $p->id }}">{{ $p->nama }}</option>@endforeach</select></div>
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 gap-4">
                         <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Kurikulum</label><select name="kurikulum_id" id="editKurikulumId" class="input-saas w-full dark:bg-gray-700"><option value="">Bebas Kurikulum</option>@foreach($kurikulumList as $k)<option value="{{ $k->id }}" data-prodi="{{ $k->prodi_id }}">{{ $k->nama }}</option>@endforeach</select></div>
-                        <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Konsentrasi</label><select name="konsentrasi_id" id="editKonsentrasiId" class="input-saas w-full dark:bg-gray-700"><option value="">Semua Konsentrasi</option>@foreach($konsentrasiList as $k)<option value="{{ $k->id }}" data-prodi="{{ $k->prodi_id }}">{{ $k->nama_konsentrasi }}</option>@endforeach</select></div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Angkatan</label><input type="number" name="angkatan" id="editAngkatan" required class="input-saas w-full dark:bg-gray-700"></div>
@@ -335,27 +341,18 @@
         function filterKurikulumKonsentrasiCreate() {
             const prodiId = document.getElementById('createProdiSelect').value;
             const kurikulumSelect = document.getElementById('createKurikulumSelect');
-            const konsentrasiSelect = document.getElementById('createKonsentrasiSelect');
             
             Array.from(kurikulumSelect.options).forEach(opt => {
                 if(opt.value !== '') opt.style.display = (opt.getAttribute('data-prodi') === prodiId) ? '' : 'none';
             });
-            Array.from(konsentrasiSelect.options).forEach(opt => {
-                if(opt.value !== '') opt.style.display = (opt.getAttribute('data-prodi') === prodiId) ? '' : 'none';
-            });
             kurikulumSelect.value = '';
-            konsentrasiSelect.value = '';
         }
 
         function filterKurikulumKonsentrasiEdit() {
             const prodiId = document.getElementById('editProdiId').value;
             const kurikulumSelect = document.getElementById('editKurikulumId');
-            const konsentrasiSelect = document.getElementById('editKonsentrasiId');
             
             Array.from(kurikulumSelect.options).forEach(opt => {
-                if(opt.value !== '') opt.style.display = (opt.getAttribute('data-prodi') === prodiId) ? '' : 'none';
-            });
-            Array.from(konsentrasiSelect.options).forEach(opt => {
                 if(opt.value !== '') opt.style.display = (opt.getAttribute('data-prodi') === prodiId) ? '' : 'none';
             });
         }
@@ -363,14 +360,12 @@
         function openEditModal(m) {
             document.getElementById('editForm').action = `/admin/mahasiswa/${m.id}`;
             document.getElementById('editName').value = m.name;
-            document.getElementById('editEmail').value = m.email;
             document.getElementById('editNim').value = m.nim;
             document.getElementById('editProdiId').value = m.prodi_id;
             
             filterKurikulumKonsentrasiEdit();
             
             document.getElementById('editKurikulumId').value = m.kurikulum_id || '';
-            document.getElementById('editKonsentrasiId').value = m.konsentrasi_id || '';
             
             document.getElementById('editAngkatan').value = m.angkatan;
             document.getElementById('editSemesterSekarang').value = m.semester_sekarang || 1;

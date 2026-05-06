@@ -20,7 +20,12 @@ class Mahasiswa extends Model
         'semester_sekarang',
         'status',
         'kurikulum_id',
-        'konsentrasi_id',
+        'no_hp',
+        'jenis_kelamin',
+        'tempat_lahir',
+        'tanggal_lahir',
+        'alamat',
+        'foto',
     ];
 
     public function user()
@@ -38,10 +43,6 @@ class Mahasiswa extends Model
         return $this->belongsTo(Kurikulum::class);
     }
 
-    public function konsentrasi()
-    {
-        return $this->belongsTo(Konsentrasi::class);
-    }
 
     public function dosenPa()
     {

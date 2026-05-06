@@ -72,6 +72,30 @@
         </div>
     </div>
 
+    @if($concentrations->count() > 0)
+    <div class="mb-6 card-saas p-6">
+        <h3 class="font-semibold text-siakad-dark mb-4 flex items-center gap-2">
+            <svg class="w-5 h-5 text-siakad-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            Pilih Konsentrasi
+        </h3>
+        <form action="{{ route('mahasiswa.krs.update-concentration') }}" method="POST" class="flex flex-col md:flex-row items-end gap-4">
+            @csrf
+            <div class="w-full flex-1">
+                <x-input-label for="konsentrasi_id" :value="__('Konsentrasi yang tersedia untuk Semester Anda')" class="text-xs text-siakad-secondary mb-2" />
+                <select name="konsentrasi_id" id="konsentrasi_id" class="input-saas w-full dark:bg-gray-800 dark:border-gray-700">
+                    <option value="" disabled {{ !$krs->konsentrasi_id ? 'selected' : '' }}>-- Pilih Konsentrasi --</option>
+                    @foreach($concentrations as $con)
+                        <option value="{{ $con->id }}" {{ $krs->konsentrasi_id == $con->id ? 'selected' : '' }}>{{ $con->nama_konsentrasi }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <button type="submit" class="w-full md:w-auto btn-primary-saas px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-siakad-primary/20 transition-all hover:scale-105">
+                Simpan Konsentrasi
+            </button>
+        </form>
+    </div>
+    @endif
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Taken Classes -->
         <div class="lg:col-span-2">
