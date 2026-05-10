@@ -27,9 +27,9 @@ class Konsentrasi extends Model
         return $this->belongsTo(Prodi::class);
     }
 
-    public function mahasiswa()
+    public function krs()
     {
-        return $this->hasMany(Mahasiswa::class);
+        return $this->hasMany(Krs::class);
     }
 
     public function mataKuliah()

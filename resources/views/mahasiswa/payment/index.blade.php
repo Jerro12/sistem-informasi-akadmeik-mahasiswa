@@ -34,7 +34,8 @@
                                 </button>
                             @else
                                 <div class="p-4 bg-red-50 text-red-700 rounded-lg text-sm border border-red-200">
-                                    Gagal menghubungkan ke sistem pembayaran. Silakan muat ulang halaman.
+                                    <p class="font-bold mb-1">Gagal menghubungkan ke sistem pembayaran.</p>
+                                    <p class="opacity-80">{{ $errorMessage ?? 'Silakan muat ulang halaman atau hubungi admin.' }}</p>
                                 </div>
                             @endif
                         </div>

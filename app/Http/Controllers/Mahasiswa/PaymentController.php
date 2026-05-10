@@ -66,17 +66,18 @@ class PaymentController extends Controller
             }
         }
 
+        $errorMessage = null;
         if ($pendingPayment) {
             $snapToken = $pendingPayment->snap_token;
         } elseif (!$isPaid) {
             try {
                 $snapToken = $this->paymentService->createPayment($mahasiswa, $tahunAktif, $biayaKrs);
             } catch (\Exception $e) {
-                // Log or handle error
+                $errorMessage = $e->getMessage();
             }
         }
 
-        return view('mahasiswa.payment.index', compact('pembayaran', 'isPaid', 'biayaKrs', 'tahunAktif', 'snapToken'));
+        return view('mahasiswa.payment.index', compact('pembayaran', 'isPaid', 'biayaKrs', 'tahunAktif', 'snapToken', 'errorMessage'));
     }
 
     public function webhook(Request $request)

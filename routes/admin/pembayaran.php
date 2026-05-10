@@ -7,6 +7,7 @@ Route::middleware(['auth', 'role:superadmin'])->prefix('admin')->name('admin.')-
     // Monitoring Pembayaran (Hanya Superadmin)
     Route::get('/pembayaran', [PembayaranController::class, 'index'])->name('pembayaran.index');
     Route::get('/pembayaran/{pembayaran}', [PembayaranController::class, 'show'])->name('pembayaran.show');
+    Route::post('/pembayaran/{pembayaran}/verify', [PembayaranController::class, 'verify'])->name('pembayaran.verify');
 
     // Pengaturan Biaya Kuliah (Hanya Superadmin)
     Route::get('/biaya-kuliah', [\App\Http\Controllers\Admin\BiayaKuliahController::class, 'index'])->name('biaya-kuliah.index');

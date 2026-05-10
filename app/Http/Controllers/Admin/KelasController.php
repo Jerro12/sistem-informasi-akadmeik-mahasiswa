@@ -63,8 +63,9 @@ class KelasController extends Controller
             $dosenQuery->whereHas('prodi', fn($q) => $q->where('fakultas_id', $request->get('fakultas_scope')));
         }
         $dosen = $dosenQuery->get();
+        $prodis = \App\Models\Prodi::orderBy('nama')->get();
         
-        return view('admin.kelas.index', compact('kelas', 'mataKuliah', 'dosen'));
+        return view('admin.kelas.index', compact('kelas', 'mataKuliah', 'dosen', 'prodis'));
     }
 
 
@@ -218,6 +219,49 @@ class KelasController extends Controller
         }
         
         return null;
+    }
+
+    public function cetak(Request $request)
+    {
+        $request->validate([
+            'prodi_id' => 'required|exists:prodi,id',
+            'semester_type' => 'required|in:ganjil,genap',
+        ]);
+
+        $prodi = \App\Models\Prodi::with('fakultas')->findOrFail($request->prodi_id);
+        $semesterType = $request->semester_type;
+        $semesters = $semesterType === 'ganjil' ? [1, 3, 5, 7] : [2, 4, 6, 8];
+        $activeYear = \App\Models\TahunAkademik::where('is_active', true)->first();
+
+        // Fetch JADWAL instead of KELAS
+        $jadwalList = \App\Models\JadwalKuliah::with(['kelas.mataKuliah', 'kelas.dosen.user'])
+            ->whereHas('kelas.mataKuliah', function($q) use ($request, $semesters) {
+                $q->where('prodi_id', $request->prodi_id)
+                  ->whereIn('semester', $semesters);
+            })
+            ->whereHas('kelas', function($q) use ($activeYear) {
+                $q->where('tahun_akademik_id', $activeYear?->id);
+            })
+            ->get();
+
+        // Group by day
+        $groupedJadwal = $jadwalList->groupBy('hari');
+
+        // Sorted Days
+        $dayOrder = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+        $sortedGroupedJadwal = collect();
+        foreach ($dayOrder as $day) {
+            if ($groupedJadwal->has($day)) {
+                $sortedGroupedJadwal[$day] = $groupedJadwal[$day]->sortBy('jam_mulai')->values();
+            }
+        }
+
+        return view('admin.kelas.cetak', [
+            'prodi' => $prodi,
+            'semesterType' => $semesterType,
+            'activeYear' => $activeYear,
+            'groupedJadwal' => $sortedGroupedJadwal,
+        ]);
     }
 }
 

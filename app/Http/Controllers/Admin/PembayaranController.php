@@ -43,4 +43,14 @@ class PembayaranController extends Controller
         $pembayaran->load(['mahasiswa.user', 'tahunAkademik', 'mahasiswa.prodi.fakultas']);
         return view('admin.pembayaran.show', compact('pembayaran'));
     }
+
+    public function verify(Pembayaran $pembayaran)
+    {
+        $pembayaran->update([
+            'status' => 'success',
+            'payment_type' => 'manual_verification'
+        ]);
+
+        return back()->with('success', 'Pembayaran berhasil diverifikasi secara manual.');
+    }
 }

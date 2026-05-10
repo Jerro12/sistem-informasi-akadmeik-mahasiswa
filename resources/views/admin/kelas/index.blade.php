@@ -11,6 +11,10 @@
             <form method="GET" class="flex-1 md:flex-none">
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari Kelas / MK / Dosen..." class="input-saas px-4 py-2.5 text-sm w-full md:w-64 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300">
             </form>
+            <button onclick="document.getElementById('printModal').classList.remove('hidden')" class="btn-ghost-saas px-4 py-2.5 rounded-lg text-sm font-medium flex items-center gap-2 border border-siakad-primary/20 text-siakad-primary hover:bg-siakad-primary/5 transition flex-shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                Cetak Jadwal
+            </button>
             <button onclick="document.getElementById('createModal').classList.remove('hidden')" class="btn-primary-saas px-4 py-2.5 rounded-lg text-sm font-medium flex items-center gap-2 flex-shrink-0">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                 Tambah Kelas
@@ -397,6 +401,47 @@
                 <div class="px-6 py-4 border-t border-siakad-light dark:border-gray-700 flex items-center justify-end gap-3">
                     <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="btn-ghost-saas px-4 py-2 rounded-lg text-sm font-medium dark:text-white">Batal</button>
                     <button type="submit" class="btn-primary-saas px-4 py-2 rounded-lg text-sm font-medium">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Print Modal -->
+    <div id="printModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md animate-fade-in">
+            <div class="px-6 py-4 border-b border-siakad-light dark:border-gray-700">
+                <h3 class="text-lg font-semibold text-siakad-dark dark:text-white">Cetak Jadwal Perkuliahan</h3>
+            </div>
+            <form action="{{ route('admin.kelas.cetak') }}" method="GET" target="_blank">
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Pilih Program Studi</label>
+                        <select name="prodi_id" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
+                            <option value="">Pilih Prodi</option>
+                            @foreach($prodis as $p)
+                            <option value="{{ $p->id }}">{{ $p->nama }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Tipe Semester</label>
+                        <select name="semester_type" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
+                            <option value="ganjil">Ganjil (1, 3, 5, 7)</option>
+                            <option value="genap">Genap (2, 4, 6, 8)</option>
+                        </select>
+                    </div>
+                    <div class="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                        <p class="text-xs text-amber-700 dark:text-amber-400">
+                            Jadwal yang dicetak adalah jadwal untuk Tahun Akademik yang sedang aktif.
+                        </p>
+                    </div>
+                </div>
+                <div class="px-6 py-4 border-t border-siakad-light dark:border-gray-700 flex items-center justify-end gap-3">
+                    <button type="button" onclick="document.getElementById('printModal').classList.add('hidden')" class="btn-ghost-saas px-4 py-2 rounded-lg text-sm font-medium dark:text-white">Batal</button>
+                    <button type="submit" class="btn-primary-saas px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        Buka Print View
+                    </button>
                 </div>
             </form>
         </div>

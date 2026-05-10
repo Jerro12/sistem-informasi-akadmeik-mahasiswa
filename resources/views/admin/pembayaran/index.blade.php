@@ -51,6 +51,7 @@
                         <th class="text-left py-3 px-4 text-xs font-semibold text-siakad-secondary uppercase">Order ID</th>
                         <th class="text-left py-3 px-4 text-xs font-semibold text-siakad-secondary uppercase">Nominal</th>
                         <th class="text-left py-3 px-4 text-xs font-semibold text-siakad-secondary uppercase">Status</th>
+                        <th class="text-right py-3 px-4 text-xs font-semibold text-siakad-secondary uppercase">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-siakad-light dark:divide-gray-700">
@@ -83,6 +84,18 @@
                                 @endif
                                 <br>
                                 <span class="text-[9px] text-siakad-secondary opacity-70">{{ $p->payment_type }}</span>
+                            </td>
+                            <td class="py-4 px-4 text-right">
+                                @if($p->status !== 'success')
+                                    <form action="{{ route('admin.pembayaran.verify', $p) }}" method="POST" onsubmit="return confirm('Verifikasi pembayaran ini secara manual?')">
+                                        @csrf
+                                        <button type="submit" class="px-3 py-1 bg-siakad-primary text-white text-[10px] font-bold rounded hover:bg-siakad-dark transition">
+                                            VERIFIKASI
+                                        </button>
+                                    </form>
+                                @else
+                                    <span class="text-xs text-green-600 font-medium italic">Verified</span>
+                                @endif
                             </td>
                         </tr>
                     @empty

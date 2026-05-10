@@ -8,4 +8,5 @@ Route::middleware(['auth', 'role:admin', 'fakultas.scope'])->prefix('admin')->na
     Route::post('/kelas', [KelasController::class, 'store'])->name('kelas.store');
     Route::put('/kelas/{kelas}', [KelasController::class, 'update'])->name('kelas.update');
     Route::delete('/kelas/{kelas}', [KelasController::class, 'destroy'])->name('kelas.destroy');
+    Route::get('/kelas/cetak', [KelasController::class, 'cetak'])->name('kelas.cetak');
 });

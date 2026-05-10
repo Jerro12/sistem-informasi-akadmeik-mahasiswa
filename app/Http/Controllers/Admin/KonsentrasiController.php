@@ -105,7 +105,7 @@ class KonsentrasiController extends Controller
             }
         }
 
-        if ($konsentrasi->mahasiswa()->count() > 0 || $konsentrasi->mataKuliah()->count() > 0) {
+        if ($konsentrasi->krs()->count() > 0 || $konsentrasi->mataKuliah()->count() > 0) {
             return redirect()->back()->with('error', 'Konsentrasi tidak dapat dihapus karena masih digunakan.');
         }
 
