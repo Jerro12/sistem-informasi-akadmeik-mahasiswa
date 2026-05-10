@@ -11,11 +11,11 @@
             <form method="GET" class="flex-1 md:flex-none">
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari Kelas / MK / Dosen..." class="input-saas px-4 py-2.5 text-sm w-full md:w-64 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300">
             </form>
-            <button onclick="document.getElementById('printModal').classList.remove('hidden')" class="btn-ghost-saas px-4 py-2.5 rounded-lg text-sm font-medium flex items-center gap-2 border border-siakad-primary/20 text-siakad-primary hover:bg-siakad-primary/5 transition flex-shrink-0">
+            <button onclick="document.getElementById('printModal').style.display = 'flex'" class="btn-ghost-saas px-4 py-2.5 rounded-lg text-sm font-medium flex items-center gap-2 border border-siakad-primary/20 text-siakad-primary hover:bg-siakad-primary/5 transition flex-shrink-0">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                 Cetak Jadwal
             </button>
-            <button onclick="document.getElementById('createModal').classList.remove('hidden')" class="btn-primary-saas px-4 py-2.5 rounded-lg text-sm font-medium flex items-center gap-2 flex-shrink-0">
+            <button onclick="document.getElementById('createModal').style.display = 'flex'" class="btn-primary-saas px-4 py-2.5 rounded-lg text-sm font-medium flex items-center gap-2 flex-shrink-0">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                 Tambah Kelas
             </button>
@@ -245,7 +245,7 @@
     </div>
 
     <!-- Create Modal -->
-    <div id="createModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+    <div id="createModal" class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" style="display: none;">
         <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-lg animate-fade-in max-h-[90vh] overflow-y-auto">
             <div class="px-6 py-4 border-b border-siakad-light dark:border-gray-700">
                 <h3 class="text-lg font-semibold text-siakad-dark dark:text-white">Tambah Kelas</h3>
@@ -319,7 +319,7 @@
                     </div>
                 </div>
                 <div class="px-6 py-4 border-t border-siakad-light dark:border-gray-700 flex items-center justify-end gap-3">
-                    <button type="button" onclick="document.getElementById('createModal').classList.add('hidden')" class="btn-ghost-saas px-4 py-2 rounded-lg text-sm font-medium dark:text-white">Batal</button>
+                    <button type="button" onclick="document.getElementById('createModal').style.display = 'none'" class="btn-ghost-saas px-4 py-2 rounded-lg text-sm font-medium dark:text-white">Batal</button>
                     <button type="submit" class="btn-primary-saas px-4 py-2 rounded-lg text-sm font-medium">Simpan</button>
                 </div>
             </form>
@@ -327,7 +327,7 @@
     </div>
 
     <!-- Edit Modal -->
-    <div id="editModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+    <div id="editModal" class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" style="display: none;">
         <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-lg animate-fade-in max-h-[90vh] overflow-y-auto">
             <div class="px-6 py-4 border-b border-siakad-light dark:border-gray-700">
                 <h3 class="text-lg font-semibold text-siakad-dark dark:text-white">Edit Kelas</h3>
@@ -399,7 +399,7 @@
                     </div>
                 </div>
                 <div class="px-6 py-4 border-t border-siakad-light dark:border-gray-700 flex items-center justify-end gap-3">
-                    <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="btn-ghost-saas px-4 py-2 rounded-lg text-sm font-medium dark:text-white">Batal</button>
+                    <button type="button" onclick="document.getElementById('editModal').style.display = 'none'" class="btn-ghost-saas px-4 py-2 rounded-lg text-sm font-medium dark:text-white">Batal</button>
                     <button type="submit" class="btn-primary-saas px-4 py-2 rounded-lg text-sm font-medium">Simpan</button>
                 </div>
             </form>
@@ -407,7 +407,7 @@
     </div>
 
     <!-- Print Modal -->
-    <div id="printModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+    <div id="printModal" class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" style="display: none;">
         <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md animate-fade-in">
             <div class="px-6 py-4 border-b border-siakad-light dark:border-gray-700">
                 <h3 class="text-lg font-semibold text-siakad-dark dark:text-white">Cetak Jadwal Perkuliahan</h3>
@@ -437,7 +437,7 @@
                     </div>
                 </div>
                 <div class="px-6 py-4 border-t border-siakad-light dark:border-gray-700 flex items-center justify-end gap-3">
-                    <button type="button" onclick="document.getElementById('printModal').classList.add('hidden')" class="btn-ghost-saas px-4 py-2 rounded-lg text-sm font-medium dark:text-white">Batal</button>
+                    <button type="button" onclick="document.getElementById('printModal').style.display = 'none'" class="btn-ghost-saas px-4 py-2 rounded-lg text-sm font-medium dark:text-white">Batal</button>
                     <button type="submit" class="btn-primary-saas px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                         Buka Print View
@@ -458,7 +458,7 @@
             document.getElementById('editJamMulai').value = data.jam_mulai || '';
             document.getElementById('editJamSelesai').value = data.jam_selesai || '';
             document.getElementById('editRuangan').value = data.ruangan || '';
-            document.getElementById('editModal').classList.remove('hidden');
+            document.getElementById('editModal').style.display = 'flex';
         }
     </script>
 </x-app-layout>
