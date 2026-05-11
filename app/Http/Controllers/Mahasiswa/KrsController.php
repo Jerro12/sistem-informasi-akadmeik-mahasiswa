@@ -41,7 +41,7 @@ class KrsController extends Controller
 
         $availableKelas = \App\Models\Kelas::with(['mataKuliah', 'dosen.user', 'krsDetail'])
             ->where('tahun_akademik_id', $tahunAktif?->id) 
-            ->whereHas('mataKuliah', function($q) use ($mahasiswa, $takenMkIds) {
+            ->whereHas('mataKuliah', function($q) use ($mahasiswa, $takenMkIds, $krs) {
                 // Tampilkan matkul semester sekarang (Wajib tampil)
                 // ATAU matkul semester bawah (<) yang BELUM PERNAH diambil
                 $q->where(function($query) use ($mahasiswa, $takenMkIds) {
@@ -62,6 +62,17 @@ class KrsController extends Controller
                         $query->where('kurikulum_id', $mahasiswa->kurikulum_id)
                               ->orWhereNull('kurikulum_id');
                     });
+                }
+                
+                // Filter Konsentrasi: Tampilkan matkul yang konsentrasinya cocok dengan yang dipilih di KRS,
+                // atau matkul umum (konsentrasi_id null)
+                if ($krs->konsentrasi_id) {
+                    $q->where(function($query) use ($krs) {
+                        $query->where('konsentrasi_id', $krs->konsentrasi_id)
+                              ->orWhereNull('konsentrasi_id');
+                    });
+                } else {
+                    $q->whereNull('konsentrasi_id');
                 }
             })
             ->whereDoesntHave('krsDetail', function($q) use ($krs) {
