@@ -184,9 +184,11 @@
     @if(count($gradeDistribution) > 0)
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const siakadPrimary = '#234C6A';
-        const siakadSecondary = '#456882';
-        const siakadDark = '#1B3C53';
+        const computedStyle = getComputedStyle(document.documentElement);
+        const siakadPrimary = computedStyle.getPropertyValue('--siakad-primary').trim() || '#234C6A';
+        const siakadSecondary = computedStyle.getPropertyValue('--siakad-secondary').trim() || '#456882';
+        const siakadDark = computedStyle.getPropertyValue('--siakad-dark').trim() || '#1B3C53';
+        const siakadLight = computedStyle.getPropertyValue('--siakad-light').trim() || '#E3E3E3';
         
         // Grade Chart
         const gradeData = @json($gradeDistribution);
@@ -201,9 +203,9 @@
                         siakadPrimary,
                         siakadSecondary,
                         siakadDark,
-                        '#86c5e0',
-                        '#b9dded',
-                        '#dceef6',
+                        siakadSecondary + 'cc',
+                        siakadPrimary + '99',
+                        siakadLight,
                         '#E3E3E3'
                     ],
                     borderWidth: 0,

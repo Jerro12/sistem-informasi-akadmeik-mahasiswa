@@ -40,6 +40,10 @@ class BiodataController extends Controller
             'tempat_lahir' => 'nullable|string|max:100',
             'tanggal_lahir' => 'nullable|date',
             'alamat' => 'nullable|string|max:500',
+            'provinsi' => 'nullable|string|max:100',
+            'kecamatan' => 'nullable|string|max:100',
+            'kelurahan' => 'nullable|string|max:100',
+            'desa' => 'nullable|string|max:100',
             'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
@@ -56,6 +60,10 @@ class BiodataController extends Controller
             'tempat_lahir' => $validated['tempat_lahir'],
             'tanggal_lahir' => $validated['tanggal_lahir'],
             'alamat' => $validated['alamat'],
+            'provinsi' => $validated['provinsi'],
+            'kecamatan' => $validated['kecamatan'],
+            'kelurahan' => $validated['kelurahan'],
+            'desa' => $validated['desa'],
         ];
 
         if ($request->hasFile('foto')) {

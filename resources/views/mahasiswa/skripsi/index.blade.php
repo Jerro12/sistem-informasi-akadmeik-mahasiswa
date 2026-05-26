@@ -218,6 +218,172 @@
             </form>
         </div>
     </div>
+
+    <!-- Pendaftaran & Jadwal Ujian Section -->
+    <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Pendaftaran Ujian List -->
+            <div class="card-saas overflow-hidden dark:bg-gray-800">
+                <div class="px-6 py-4 border-b border-siakad-light dark:border-gray-700 flex justify-between items-center bg-[#234C6A]/5">
+                    <h3 class="font-bold text-siakad-dark dark:text-white">Jadwal & Status Ujian</h3>
+                    <span class="text-xs text-siakad-secondary dark:text-gray-400">Proposal, Hasil, dan Sidang Akhir</span>
+                </div>
+                <div class="divide-y divide-siakad-light/50 dark:divide-gray-700">
+                    @forelse($pendaftaranList as $p)
+                        <div class="p-5">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                                <div>
+                                    <span class="inline-flex px-2.5 py-1 text-xs font-bold bg-[#234C6A]/10 text-[#234C6A] dark:bg-blue-900/50 dark:text-blue-300 rounded uppercase tracking-wider">
+                                        Ujian {{ ucfirst($p->jenis_ujian) }}
+                                    </span>
+                                    <p class="text-xs text-siakad-secondary dark:text-gray-400 mt-1">Diajukan pada: {{ $p->created_at->format('d M Y H:i') }}</p>
+                                </div>
+                                <div>
+                                    @if($p->status === 'approved')
+                                        <span class="inline-flex px-3 py-1 text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-400 rounded-full">DISETUJUI</span>
+                                    @elseif($p->status === 'rejected')
+                                        <span class="inline-flex px-3 py-1 text-xs font-bold bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-400 rounded-full">DITOLAK</span>
+                                    @else
+                                        <span class="inline-flex px-3 py-1 text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-400 rounded-full">PROSES VERIFIKASI</span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            @if($p->status === 'approved' && $p->tanggal_ujian)
+                                <!-- Schedule details -->
+                                <div class="bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 rounded-xl p-4 grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <p class="text-xs text-siakad-secondary dark:text-gray-400 font-semibold uppercase">Waktu & Tempat</p>
+                                        <p class="text-sm font-bold text-siakad-dark dark:text-white mt-1">
+                                            {{ $p->tanggal_ujian->format('d F Y') }} <br>
+                                            <span class="text-xs font-normal text-siakad-secondary dark:text-gray-400">Pukul: {{ substr($p->jam_mulai, 0, 5) }} - {{ substr($p->jam_selesai, 0, 5) }} WIB</span>
+                                        </p>
+                                        <p class="text-xs text-siakad-secondary dark:text-gray-400 mt-2 font-semibold">Ruangan: <span class="font-bold text-siakad-primary dark:text-blue-400">{{ $p->ruangan ?? '-' }}</span></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-siakad-secondary dark:text-gray-400 font-semibold uppercase">Tim Penguji</p>
+                                        <p class="text-xs text-siakad-dark dark:text-gray-200 mt-1"><span class="font-semibold text-[#234C6A] dark:text-blue-400">Penguji 1:</span> {{ $p->penguji1->user->name ?? '-' }}</p>
+                                        <p class="text-xs text-siakad-dark dark:text-gray-200 mt-1"><span class="font-semibold text-[#234C6A] dark:text-blue-400">Penguji 2:</span> {{ $p->penguji2->user->name ?? '-' }}</p>
+                                    </div>
+                                </div>
+                            @elseif($p->status === 'rejected' && $p->catatan)
+                                <div class="bg-red-50/50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30 rounded-xl p-4 mb-4">
+                                    <p class="text-xs text-red-700 dark:text-red-400 font-bold">Catatan Penolakan:</p>
+                                    <p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ $p->catatan }}</p>
+                                </div>
+                            @endif
+
+                            <!-- Requirements List -->
+                            <div class="space-y-2">
+                                <p class="text-xs font-semibold text-siakad-secondary dark:text-gray-400 uppercase tracking-wider">Persyaratan Dokumen</p>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    @foreach($p->syaratUpload as $syarat)
+                                        <div class="flex items-center justify-between p-3 bg-siakad-light/10 dark:bg-gray-900 rounded-lg border border-siakad-light dark:border-gray-700">
+                                            <div class="min-w-0">
+                                                <p class="text-[11px] font-semibold text-siakad-dark dark:text-white truncate" title="{{ $syarat->nama_persyaratan }}">{{ $syarat->nama_persyaratan }}</p>
+                                                @if($syarat->file_path)
+                                                    <a href="{{ asset('storage/' . $syarat->file_path) }}" target="_blank" class="text-[10px] text-siakad-primary dark:text-blue-400 hover:underline">Lihat File</a>
+                                                @endif
+                                            </div>
+                                            <div>
+                                                @if($syarat->status === 'approved')
+                                                    <span class="px-2 py-0.5 text-[9px] font-bold bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 rounded">ACC</span>
+                                                @elseif($syarat->status === 'rejected')
+                                                    <span class="px-2 py-0.5 text-[9px] font-bold bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-400 rounded">REVISI</span>
+                                                @else
+                                                    <span class="px-2 py-0.5 text-[9px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400 rounded">PENDING</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="p-8 text-center text-siakad-secondary dark:text-gray-400">Belum ada pendaftaran ujian diajukan.</div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Pendaftaran Ujian -->
+        <div class="lg:col-span-1">
+            <div class="card-saas p-6 dark:bg-gray-800">
+                <h3 class="font-bold text-siakad-dark dark:text-white mb-4">Daftar Ujian Baru</h3>
+                
+                <form action="{{ route('mahasiswa.skripsi.daftar-ujian') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                    @csrf
+                    <div>
+                        <label class="block text-xs font-semibold text-siakad-secondary dark:text-gray-400 uppercase mb-2">Jenis Ujian</label>
+                        <select name="jenis_ujian" id="jenis_ujian" required class="input-saas w-full text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white" onchange="updateExamRequirements(this.value)">
+                            <option value="" disabled selected>-- Pilih Ujian --</option>
+                            <option value="proposal">Ujian Proposal</option>
+                            <option value="hasil">Ujian Hasil</option>
+                            <option value="sidang">Sidang Akhir</option>
+                        </select>
+                    </div>
+
+                    <!-- Dynamic requirements upload fields -->
+                    <div id="requirements-upload-container" class="space-y-3 hidden">
+                        <p class="text-xs font-bold text-siakad-dark dark:text-white border-t dark:border-gray-700 pt-3">Dokumen Persyaratan</p>
+                        
+                        @foreach(['proposal', 'hasil', 'sidang'] as $jenis)
+                            <div id="req-{{ $jenis }}" class="space-y-3 hidden">
+                                @if(isset($syaratProdi[$jenis]))
+                                    @foreach($syaratProdi[$jenis] as $syarat)
+                                        <div>
+                                            <label class="block text-[11px] font-semibold text-siakad-secondary dark:text-gray-400 mb-1">
+                                                {{ $syarat->nama_persyaratan }} 
+                                                @if($syarat->is_required) <span class="text-red-500">*</span> @endif 
+                                                (PDF)
+                                            </label>
+                                            <input type="file" name="{{ $syarat->file_name_key }}" data-required="{{ $syarat->is_required ? 'true' : 'false' }}" class="input-saas w-full py-1 text-xs dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                        </div>
+                                    @endforeach
+                                @else
+                                    <p class="text-xs text-siakad-secondary italic">Belum ada syarat ujian yang ditentukan prodi.</p>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <button type="submit" class="btn-primary-saas w-full py-2.5 rounded-lg text-sm font-medium">Kirim Pendaftaran</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script for Dynamic Requirements Fields -->
+    <script>
+        function updateExamRequirements(examType) {
+            const container = document.getElementById('requirements-upload-container');
+            const reqTypes = ['proposal', 'hasil', 'sidang'];
+
+            container.classList.remove('hidden');
+
+            // Hide all requirement blocks and remove required attribute
+            reqTypes.forEach(type => {
+                const block = document.getElementById('req-' + type);
+                if (block) {
+                    block.classList.add('hidden');
+                    block.querySelectorAll('input[type="file"]').forEach(input => {
+                        input.removeAttribute('required');
+                    });
+                }
+            });
+
+            // Show selected block and add required attribute based on data-required
+            const activeBlock = document.getElementById('req-' + examType);
+            if (activeBlock) {
+                activeBlock.classList.remove('hidden');
+                activeBlock.querySelectorAll('input[type="file"]').forEach(input => {
+                    if (input.getAttribute('data-required') === 'true') {
+                        input.setAttribute('required', 'required');
+                    }
+                });
+            }
+        }
+    </script>
     @endif
     @endif
 </x-app-layout>

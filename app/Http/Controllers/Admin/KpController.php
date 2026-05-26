@@ -26,6 +26,12 @@ class KpController extends Controller
             });
         }
 
+        // Scope by prodi (admin_prodi)
+        if ($request->get('prodi_scoped') && $request->get('prodi_scope')) {
+            $prodiId = $request->get('prodi_scope');
+            $query->whereHas('mahasiswa', fn($q) => $q->where('prodi_id', $prodiId));
+        }
+
         // Faculty scoping for admin_fakultas
         if ($request->get('fakultas_scoped') && $request->get('fakultas_scope')) {
             $fakultasId = $request->get('fakultas_scope');
@@ -60,6 +66,9 @@ class KpController extends Controller
         
         // Scope dosen list for dropdown
         $dosenQuery = Dosen::with('user');
+        if ($request->get('prodi_scoped') && $request->get('prodi_scope')) {
+            $dosenQuery->where('prodi_id', $request->get('prodi_scope'));
+        }
         if ($request->get('fakultas_scoped') && $request->get('fakultas_scope')) {
             $dosenQuery->whereHas('prodi', fn($q) => $q->where('fakultas_id', $request->get('fakultas_scope')));
         }
@@ -68,6 +77,9 @@ class KpController extends Controller
 
         // Stats - also scoped
         $statsQuery = KerjaPraktek::query();
+        if ($request->get('prodi_scoped') && $request->get('prodi_scope')) {
+            $statsQuery->whereHas('mahasiswa', fn($q) => $q->where('prodi_id', $request->get('prodi_scope')));
+        }
         if ($request->get('fakultas_scoped') && $request->get('fakultas_scope')) {
             $statsQuery->whereHas('mahasiswa.prodi', fn($q) => $q->where('fakultas_id', $request->get('fakultas_scope')));
         }

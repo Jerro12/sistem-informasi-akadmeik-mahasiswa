@@ -22,6 +22,18 @@ class PembayaranController extends Controller
             $query->where('status', $request->status);
         }
 
+        if ($request->filled('fakultas_id')) {
+            $query->whereHas('mahasiswa.prodi', function($q) use ($request) {
+                $q->where('fakultas_id', $request->fakultas_id);
+            });
+        }
+
+        if ($request->filled('prodi_id')) {
+            $query->whereHas('mahasiswa', function($q) use ($request) {
+                $q->where('prodi_id', $request->prodi_id);
+            });
+        }
+
         if ($request->filled('search')) {
             $search = $request->search;
             $query->whereHas('mahasiswa', function($q) use ($search) {
@@ -32,10 +44,12 @@ class PembayaranController extends Controller
             });
         }
 
-        $pembayaran = $query->paginate(config('siakad.pagination', 15));
+        $pembayaran = $query->paginate(config('siakad.pagination', 15))->withQueryString();
         $tahunAkademik = TahunAkademik::orderBy('tahun', 'desc')->get();
+        $fakultasList = \App\Models\Fakultas::orderBy('nama')->get();
+        $prodiList = \App\Models\Prodi::orderBy('nama')->get();
 
-        return view('admin.pembayaran.index', compact('pembayaran', 'tahunAkademik'));
+        return view('admin.pembayaran.index', compact('pembayaran', 'tahunAkademik', 'fakultasList', 'prodiList'));
     }
 
     public function show(Pembayaran $pembayaran)

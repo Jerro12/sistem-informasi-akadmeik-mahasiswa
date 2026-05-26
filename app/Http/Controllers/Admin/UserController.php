@@ -61,8 +61,9 @@ class UserController extends Controller
 
         $users = $query->orderBy('name')->paginate(config('siakad.pagination', 15))->withQueryString();
         $fakultasList = Fakultas::orderBy('nama')->get();
+        $prodiList = \App\Models\Prodi::orderBy('nama')->get();
 
-        return view('admin.users.index', compact('users', 'fakultasList'));
+        return view('admin.users.index', compact('users', 'fakultasList', 'prodiList'));
     }
 
     public function store(Request $request)
@@ -73,12 +74,12 @@ class UserController extends Controller
             'name'     => 'required|string|max:255',
             'email'    => 'required|string|email|max:255|unique:users',
             'password' => ['required', 'string', Password::min(8)],
-            'role'     => 'required|in:superadmin,admin_fakultas,dosen,mahasiswa',
+            'role'     => 'required|in:superadmin,admin_fakultas,admin_prodi,dosen,mahasiswa',
             'fakultas_id' => 'nullable|exists:fakultas,id',
             // Polymorphic validation
             'nim'      => 'required_if:role,mahasiswa|nullable|unique:mahasiswa,nim',
             'nidn'     => 'required_if:role,dosen|nullable|unique:dosen,nidn',
-            'prodi_id' => 'required_if:role,mahasiswa,dosen|nullable|exists:prodi,id',
+            'prodi_id' => 'required_if:role,mahasiswa,dosen,admin_prodi|nullable|exists:prodi,id',
             'angkatan' => 'required_if:role,mahasiswa|nullable|numeric',
         ]);
 
@@ -106,8 +107,9 @@ class UserController extends Controller
             'name'     => 'required|string|max:255',
             'email'    => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'password' => ['nullable', 'string', Password::min(8)],
-            'role'     => 'required|in:superadmin,admin_fakultas,dosen,mahasiswa',
+            'role'     => 'required|in:superadmin,admin_fakultas,admin_prodi,dosen,mahasiswa',
             'fakultas_id' => 'nullable|exists:fakultas,id',
+            'prodi_id' => 'required_if:role,mahasiswa,dosen,admin_prodi|nullable|exists:prodi,id',
         ]);
 
         $user->update([
@@ -115,6 +117,7 @@ class UserController extends Controller
             'email' => $validated['email'],
             'role' => $validated['role'],
             'fakultas_id' => $validated['fakultas_id'] ?? null,
+            'prodi_id' => $validated['prodi_id'] ?? null,
         ]);
 
         if (!empty($validated['password'])) {

@@ -1,7 +1,7 @@
 <x-guest-layout>
     <div class="mb-10">
-        <h2 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Welcome back</h2>
-        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Please enter your details to sign in.</p>
+        <h2 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Selamat Datang</h2>
+        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Silakan masukkan data Anda untuk masuk ke sistem.</p>
     </div>
 
     <!-- Session Status -->
@@ -27,7 +27,7 @@
                        required 
                        autofocus 
                        autocomplete="username" 
-                       placeholder="Enter NIM, NIDN or Email" />
+                       placeholder="Masukkan NIM, NIDN atau Email" />
             </div>
             <x-input-error :messages="$errors->get('username')" class="mt-2" />
         </div>
@@ -48,7 +48,7 @@
                        name="password"
                        required 
                        autocomplete="current-password"
-                       placeholder="Enter your password" />
+                       placeholder="Masukkan password Anda" />
                 
                 <button type="button" @click="show = !show" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none">
                     <svg class="h-5 w-5" x-show="!show" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -76,36 +76,26 @@
                                name="remember">
                     </div>
                     <div class="ml-2 text-sm">
-                        <span class="text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">{{ __('Remember for 30 days') }}</span>
+                        <span class="text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">{{ __('Ingat saya selama 30 hari') }}</span>
                     </div>
                 </div>
             </label>
 
             @if (Route::has('password.request'))
                 <a class="text-sm font-medium text-siakad-primary hover:text-siakad-dark dark:text-cyan-400 dark:hover:text-cyan-300 transition-colors" href="{{ route('password.request') }}">
-                    {{ __('Forgot password?') }}
+                    {{ __('Lupa password?') }}
                 </a>
             @endif
         </div>
 
         <div class="pt-2">
             <button type="submit" class="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-siakad-primary hover:bg-siakad-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-siakad-primary transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-lg">
-                {{ __('Sign in') }}
+                {{ __('Masuk') }}
             </button>
         </div>
 
-        <!-- Divider -->
-        <!-- Future: Social Login -->
-        
-        <p class="text-center text-sm text-gray-600 dark:text-gray-400 mt-6">
-            Don't have an account? 
-            <a href="{{ route('register') }}" class="font-bold text-siakad-primary hover:underline transition-colors">
-                Sign up here
-            </a>
-        </p>
-
         <p class="text-center text-xs text-gray-500 dark:text-gray-400 mt-8">
-            Having trouble? <a href="#" class="font-medium text-siakad-primary hover:text-siakad-dark dark:text-cyan-400 dark:hover:text-cyan-300 transition-colors">Contact Support</a>
+            Mengalami kendala? <a href="#" class="font-medium text-siakad-primary hover:text-siakad-dark dark:text-cyan-400 dark:hover:text-cyan-300 transition-colors">Hubungi Dukungan</a>
         </p>
     </form>
 </x-guest-layout>

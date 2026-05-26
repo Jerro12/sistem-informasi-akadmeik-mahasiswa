@@ -27,7 +27,6 @@
                     <tr class="bg-siakad-light/30 dark:bg-gray-900 border-b border-siakad-light dark:border-gray-700">
                         <th class="text-left py-3 px-4 text-xs font-semibold text-siakad-secondary uppercase">Tahun</th>
                         <th class="text-left py-3 px-4 text-xs font-semibold text-siakad-secondary uppercase">Semester</th>
-                        <th class="text-left py-3 px-4 text-xs font-semibold text-siakad-secondary uppercase">Periode Kuliah</th>
                         <th class="text-left py-3 px-4 text-xs font-semibold text-siakad-secondary uppercase">Periode KRS</th>
                         <th class="text-left py-3 px-4 text-xs font-semibold text-siakad-secondary uppercase">Status</th>
                         <th class="text-right py-3 px-4 text-xs font-semibold text-siakad-secondary uppercase">Aksi</th>
@@ -38,13 +37,6 @@
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                             <td class="py-4 px-4 text-sm font-medium text-siakad-dark dark:text-white">{{ $ta->tahun }}</td>
                             <td class="py-4 px-4 text-sm text-siakad-secondary">{{ ucfirst($ta->semester) }}</td>
-                            <td class="py-4 px-4 text-sm text-siakad-secondary">
-                                @if($ta->tanggal_mulai && $ta->tanggal_selesai)
-                                    {{ $ta->tanggal_mulai->format('d M Y') }} - {{ $ta->tanggal_selesai->format('d M Y') }}
-                                @else
-                                    <span class="text-xs text-amber-500">Belum diset</span>
-                                @endif
-                            </td>
                             <td class="py-4 px-4 text-sm text-siakad-secondary">
                                 @if($ta->tanggal_krs_mulai && $ta->tanggal_krs_selesai)
                                     {{ $ta->tanggal_krs_mulai->format('d M Y') }} - {{ $ta->tanggal_krs_selesai->format('d M Y') }}
@@ -101,12 +93,6 @@
                         <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Semester</label><select name="semester" required class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"><option value="ganjil">Ganjil</option><option value="genap">Genap</option></select></div>
                     </div>
                     <div class="border-t border-siakad-light dark:border-gray-700 pt-4">
-                        <p class="text-xs font-medium text-siakad-secondary mb-3 uppercase">Periode Perkuliahan</p>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Tanggal Mulai</label><input type="date" name="tanggal_mulai" class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
-                            <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Tanggal Selesai</label><input type="date" name="tanggal_selesai" class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
-                        </div>
-                    </div>
                     <div class="border-t border-siakad-light dark:border-gray-700 pt-4">
                         <p class="text-xs font-medium text-siakad-secondary mb-3 uppercase">Periode KRS</p>
                         <div class="grid grid-cols-2 gap-4">
@@ -132,12 +118,6 @@
                         <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Semester</label><select name="semester" id="editSemester" required class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"><option value="ganjil">Ganjil</option><option value="genap">Genap</option></select></div>
                     </div>
                     <div class="border-t border-siakad-light dark:border-gray-700 pt-4">
-                        <p class="text-xs font-medium text-siakad-secondary mb-3 uppercase">Periode Perkuliahan</p>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Tanggal Mulai</label><input type="date" name="tanggal_mulai" id="editTanggalMulai" class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
-                            <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Tanggal Selesai</label><input type="date" name="tanggal_selesai" id="editTanggalSelesai" class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
-                        </div>
-                    </div>
                     <div class="border-t border-siakad-light dark:border-gray-700 pt-4">
                         <p class="text-xs font-medium text-siakad-secondary mb-3 uppercase">Periode KRS</p>
                         <div class="grid grid-cols-2 gap-4">
@@ -158,8 +138,6 @@
             document.getElementById('editForm').action = `/admin/tahun-akademik/${ta.id}`;
             document.getElementById('editTahun').value = ta.tahun;
             document.getElementById('editSemester').value = ta.semester;
-            document.getElementById('editTanggalMulai').value = ta.tanggal_mulai ? ta.tanggal_mulai.split('T')[0] : '';
-            document.getElementById('editTanggalSelesai').value = ta.tanggal_selesai ? ta.tanggal_selesai.split('T')[0] : '';
             document.getElementById('editKrsMulai').value = ta.tanggal_krs_mulai ? ta.tanggal_krs_mulai.split('T')[0] : '';
             document.getElementById('editKrsSelesai').value = ta.tanggal_krs_selesai ? ta.tanggal_krs_selesai.split('T')[0] : '';
             openModal('editModal');

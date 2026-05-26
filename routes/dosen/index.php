@@ -11,3 +11,4 @@ require __DIR__.'/penilaian.php';
 require __DIR__.'/presensi.php';
 require __DIR__.'/skripsi.php';
 require __DIR__.'/tugas.php';
+require __DIR__.'/jadwal.php';

@@ -83,6 +83,16 @@ class DatabaseSeeder extends Seeder
             'fakultas_id' => $fakultas->id,
         ]);
 
+        // Admin Prodi
+        $adminProdi = User::create([
+            'name' => 'Admin Prodi TI',
+            'email' => 'admin.prodi@siakad.test',
+            'password' => Hash::make('password'),
+            'role' => 'admin_prodi',
+            'fakultas_id' => $fakultas->id,
+            'prodi_id' => $prodi->id,
+        ]);
+
         // ==========================================
         // 5. RUANGAN
         // ==========================================

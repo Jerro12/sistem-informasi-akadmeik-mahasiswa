@@ -82,7 +82,7 @@
                                     <td class="px-6 py-4 border-r border-slate-200 dark:border-slate-700">
                                         <div class="flex flex-col">
                                             <span class="font-semibold text-siakad-dark dark:text-slate-200">{{ $kelas->mataKuliah->nama_mk }}</span>
-                                            <span class="text-xs text-siakad-secondary dark:text-slate-400">{{ $kelas->mataKuliah->kode_mk }} • Kelas {{ $kelas->nama_kelas }}</span>
+                                            <span class="text-xs text-siakad-secondary dark:text-slate-400">{{ $kelas->mataKuliah->kode_mk }}</span>
                                         </div>
                                     </td>
                                     <td class="px-4 py-4 text-center font-bold text-siakad-primary border-r border-slate-200 dark:border-slate-700">

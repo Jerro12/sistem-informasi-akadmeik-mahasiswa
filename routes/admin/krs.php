@@ -6,4 +6,7 @@ use App\Http\Controllers\Admin\KrsApprovalController;
 Route::middleware(['auth', 'role:admin', 'fakultas.scope'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/krs-approval', [KrsApprovalController::class, 'index'])->name('krs-approval.index');
     Route::get('/krs-approval/{krs}', [KrsApprovalController::class, 'show'])->name('krs-approval.show');
+    Route::post('/krs-approval/{krs}/approve', [KrsApprovalController::class, 'approve'])->name('krs-approval.approve');
+    Route::post('/krs-approval/{krs}/reject', [KrsApprovalController::class, 'reject'])->name('krs-approval.reject');
+    Route::post('/krs-approval/bulk-approve', [KrsApprovalController::class, 'bulkApprove'])->name('krs-approval.bulk-approve');
 });

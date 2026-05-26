@@ -10,6 +10,7 @@ Route::get('/dashboard', function () {
     $routes = [
         'superadmin'     => 'admin.dashboard',
         'admin_fakultas' => 'admin.dashboard',
+        'admin_prodi'    => 'admin.dashboard',
         'dosen'          => 'dosen.dashboard',
         'mahasiswa'      => 'mahasiswa.dashboard',
     ];

@@ -1,26 +1,24 @@
 <?php
-require 'vendor/autoload.php';
-$app = require_once 'bootstrap/app.php';
+
+require __DIR__.'/../vendor/autoload.php';
+$app = require_once __DIR__.'/../bootstrap/app.php';
 $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
-$user = \App\Models\User::where('name', 'like', '%mahasiswa1%')->first();
-if (!$user) {
-    echo "User mahasiswa1 tidak ditemukan\n";
-    exit;
-}
+use App\Models\Mahasiswa;
+use App\Models\TahunAkademik;
+use App\Models\Kelas;
+use App\Models\Krs;
+use App\Models\KrsDetail;
 
-$mhs = $user->mahasiswa;
-echo "MHS Name: " . $user->name . "\n";
-echo "MHS Prodi ID: " . $mhs->prodi_id . "\n";
-echo "MHS Kurikulum ID: " . ($mhs->kurikulum_id ?? 'NULL') . "\n";
+$prodis = App\Models\Prodi::all();
+$tahunId = 3;
 
-$tahunAktif = \App\Models\TahunAkademik::where('is_active', true)->first();
-echo "Tahun Aktif ID: " . ($tahunAktif ? $tahunAktif->id : 'NONE') . "\n";
-
-$kelas = \App\Models\Kelas::where('tahun_akademik_id', $tahunAktif->id)->with('mataKuliah')->get();
-echo "Total Kelas Tahun Aktif: " . $kelas->count() . "\n";
-
-foreach ($kelas as $k) {
-    echo "Kelas ID: " . $k->id . " | MK: " . $k->mataKuliah->nama_mk . " | Prodi MK: " . $k->mataKuliah->prodi_id . " | Kurikulum MK: " . ($k->mataKuliah->kurikulum_id ?? 'NULL') . "\n";
+echo "Kelas counts per Prodi (Tahun ID $tahunId):\n";
+foreach ($prodis as $p) {
+    $count = App\Models\Kelas::where('tahun_akademik_id', $tahunId)
+        ->whereHas('mataKuliah', function($q) use ($p) {
+            $q->where('prodi_id', $p->id);
+        })->count();
+    echo $p->nama . " (ID: " . $p->id . "): " . $count . "\n";
 }

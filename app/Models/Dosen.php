@@ -20,6 +20,10 @@ class Dosen extends Model
         'tempat_lahir',
         'tanggal_lahir',
         'alamat',
+        'provinsi',
+        'kecamatan',
+        'kelurahan',
+        'desa',
         'foto',
     ];
 

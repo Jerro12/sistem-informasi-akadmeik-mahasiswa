@@ -1,3 +1,87 @@
+@php
+    $currentFakultas = null;
+    $user = Auth::user();
+    if ($user) {
+        if ($user->role === 'admin_fakultas' && $user->fakultas_id) {
+            $currentFakultas = \App\Models\Fakultas::find($user->fakultas_id);
+        } elseif ($user->role === 'admin_prodi' && $user->prodi_id) {
+            $currentFakultas = \App\Models\Fakultas::find($user->fakultas_id ?? ($user->prodi?->fakultas_id));
+        } elseif ($user->role === 'mahasiswa' && $user->mahasiswa) {
+            $currentFakultas = $user->mahasiswa->prodi?->fakultas;
+        } elseif ($user->role === 'dosen' && $user->dosen) {
+            $currentFakultas = $user->dosen->prodi?->fakultas;
+        }
+    }
+
+    $themeColors = null;
+    if ($currentFakultas) {
+        $namaFakultas = strtolower($currentFakultas->nama);
+        
+        // 1. FT (Fakultas Teknik) - Merah
+        if (str_contains($namaFakultas, 'teknik') || str_contains($namaFakultas, 'ft')) {
+            $themeColors = [
+                'primary' => '#DC2626',      // Red 600
+                'dark' => '#991B1B',         // Red 800
+                'secondary' => '#EF4444',    // Red 500
+                'light' => '#FEE2E2',        // Red 100
+            ];
+        }
+        // 2. FEB (Fakultas Ekonomi dan Bisnis) - Kuning/Emas
+        elseif (str_contains($namaFakultas, 'ekonomi') || str_contains($namaFakultas, 'bisnis') || str_contains($namaFakultas, 'feb')) {
+            $themeColors = [
+                'primary' => '#D97706',      // Amber 600 (very clean/premium gold)
+                'dark' => '#78350F',         // Amber 900
+                'secondary' => '#F59E0B',    // Amber 500
+                'light' => '#FEF3C7',        // Amber 100
+            ];
+        }
+        // 3. FH (Fakultas Hukum) - Coklat
+        elseif (str_contains($namaFakultas, 'hukum') || str_contains($namaFakultas, 'fh')) {
+            $themeColors = [
+                'primary' => '#8B5A2B',      // Rich Brown
+                'dark' => '#5C3A21',         // Dark Brown
+                'secondary' => '#A0522D',    // Sienna
+                'light' => '#EDC9AF',        // Light Sand
+            ];
+        }
+        // 4. FAI (Fakultas Agama Islam) - Hijau Tua
+        elseif (str_contains($namaFakultas, 'agama') || str_contains($namaFakultas, 'islam') || str_contains($namaFakultas, 'fai')) {
+            $themeColors = [
+                'primary' => '#15803D',      // Green 700
+                'dark' => '#14532D',         // Green 900
+                'secondary' => '#16A34A',    // Green 600
+                'light' => '#DCFCE7',        // Green 100
+            ];
+        }
+        // 5. FAPETRIK (Fakultas Peternakan dan Perikanan) - Hijau Muda
+        elseif (str_contains($namaFakultas, 'peternakan') || str_contains($namaFakultas, 'perikanan') || str_contains($namaFakultas, 'fapetrik')) {
+            $themeColors = [
+                'primary' => '#65A30D',      // Lime 600
+                'dark' => '#3F6212',         // Lime 800
+                'secondary' => '#84CC16',    // Lime 500
+                'light' => '#ECFCCB',        // Lime 100
+            ];
+        }
+        // 6. Fikes (Fakultas Ilmu Kesehatan) - Ungu
+        elseif (str_contains($namaFakultas, 'kesehatan') || str_contains($namaFakultas, 'fikes')) {
+            $themeColors = [
+                'primary' => '#7C3AED',      // Violet 600
+                'dark' => '#5B21B6',         // Violet 800
+                'secondary' => '#8B5CF6',    // Violet 500
+                'light' => '#EDE9FE',        // Violet 100
+            ];
+        }
+        // 7. FKIP (Fakultas Keguruan dan Ilmu Pendidikan) - Orens
+        elseif (str_contains($namaFakultas, 'keguruan') || str_contains($namaFakultas, 'pendidikan') || str_contains($namaFakultas, 'fkip')) {
+            $themeColors = [
+                'primary' => '#EA580C',      // Orange 600
+                'dark' => '#9A3412',         // Orange 800
+                'secondary' => '#F97316',    // Orange 500
+                'light' => '#FFEDD5',        // Orange 100
+            ];
+        }
+    }
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
@@ -30,15 +114,15 @@
 
         <style>
             :root {
-                --siakad-dark: #1B3C53;
-                --siakad-primary: #234C6A;
-                --siakad-secondary: #456882;
-                --siakad-light: #E3E3E3;
+                --siakad-dark: {{ $themeColors['dark'] ?? '#1B3C53' }};
+                --siakad-primary: {{ $themeColors['primary'] ?? '#234C6A' }};
+                --siakad-secondary: {{ $themeColors['secondary'] ?? '#456882' }};
+                --siakad-light: {{ $themeColors['light'] ?? '#E3E3E3' }};
                 --bg-body: #FAFBFC;
                 --bg-card: #FFFFFF;
                 --bg-sidebar: #FFFFFF;
-                --text-primary: #1B3C53;
-                --text-secondary: #456882;
+                --text-primary: {{ $themeColors['dark'] ?? '#1B3C53' }};
+                --text-secondary: {{ $themeColors['secondary'] ?? '#456882' }};
                 --border-color: #E3E3E3;
             }
             
@@ -398,7 +482,7 @@
                 <!-- Navigation -->
                 <nav class="p-3 space-y-1 overflow-y-auto" style="max-height: calc(100vh - 180px);">
 
-                    @if(in_array(Auth::user()->role, ['superadmin', 'admin_fakultas']))
+                    @if(in_array(Auth::user()->role, ['superadmin', 'admin_fakultas', 'admin_prodi']))
                     <!-- Admin Panel -->
                     <a href="{{ url('admin/dashboard') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-siakad-secondary text-sm font-medium {{ request()->is('admin/dashboard') ? 'active' : '' }}">
                         <svg class="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
@@ -422,10 +506,12 @@
                         <span class="sidebar-text">User Management</span>
                     </a>
                     @endif
+                    @if(in_array(Auth::user()->role, ['superadmin', 'admin_fakultas']))
                     <a href="{{ url('admin/prodi') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-siakad-secondary text-sm font-medium {{ request()->is('admin/prodi*') ? 'active' : '' }}">
                         <svg class="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         <span class="sidebar-text">Program Studi</span>
                     </a>
+                    @endif
                     <a href="{{ url('admin/master-data/kurikulum') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-siakad-secondary text-sm font-medium {{ request()->is('admin/master-data/kurikulum*') ? 'active' : '' }}">
                         <svg class="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                         <span class="sidebar-text">Kurikulum</span>
@@ -462,6 +548,7 @@
                     <div class="pt-4 pb-1">
                         <p class="px-3 text-[10px] font-semibold text-siakad-secondary/60 uppercase tracking-widest sidebar-section-title">Akademik</p>
                     </div>
+                    @if(in_array(Auth::user()->role, ['superadmin', 'admin_fakultas', 'admin_prodi']))
                     <a href="{{ url('admin/krs-approval') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-siakad-secondary text-sm font-medium {{ request()->is('admin/krs-approval*') ? 'active' : '' }}">
                         <svg class="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
                         <span class="sidebar-text">Approval KRS</span>
@@ -470,14 +557,33 @@
                         <span class="ml-auto px-2 py-0.5 text-[10px] font-semibold bg-amber-100 text-amber-700 rounded-full">{{ $pendingCount }}</span>
                         @endif
                     </a>
+                    <a href="{{ url('admin/penilaian') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-siakad-secondary text-sm font-medium {{ request()->is('admin/penilaian*') ? 'active' : '' }}">
+                        <svg class="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <span class="sidebar-text">Input Nilai</span>
+                    </a>
+                    @endif
+                    @if(Auth::user()->role === 'admin_prodi')
                     <a href="{{ url('admin/skripsi') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-siakad-secondary text-sm font-medium {{ request()->is('admin/skripsi*') ? 'active' : '' }}">
                         <svg class="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                         <span class="sidebar-text">Skripsi / TA</span>
+                    </a>
+                    <a href="{{ route('admin.pendaftaran-ujian.index') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-siakad-secondary text-sm font-medium {{ request()->is('admin/pendaftaran-ujian*') ? 'active' : '' }}">
+                        <svg class="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <span class="sidebar-text">Pendaftaran Ujian</span>
+                        @php $pendingUjianCount = \App\Models\PendaftaranUjian::where('status', 'pending')->count(); @endphp
+                        @if($pendingUjianCount > 0)
+                        <span class="ml-auto px-2 py-0.5 text-[10px] font-semibold bg-amber-100 text-amber-700 rounded-full">{{ $pendingUjianCount }}</span>
+                        @endif
+                    </a>
+                    <a href="{{ route('admin.bimbingan.index') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-siakad-secondary text-sm font-medium {{ request()->is('admin/bimbingan*') ? 'active' : '' }}">
+                        <svg class="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        <span class="sidebar-text">Monitoring Bimbingan</span>
                     </a>
                     <a href="{{ url('admin/kp') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-siakad-secondary text-sm font-medium {{ request()->is('admin/kp*') ? 'active' : '' }}">
                         <svg class="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                         <span class="sidebar-text">Kerja Praktek</span>
                     </a>
+                    @endif
                     <a href="{{ url('admin/kehadiran-dosen') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-siakad-secondary text-sm font-medium {{ request()->is('admin/kehadiran-dosen*') ? 'active' : '' }}">
                         <svg class="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         <span class="sidebar-text">Kehadiran Dosen</span>
@@ -593,6 +699,10 @@
                     <div class="pt-4 pb-1">
                         <p class="px-3 text-[10px] font-semibold text-siakad-secondary/60 uppercase tracking-widest sidebar-section-title">Pengajaran</p>
                     </div>
+                    <a href="{{ route('dosen.jadwal.index') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-siakad-secondary text-sm font-medium {{ request()->is('dosen/jadwal*') ? 'active' : '' }}">
+                        <svg class="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <span class="sidebar-text">Jadwal Mengajar</span>
+                    </a>
                     <a href="{{ url('dosen/penilaian') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-siakad-secondary text-sm font-medium {{ request()->is('dosen/penilaian*') ? 'active' : '' }}">
                         <svg class="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                         <span class="sidebar-text">Input Nilai</span>

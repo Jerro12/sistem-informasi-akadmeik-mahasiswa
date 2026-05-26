@@ -50,6 +50,12 @@ class JadwalController extends Controller
             $jadwalHariIni = collect();
             
             foreach ($kelasList as $kelas) {
+                // Exclude Skripsi / Tugas Akhir / TA from daily schedule
+                $namaMk = strtolower($kelas->mataKuliah->nama_mk);
+                if (str_contains($namaMk, 'skripsi') || str_contains($namaMk, 'tugas akhir') || $namaMk === 'ta') {
+                    continue;
+                }
+                
                 foreach ($kelas->jadwal as $jadwal) {
                     if ($jadwal->hari === $hari) {
                         $jadwalHariIni->push([

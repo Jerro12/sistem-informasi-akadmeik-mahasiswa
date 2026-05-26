@@ -27,7 +27,7 @@ class RoleMiddleware
         
         // Check if user has the required role
         $hasAccess = match($role) {
-            'admin' => in_array($user->role, ['superadmin', 'admin_fakultas']),
+            'admin' => in_array($user->role, ['superadmin', 'admin_fakultas', 'admin_prodi']),
             'superadmin' => $user->role === 'superadmin',
             default => $user->role === $role,
         };

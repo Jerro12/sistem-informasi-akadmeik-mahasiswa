@@ -46,6 +46,22 @@
                     </div>
                 </div>
 
+                @if($krs->status === 'pending')
+                <div class="mt-6 space-y-2">
+                    <form action="{{ route('admin.krs-approval.approve', $krs->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="w-full py-2.5 bg-siakad-primary text-white rounded-lg text-sm font-medium hover:bg-siakad-primary/90 transition flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            Setujui KRS
+                        </button>
+                    </form>
+                    <button type="button" onclick="showRejectModal()" class="w-full py-2.5 border border-red-300 text-red-600 rounded-lg text-sm font-medium hover:bg-red-50 dark:hover:bg-red-950/20 transition flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        Tolak KRS
+                    </button>
+                </div>
+                @endif
+
                 <a href="{{ url('admin/krs-approval') }}" class="mt-6 block text-center text-sm text-siakad-secondary dark:text-gray-400 hover:text-siakad-primary dark:hover:text-blue-400 transition">
                     ← Kembali ke daftar
                 </a>
@@ -86,4 +102,34 @@
             </div>
         </div>
     </div>
+
+    <!-- Reject Modal -->
+    <div id="rejectModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md shadow-xl animate-fade-in">
+            <div class="px-6 py-4 border-b border-siakad-light dark:border-gray-700">
+                <h3 class="text-lg font-semibold text-siakad-dark dark:text-white">Tolak KRS</h3>
+            </div>
+            <form action="{{ route('admin.krs-approval.reject', $krs->id) }}" method="POST">
+                @csrf
+                <div class="p-6">
+                    <label class="block text-sm font-medium text-siakad-dark dark:text-white mb-2">Alasan Penolakan</label>
+                    <textarea name="catatan" rows="4" class="input-saas w-full resize-none bg-white dark:bg-gray-900" placeholder="Masukkan alasan mengapa KRS ditolak... (opsional)"></textarea>
+                    <p class="text-xs text-siakad-secondary mt-2">Catatan ini akan dilihat oleh mahasiswa sebagai alasan penolakan.</p>
+                </div>
+                <div class="px-6 py-4 border-t border-siakad-light dark:border-gray-700 flex items-center justify-end gap-3">
+                    <button type="button" onclick="hideRejectModal()" class="btn-ghost-saas px-4 py-2 rounded-lg text-sm dark:text-gray-300 dark:hover:text-white">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition">Tolak KRS</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showRejectModal() {
+            document.getElementById('rejectModal').classList.remove('hidden');
+        }
+        function hideRejectModal() {
+            document.getElementById('rejectModal').classList.add('hidden');
+        }
+    </script>
 </x-app-layout>

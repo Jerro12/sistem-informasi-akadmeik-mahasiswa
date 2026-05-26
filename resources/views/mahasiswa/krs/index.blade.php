@@ -151,8 +151,8 @@
         <div class="lg:col-span-1">
             <div class="card-saas overflow-hidden sticky top-24">
                 <div class="px-6 py-4 border-b border-siakad-light">
-                    <h3 class="font-semibold text-siakad-dark">Kelas Tersedia</h3>
-                    <p class="text-xs text-siakad-secondary mt-1">Pilih kelas untuk diambil</p>
+                    <h3 class="font-semibold text-siakad-dark">Program Mata Kuliah Ditawarkan</h3>
+                    <p class="text-xs text-siakad-secondary mt-1">Daftar mata kuliah berdasarkan semester {{ strtolower(\App\Models\TahunAkademik::where('is_active', true)->first()?->semester ?? '') }}</p>
                 </div>
                 
                 <div class="max-h-[60vh] overflow-y-auto">

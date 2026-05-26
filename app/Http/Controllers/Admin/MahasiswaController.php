@@ -47,6 +47,11 @@ class MahasiswaController extends Controller
             $query->whereHas('prodi', fn($q) => $q->where('fakultas_id', $request->get('fakultas_scope')));
         }
 
+        // Prodi scoping for admin_prodi (must override manual prodi_id filter)
+        if ($request->get('prodi_scoped') && $request->get('prodi_scope')) {
+            $query->where('prodi_id', $request->get('prodi_scope'));
+        }
+
         // Filter by prodi
         if ($prodiId = $request->get('prodi_id')) {
             $query->where('prodi_id', $prodiId);
@@ -174,11 +179,6 @@ class MahasiswaController extends Controller
 
     public function destroy(Mahasiswa $mahasiswa)
     {
-        // Check if mahasiswa has KRS
-        if ($mahasiswa->krs()->exists()) {
-            return back()->withErrors(['error' => 'Tidak dapat menghapus mahasiswa yang memiliki data KRS.']);
-        }
-
         DB::transaction(function () use ($mahasiswa) {
             $userId = $mahasiswa->user_id;
             $mahasiswa->delete();

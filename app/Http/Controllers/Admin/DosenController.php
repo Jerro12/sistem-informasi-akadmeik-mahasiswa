@@ -37,6 +37,11 @@ class DosenController extends Controller
             $query->whereHas('prodi', fn($q) => $q->where('fakultas_id', $request->get('fakultas_scope')));
         }
 
+        // Prodi scoping for admin_prodi
+        if ($request->get('prodi_scoped') && $request->get('prodi_scope')) {
+            $query->where('prodi_id', $request->get('prodi_scope'));
+        }
+
         // Sorting
         $sortColumn = $request->get('sort', 'nidn');
         $sortDirection = $request->get('order', 'asc');
@@ -128,17 +133,10 @@ class DosenController extends Controller
 
     public function destroy(Dosen $dosen)
     {
-        // Check if dosen has kelas
-        if ($dosen->kelas()->exists()) {
-            return back()->withErrors(['error' => 'Tidak dapat menghapus dosen yang memiliki kelas.']);
-        }
-
-        // Check if dosen is PA for any mahasiswa
-        if ($dosen->mahasiswaBimbingan()->exists()) {
-            return back()->withErrors(['error' => 'Tidak dapat menghapus dosen yang menjadi dosen PA.']);
-        }
-
         DB::transaction(function () use ($dosen) {
+            // Safe nullification of academic advising relationships
+            $dosen->mahasiswaBimbingan()->update(['dosen_pa_id' => null]);
+
             $userId = $dosen->user_id;
             $dosen->delete();
             User::destroy($userId);

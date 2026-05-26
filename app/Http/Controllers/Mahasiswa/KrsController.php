@@ -41,7 +41,16 @@ class KrsController extends Controller
 
         $availableKelas = \App\Models\Kelas::with(['mataKuliah', 'dosen.user', 'krsDetail'])
             ->where('tahun_akademik_id', $tahunAktif?->id) 
-            ->whereHas('mataKuliah', function($q) use ($mahasiswa, $takenMkIds, $krs) {
+            ->whereHas('mataKuliah', function($q) use ($mahasiswa, $takenMkIds, $krs, $tahunAktif) {
+                // Filter ganjil/genap berdasarkan semester tahun akademik aktif
+                if ($tahunAktif) {
+                    if (strtolower($tahunAktif->semester) === 'ganjil') {
+                        $q->whereRaw('semester % 2 != 0');
+                    } else {
+                        $q->whereRaw('semester % 2 = 0');
+                    }
+                }
+
                 // Tampilkan matkul semester sekarang (Wajib tampil)
                 // ATAU matkul semester bawah (<) yang BELUM PERNAH diambil
                 $q->where(function($query) use ($mahasiswa, $takenMkIds) {

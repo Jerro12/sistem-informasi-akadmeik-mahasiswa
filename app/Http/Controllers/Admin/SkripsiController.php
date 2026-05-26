@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Skripsi;
 use App\Models\Dosen;
+use App\Models\PendaftaranUjian;
+use App\Models\SyaratUjianUpload;
 use Illuminate\Http\Request;
 
 class SkripsiController extends Controller
@@ -12,6 +14,18 @@ class SkripsiController extends Controller
     public function index(Request $request)
     {
         $query = Skripsi::with(['mahasiswa.user', 'mahasiswa.prodi', 'pembimbing1.user', 'pembimbing2.user']);
+
+        // Scope by prodi (admin_prodi)
+        if ($request->get('prodi_scoped') && $request->get('prodi_scope')) {
+            $prodiId = $request->get('prodi_scope');
+            $query->whereHas('mahasiswa', fn($q) => $q->where('prodi_id', $prodiId));
+        }
+
+        // Faculty scoping for admin_fakultas
+        if ($request->get('fakultas_scoped') && $request->get('fakultas_scope')) {
+            $fakultasId = $request->get('fakultas_scope');
+            $query->whereHas('mahasiswa.prodi', fn($q) => $q->where('fakultas_id', $fakultasId));
+        }
 
         // Filter by status
         if ($request->filled('status')) {
@@ -26,12 +40,6 @@ class SkripsiController extends Controller
                     ->orWhereHas('mahasiswa.user', fn($q) => $q->where('name', 'like', "%{$search}%"))
                     ->orWhereHas('mahasiswa', fn($q) => $q->where('nim', 'like', "%{$search}%"));
             });
-        }
-
-        // Faculty scoping for admin_fakultas
-        if ($request->get('fakultas_scoped') && $request->get('fakultas_scope')) {
-            $fakultasId = $request->get('fakultas_scope');
-            $query->whereHas('mahasiswa.prodi', fn($q) => $q->where('fakultas_id', $fakultasId));
         }
 
         // Sorting
@@ -62,6 +70,9 @@ class SkripsiController extends Controller
         
         // Scope dosen list for dropdown
         $dosenQuery = Dosen::with('user');
+        if ($request->get('prodi_scoped') && $request->get('prodi_scope')) {
+            $dosenQuery->where('prodi_id', $request->get('prodi_scope'));
+        }
         if ($request->get('fakultas_scoped') && $request->get('fakultas_scope')) {
             $dosenQuery->whereHas('prodi', fn($q) => $q->where('fakultas_id', $request->get('fakultas_scope')));
         }
@@ -70,6 +81,9 @@ class SkripsiController extends Controller
 
         // Stats - also scoped
         $statsQuery = Skripsi::query();
+        if ($request->get('prodi_scoped') && $request->get('prodi_scope')) {
+            $statsQuery->whereHas('mahasiswa', fn($q) => $q->where('prodi_id', $request->get('prodi_scope')));
+        }
         if ($request->get('fakultas_scoped') && $request->get('fakultas_scope')) {
             $statsQuery->whereHas('mahasiswa.prodi', fn($q) => $q->where('fakultas_id', $request->get('fakultas_scope')));
         }
@@ -82,7 +96,6 @@ class SkripsiController extends Controller
 
         return view('admin.skripsi.index', compact('skripsiList', 'dosenList', 'statusList', 'stats'));
     }
-
 
     public function show(Skripsi $skripsi)
     {
@@ -155,5 +168,131 @@ class SkripsiController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Nilai skripsi berhasil disimpan');
+    }
+
+    // --- PEMDAFTARAN UJIAN MANAGEMENT (PRODI ADMIN) ---
+
+    public function pendaftaranUjianList(Request $request)
+    {
+        $query = PendaftaranUjian::with(['mahasiswa.user', 'mahasiswa.prodi', 'skripsi']);
+
+        // Scope by prodi (admin_prodi)
+        if ($request->get('prodi_scoped') && $request->get('prodi_scope')) {
+            $prodiId = $request->get('prodi_scope');
+            $query->whereHas('mahasiswa', fn($q) => $q->where('prodi_id', $prodiId));
+        }
+
+        // Faculty scoping for admin_fakultas
+        if ($request->get('fakultas_scoped') && $request->get('fakultas_scope')) {
+            $fakultasId = $request->get('fakultas_scope');
+            $query->whereHas('mahasiswa.prodi', fn($q) => $q->where('fakultas_id', $fakultasId));
+        }
+
+        // Filters
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        if ($request->filled('jenis_ujian')) {
+            $query->where('jenis_ujian', $request->jenis_ujian);
+        }
+
+        $ujianList = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
+
+        return view('admin.skripsi.pendaftaran-ujian-list', compact('ujianList'));
+    }
+
+    public function pendaftaranUjianShow(PendaftaranUjian $ujian)
+    {
+        $ujian->load(['mahasiswa.user', 'mahasiswa.prodi', 'skripsi', 'syaratUpload', 'penguji1.user', 'penguji2.user']);
+        
+        // Scope Dosen list for examiners to the same prodi as the student
+        $dosenList = Dosen::with('user')
+            ->where('prodi_id', $ujian->mahasiswa->prodi_id)
+            ->get();
+
+        return view('admin.skripsi.pendaftaran-ujian-show', compact('ujian', 'dosenList'));
+    }
+
+    public function verifySyarat(Request $request, PendaftaranUjian $ujian, SyaratUjianUpload $syarat)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:approved,rejected',
+            'catatan' => 'nullable|string',
+        ]);
+
+        $syarat->update([
+            'status' => $validated['status'],
+            'catatan' => $validated['catatan'] ?? null,
+        ]);
+
+        return redirect()->back()->with('success', 'Persyaratan "' . $syarat->nama_persyaratan . '" berhasil diverifikasi.');
+    }
+
+    public function setJadwalUjian(Request $request, PendaftaranUjian $ujian)
+    {
+        $validated = $request->validate([
+            'tanggal_ujian' => 'required|date',
+            'jam_mulai' => 'required',
+            'jam_selesai' => 'required',
+            'ruangan' => 'required|string|max:100',
+            'penguji1_id' => 'required|exists:dosen,id',
+            'penguji2_id' => 'required|exists:dosen,id|different:penguji1_id',
+        ]);
+
+        $ujian->update($validated);
+
+        return redirect()->back()->with('success', 'Jadwal dan Penguji ujian berhasil ditentukan.');
+    }
+
+    public function approvePendaftaran(Request $request, PendaftaranUjian $ujian)
+    {
+        // Check if all prerequisites are approved
+        $unapprovedCount = $ujian->syaratUpload()->where('status', '!=', 'approved')->count();
+        if ($unapprovedCount > 0) {
+            return redirect()->back()->with('error', 'Semua berkas persyaratan harus disetujui (Approved) sebelum menyetujui pendaftaran ujian.');
+        }
+
+        if (!$ujian->tanggal_ujian || !$ujian->penguji1_id || !$ujian->penguji2_id) {
+            return redirect()->back()->with('error', 'Harap tentukan jadwal ujian dan tim penguji terlebih dahulu.');
+        }
+
+        $ujian->update(['status' => 'approved']);
+
+        // Update Skripsi milestone date and status
+        $skripsi = $ujian->skripsi;
+        $jenis = $ujian->jenis_ujian;
+
+        if ($jenis === 'proposal') {
+            $skripsi->update([
+                'status' => Skripsi::STATUS_SEMINAR_PROPOSAL,
+                'tanggal_seminar_proposal' => $ujian->tanggal_ujian
+            ]);
+        } elseif ($jenis === 'hasil') {
+            $skripsi->update([
+                'status' => Skripsi::STATUS_SEMINAR_HASIL,
+                'tanggal_seminar_hasil' => $ujian->tanggal_ujian
+            ]);
+        } elseif ($jenis === 'sidang') {
+            $skripsi->update([
+                'status' => Skripsi::STATUS_SIDANG,
+                'tanggal_sidang' => $ujian->tanggal_ujian
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Pendaftaran ujian berhasil disetujui.');
+    }
+
+    public function rejectPendaftaran(Request $request, PendaftaranUjian $ujian)
+    {
+        $validated = $request->validate([
+            'catatan' => 'required|string',
+        ]);
+
+        $ujian->update([
+            'status' => 'rejected',
+            'catatan' => $validated['catatan']
+        ]);
+
+        return redirect()->back()->with('success', 'Pendaftaran ujian berhasil ditolak.');
     }
 }

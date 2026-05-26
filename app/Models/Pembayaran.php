@@ -21,6 +21,7 @@ class Pembayaran extends Model
         'payment_type',
         'transaction_time',
         'settlement_time',
+        'bukti_transfer',
     ];
 
     public function mahasiswa()

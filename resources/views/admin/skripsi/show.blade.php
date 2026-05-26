@@ -142,8 +142,48 @@
             <!-- Bimbingan Summary -->
             <div class="card-saas p-5">
                 <h3 class="font-semibold text-siakad-dark mb-4">Riwayat Bimbingan</h3>
-                <p class="text-2xl font-bold text-siakad-primary">{{ $skripsi->bimbingan->count() }}</p>
-                <p class="text-sm text-siakad-secondary">Total Pertemuan</p>
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <p class="text-2xl font-bold text-siakad-primary">{{ $skripsi->bimbingan->count() }}</p>
+                        <p class="text-sm text-siakad-secondary">Total Pertemuan</p>
+                    </div>
+                </div>
+
+                <!-- Bimbingan Details -->
+                <div class="space-y-4 max-h-[400px] overflow-y-auto pr-1 border-t border-siakad-light/50 pt-4">
+                    <h4 class="text-xs font-bold text-siakad-dark uppercase tracking-wider mb-2">Log Bimbingan</h4>
+                    @forelse($skripsi->bimbingan as $index => $b)
+                        <div class="p-3 bg-siakad-light/20 rounded-lg border border-siakad-light/50 space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-bold bg-[#234C6A]/10 text-[#234C6A] px-2 py-0.5 rounded">
+                                    Pertemuan #{{ $index + 1 }}
+                                </span>
+                                <span class="text-[10px] text-siakad-secondary font-medium">{{ $b->tanggal_bimbingan->format('d M Y') }}</span>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-siakad-dark font-bold">Catatan Mahasiswa:</p>
+                                <p class="text-[11px] text-siakad-secondary leading-relaxed">{{ $b->catatan_mahasiswa }}</p>
+                            </div>
+                            
+                            @if($b->catatan_dosen)
+                                <div class="border-t border-siakad-light/50 pt-1.5">
+                                    <p class="text-[10px] text-siakad-dark font-bold">Feedback Pembimbing:</p>
+                                    <p class="text-[11px] text-siakad-secondary leading-relaxed">{{ $b->catatan_dosen }}</p>
+                                </div>
+                            @endif
+
+                            @if($b->file_dokumen)
+                                <div class="text-right pt-1">
+                                    <a href="{{ asset('storage/' . $b->file_dokumen) }}" target="_blank" class="text-[10px] text-siakad-primary hover:underline font-semibold inline-flex items-center gap-0.5">
+                                        📄 Unduh Berkas
+                                    </a>
+                                </div>
+                            @endif
+                        </div>
+                    @empty
+                        <p class="text-[11px] text-siakad-secondary text-center py-4">Belum ada riwayat bimbingan.</p>
+                    @endforelse
+                </div>
             </div>
         </div>
     </div>

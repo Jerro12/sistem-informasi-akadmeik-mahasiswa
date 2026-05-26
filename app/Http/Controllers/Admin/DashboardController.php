@@ -35,7 +35,15 @@ class DashboardController extends Controller
         $kelasQuery = Kelas::query();
         $nilaiQuery = Nilai::query();
         
-        if (!$isSuperAdmin && $fakultasId) {
+        if ($user->role === 'admin_prodi') {
+            $prodiId = $user->prodi_id;
+            $prodiQuery->where('id', $prodiId);
+            $mahasiswaQuery->where('prodi_id', $prodiId);
+            $dosenQuery->where('prodi_id', $prodiId);
+            $mataKuliahQuery->where('prodi_id', $prodiId);
+            $kelasQuery->whereHas('mataKuliah', fn($q) => $q->where('prodi_id', $prodiId));
+            $nilaiQuery->whereHas('mahasiswa', fn($q) => $q->where('prodi_id', $prodiId));
+        } elseif (!$isSuperAdmin && $fakultasId) {
             $prodiQuery->where('fakultas_id', $fakultasId);
             $mahasiswaQuery->whereHas('prodi', fn($q) => $q->where('fakultas_id', $fakultasId));
             $dosenQuery->whereHas('prodi', fn($q) => $q->where('fakultas_id', $fakultasId));
@@ -70,7 +78,9 @@ class DashboardController extends Controller
 
         // Per-prodi student count (scoped)
         $prodiStatsQuery = Prodi::withCount('mahasiswa');
-        if (!$isSuperAdmin && $fakultasId) {
+        if ($user->role === 'admin_prodi') {
+            $prodiStatsQuery->where('id', $user->prodi_id);
+        } elseif (!$isSuperAdmin && $fakultasId) {
             $prodiStatsQuery->where('fakultas_id', $fakultasId);
         }
         $prodiStats = $prodiStatsQuery
@@ -80,7 +90,9 @@ class DashboardController extends Controller
 
         // Per-prodi dosen count (scoped) - NEW for admin_fakultas
         $dosenPerProdiQuery = Prodi::withCount('dosen');
-        if (!$isSuperAdmin && $fakultasId) {
+        if ($user->role === 'admin_prodi') {
+            $dosenPerProdiQuery->where('id', $user->prodi_id);
+        } elseif (!$isSuperAdmin && $fakultasId) {
             $dosenPerProdiQuery->where('fakultas_id', $fakultasId);
         }
         $dosenPerProdi = $dosenPerProdiQuery

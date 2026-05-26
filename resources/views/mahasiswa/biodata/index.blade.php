@@ -114,20 +114,42 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-siakad-dark mb-2">Tempat Lahir</label>
-                                <input type="text" name="tempat_lahir" value="{{ old('tempat_lahir', $mahasiswa->tempat_lahir) }}" class="input-saas w-full px-4 py-2.5 text-sm" style="background-color: var(--bg-card);">
+                                <label class="block text-sm font-medium text-siakad-dark mb-2">Foto Profil</label>
+                                <input type="file" name="foto" class="input-saas w-full px-4 py-2 text-sm" style="background-color: var(--bg-card);">
+                                <p class="text-[10px] text-siakad-secondary mt-1">Format: JPG, PNG. Max: 2MB</p>
                             </div>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
+                                <label class="block text-sm font-medium text-siakad-dark mb-2">Tempat Lahir</label>
+                                <input type="text" name="tempat_lahir" value="{{ old('tempat_lahir', $mahasiswa->tempat_lahir) }}" placeholder="Contoh: Jakarta" class="input-saas w-full px-4 py-2.5 text-sm" style="background-color: var(--bg-card);">
+                            </div>
+                            <div>
                                 <label class="block text-sm font-medium text-siakad-dark mb-2">Tanggal Lahir</label>
                                 <input type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir', $mahasiswa->tanggal_lahir) }}" class="input-saas w-full px-4 py-2.5 text-sm" style="background-color: var(--bg-card);">
                             </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-siakad-dark mb-2">Foto Profil</label>
-                                <input type="file" name="foto" class="input-saas w-full px-4 py-2 text-sm" style="background-color: var(--bg-card);">
-                                <p class="text-[10px] text-siakad-secondary mt-1">Format: JPG, PNG. Max: 2MB</p>
+                                <label class="block text-sm font-medium text-siakad-dark mb-2">Provinsi</label>
+                                <input type="text" name="provinsi" value="{{ old('provinsi', $mahasiswa->provinsi) }}" placeholder="Contoh: Jawa Barat" class="input-saas w-full px-4 py-2.5 text-sm" style="background-color: var(--bg-card);">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-siakad-dark mb-2">Kecamatan</label>
+                                <input type="text" name="kecamatan" value="{{ old('kecamatan', $mahasiswa->kecamatan) }}" placeholder="Contoh: Sumur Bandung" class="input-saas w-full px-4 py-2.5 text-sm" style="background-color: var(--bg-card);">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-siakad-dark mb-2">Kelurahan</label>
+                                <input type="text" name="kelurahan" value="{{ old('kelurahan', $mahasiswa->kelurahan) }}" placeholder="Contoh: Babakan Ciamis" class="input-saas w-full px-4 py-2.5 text-sm" style="background-color: var(--bg-card);">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-siakad-dark mb-2">Desa</label>
+                                <input type="text" name="desa" value="{{ old('desa', $mahasiswa->desa) }}" placeholder="Contoh: Babakan" class="input-saas w-full px-4 py-2.5 text-sm" style="background-color: var(--bg-card);">
                             </div>
                         </div>
 

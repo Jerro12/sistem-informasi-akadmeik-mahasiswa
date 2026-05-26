@@ -7,4 +7,5 @@ Route::middleware(['auth', 'role:mahasiswa'])->prefix('mahasiswa')->name('mahasi
     Route::get('/skripsi/create', [\App\Http\Controllers\Mahasiswa\SkripsiController::class, 'create'])->name('skripsi.create');
     Route::post('/skripsi', [\App\Http\Controllers\Mahasiswa\SkripsiController::class, 'store'])->name('skripsi.store');
     Route::post('/skripsi/bimbingan', [\App\Http\Controllers\Mahasiswa\SkripsiController::class, 'storeBimbingan'])->name('skripsi.bimbingan.store');
+    Route::post('/skripsi/daftar-ujian', [\App\Http\Controllers\Mahasiswa\SkripsiController::class, 'daftarUjian'])->name('skripsi.daftar-ujian');
 });

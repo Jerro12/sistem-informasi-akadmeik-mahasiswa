@@ -34,7 +34,7 @@ class AuthenticatedSessionController extends Controller
         $redirectRoute = match ($user->role) {
             'mahasiswa' => 'mahasiswa.dashboard',
             'dosen' => 'dosen.dashboard',
-            'superadmin', 'admin_fakultas' => 'admin.dashboard',
+            'superadmin', 'admin_fakultas', 'admin_prodi' => 'admin.dashboard',
             default => 'dashboard',
         };
 
