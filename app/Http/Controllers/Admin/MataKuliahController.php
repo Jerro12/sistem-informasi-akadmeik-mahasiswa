@@ -73,6 +73,9 @@ class MataKuliahController extends Controller
         if ($request->get('fakultas_scoped') && $request->get('fakultas_scope')) {
             $prodiQuery->where('fakultas_id', $request->get('fakultas_scope'));
         }
+        if (auth()->user()->role === 'admin_prodi' && auth()->user()->prodi_id) {
+            $prodiQuery->where('id', auth()->user()->prodi_id);
+        }
         $prodiList = $prodiQuery->get();
 
         // Kurikulum and Konsentrasi lists for dropdowns
@@ -81,6 +84,10 @@ class MataKuliahController extends Controller
         if ($request->get('fakultas_scoped') && $request->get('fakultas_scope')) {
             $kurikulumQuery->whereHas('prodi', fn($q) => $q->where('fakultas_id', $request->get('fakultas_scope')));
             $konsentrasiQuery->whereHas('prodi', fn($q) => $q->where('fakultas_id', $request->get('fakultas_scope')));
+        }
+        if (auth()->user()->role === 'admin_prodi' && auth()->user()->prodi_id) {
+            $kurikulumQuery->where('prodi_id', auth()->user()->prodi_id);
+            $konsentrasiQuery->where('prodi_id', auth()->user()->prodi_id);
         }
         $kurikulumList = $kurikulumQuery->get();
         $konsentrasiList = $konsentrasiQuery->get();
@@ -166,6 +173,15 @@ class MataKuliahController extends Controller
         }
         
         MataKuliah::create($validated);
+        
+        // Clear cache
+        \Illuminate\Support\Facades\Cache::forget('master.mata_kuliah');
+        if (class_exists(\App\Services\CacheService::class)) {
+            $cacheService = app(\App\Services\CacheService::class);
+            $cacheService->clearMataKuliahCache();
+            $cacheService->clearDashboardStats($request->get('fakultas_scope'));
+        }
+
         return redirect()->back()->with('success', 'Mata Kuliah berhasil ditambahkan');
     }
 
@@ -182,18 +198,39 @@ class MataKuliahController extends Controller
             'konsentrasi_id' => 'nullable|exists:konsentrasi,id',
         ]);
         $mataKuliah->update($validated);
+
+        // Clear cache
+        \Illuminate\Support\Facades\Cache::forget('master.mata_kuliah');
+        if (class_exists(\App\Services\CacheService::class)) {
+            $cacheService = app(\App\Services\CacheService::class);
+            $cacheService->clearMataKuliahCache();
+            $cacheService->clearDashboardStats($request->get('fakultas_scope'));
+            if ($mataKuliah->prodi?->fakultas_id) {
+                $cacheService->clearDashboardStats($mataKuliah->prodi->fakultas_id);
+            }
+        }
+
         return redirect()->back()->with('success', 'Mata Kuliah berhasil diupdate');
     }
 
     public function destroy(MataKuliah $mataKuliah)
     {
-        // Check if mata kuliah has kelas
-        if ($mataKuliah->kelas()->exists()) {
-            return redirect()->back()->withErrors(['error' => 'Tidak dapat menghapus mata kuliah yang memiliki kelas.']);
+        $fakultasId = $mataKuliah->prodi?->fakultas_id;
+
+        $mataKuliah->delete();
+
+        // Clear cache
+        \Illuminate\Support\Facades\Cache::forget('master.mata_kuliah');
+        if (class_exists(\App\Services\CacheService::class)) {
+            $cacheService = app(\App\Services\CacheService::class);
+            $cacheService->clearMataKuliahCache();
+            $cacheService->clearDashboardStats();
+            if ($fakultasId) {
+                $cacheService->clearDashboardStats($fakultasId);
+            }
         }
         
-        $mataKuliah->delete();
-        return redirect()->back()->with('success', 'Mata Kuliah berhasil dihapus');
+        return redirect()->back()->with('success', 'Mata Kuliah berhasil dihapus beserta kelas terkait.');
     }
 }
 

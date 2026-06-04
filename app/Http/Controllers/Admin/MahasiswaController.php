@@ -80,19 +80,42 @@ class MahasiswaController extends Controller
 
         $mahasiswa = $query->paginate(config('siakad.pagination', 15))->withQueryString();
         
+        $user = auth()->user();
         $fakultasList = \App\Models\Fakultas::orderBy('nama')->get();
-        $prodiList = Prodi::with('fakultas')->orderBy('nama')->get(); 
-        $angkatanList = Mahasiswa::distinct()->pluck('angkatan')->sort()->reverse();
-        $dosenList = Dosen::with('user')->get();
-
+        
+        $prodiQuery = Prodi::with('fakultas')->orderBy('nama');
+        $dosenQuery = Dosen::with('user');
         $kurikulumQuery = Kurikulum::query();
         $konsentrasiQuery = Konsentrasi::query();
+
+        // 1. Scoping by Faculty (for admin_fakultas or general scoped request)
         if ($request->get('fakultas_scoped') && $request->get('fakultas_scope')) {
-            $kurikulumQuery->whereHas('prodi', fn($q) => $q->where('fakultas_id', $request->get('fakultas_scope')));
-            $konsentrasiQuery->whereHas('prodi', fn($q) => $q->where('fakultas_id', $request->get('fakultas_scope')));
+            $fakultasId = $request->get('fakultas_scope');
+            $prodiQuery->where('fakultas_id', $fakultasId);
+            $dosenQuery->whereHas('prodi', fn($q) => $q->where('fakultas_id', $fakultasId));
+            $kurikulumQuery->whereHas('prodi', fn($q) => $q->where('fakultas_id', $fakultasId));
+            $konsentrasiQuery->whereHas('prodi', fn($q) => $q->where('fakultas_id', $fakultasId));
         }
+
+        // 2. Scoping by Prodi (for admin_prodi)
+        $prodiScopeId = $request->get('prodi_scoped') ? $request->get('prodi_scope') : null;
+        if (!$prodiScopeId && $user->role === 'admin_prodi' && $user->prodi_id) {
+            $prodiScopeId = $user->prodi_id;
+        }
+
+        if ($prodiScopeId) {
+            $prodiQuery->where('id', $prodiScopeId);
+            $dosenQuery->where('prodi_id', $prodiScopeId);
+            $kurikulumQuery->where('prodi_id', $prodiScopeId);
+            $konsentrasiQuery->where('prodi_id', $prodiScopeId);
+        }
+
+        $prodiList = $prodiQuery->get();
+        $dosenList = $dosenQuery->get();
         $kurikulumList = $kurikulumQuery->get();
         $konsentrasiList = $konsentrasiQuery->get();
+        
+        $angkatanList = Mahasiswa::distinct()->pluck('angkatan')->sort()->reverse();
 
         return view('admin.mahasiswa.index', compact('mahasiswa', 'fakultasList', 'prodiList', 'angkatanList', 'dosenList', 'kurikulumList', 'konsentrasiList'));
     }

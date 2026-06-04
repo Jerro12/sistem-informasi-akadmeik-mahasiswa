@@ -47,6 +47,8 @@ Modul untuk meningkatkan antarmuka dan alur akademik mahasiswa agar lebih intera
   * Skripsi diprogram di KRS tetapi **tidak dimunculkan** di Jadwal Kelas (hanya muncul di pelacakan skripsi).
 - [x] **2.10. Perbaikan Penghapusan Mahasiswa**
   * Menghapus validasi pembatasan sehingga data mahasiswa dapat dihapus dengan sukses beserta seluruh data KRS-nya via cascade delete.
+- [x] **2.11. Perbaikan Form Tambah Mahasiswa (Reset Form, Autofill, & Filter Kurikulum)**
+  * Memastikan form tambah mahasiswa selalu direset bersih, menonaktifkan browser autocomplete/autofill data sebelumnya, dan memperbaiki filter dynamic Javascript agar kurikulum tidak hilang setelah prodi dipilih.
 
 ---
 
@@ -59,6 +61,9 @@ Pembersihan menu dan peningkatan kontrol pembayaran mahasiswa.
   * Menghapus menu-menu yang tidak diperlukan oleh Superadmin di sidebar (seperti Skripsi, KP, dll. karena wewenang dipindah ke Prodi/Fakultas).
 - [x] **3.3. Penyederhanaan Tahun Akademik**
   * Menghapus kolom/periode perkuliahan yang tidak relevan pada manajemen Tahun Akademik.
+- [x] **3.4. Perbaikan Penghapusan & Scoping Mata Kuliah**
+  * Menghapus validasi pembatasan sehingga data mata kuliah dapat dihapus dengan sukses beserta data kelas via cascade delete.
+  * Memperketat scoping dropdown data Master (Prodi, Kurikulum, Konsentrasi) sesuai dengan role pengguna (Superadmin, Admin Fakultas, Admin Prodi).
 
 ---
 

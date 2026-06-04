@@ -3,6 +3,20 @@
         Data Mata Kuliah
     </x-slot>
 
+    @if(session('success'))
+        <div class="mb-4 p-4 bg-green-100 dark:bg-green-900/30 border border-green-400 text-green-700 dark:text-green-400 rounded-lg">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="mb-4 p-4 bg-red-100 dark:bg-red-900/30 border border-red-400 text-red-700 dark:text-red-400 rounded-lg">
+            @foreach($errors->all() as $error)
+                <p>{{ $error }}</p>
+            @endforeach
+        </div>
+    @endif
+
     <!-- Toolbar: Filter, Search, Action -->
     <div class="mb-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <form action="{{ route('admin.mata-kuliah.index') }}" method="GET" class="flex flex-col md:flex-row gap-3 w-full lg:w-auto">

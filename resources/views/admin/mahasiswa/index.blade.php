@@ -11,7 +11,7 @@
             <p class="text-sm text-siakad-secondary dark:text-gray-400">Kelola data mahasiswa dalam sistem</p>
         </div>
         <div class="flex items-center gap-3 flex-wrap">
-            <button onclick="openModal('createModal')" class="btn-primary-saas px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center gap-2">
+            <button onclick="openCreateModal()" class="btn-primary-saas px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
                 Tambah
             </button>
@@ -290,10 +290,10 @@
             <div class="fixed inset-0 bg-black/50" onclick="closeModal('createModal')"></div>
             <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
                 <h3 class="text-lg font-semibold text-siakad-dark dark:text-white mb-4">Tambah Mahasiswa</h3>
-                <form action="{{ route('admin.mahasiswa.store') }}" method="POST" class="space-y-4">@csrf
-                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Nama</label><input type="text" name="name" required class="input-saas w-full dark:bg-gray-700"></div>
-                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Password</label><input type="password" name="password" required minlength="8" class="input-saas w-full dark:bg-gray-700"></div>
-                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">NIM</label><input type="text" name="nim" required class="input-saas w-full dark:bg-gray-700"></div>
+                <form action="{{ route('admin.mahasiswa.store') }}" method="POST" id="createForm" class="space-y-4">@csrf
+                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Nama</label><input type="text" name="name" required class="input-saas w-full dark:bg-gray-700" autocomplete="off"></div>
+                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Password</label><input type="password" name="password" required minlength="8" class="input-saas w-full dark:bg-gray-700" autocomplete="new-password"></div>
+                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">NIM</label><input type="text" name="nim" required class="input-saas w-full dark:bg-gray-700" autocomplete="off"></div>
                     <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Prodi</label><select name="prodi_id" id="createProdiSelect" onchange="filterKurikulumKonsentrasiCreate()" required class="input-saas w-full dark:bg-gray-700"><option value="">-- Pilih --</option>@foreach($prodiList as $p)<option value="{{ $p->id }}">{{ $p->nama }}</option>@endforeach</select></div>
                     <div class="grid grid-cols-1 gap-4">
                         <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Kurikulum</label><select name="kurikulum_id" id="createKurikulumSelect" class="input-saas w-full dark:bg-gray-700"><option value="">Bebas Kurikulum</option>@foreach($kurikulumList as $k)<option value="{{ $k->id }}" data-prodi="{{ $k->prodi_id }}">{{ $k->nama }}</option>@endforeach</select></div>
@@ -316,9 +316,9 @@
             <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
                 <h3 class="text-lg font-semibold text-siakad-dark dark:text-white mb-4">Edit Mahasiswa</h3>
                 <form id="editForm" method="POST" class="space-y-4">@csrf @method('PUT')
-                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Nama</label><input type="text" name="name" id="editName" required class="input-saas w-full dark:bg-gray-700"></div>
-                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Password (kosongkan jika tidak diubah)</label><input type="password" name="password" minlength="8" class="input-saas w-full dark:bg-gray-700"></div>
-                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">NIM</label><input type="text" name="nim" id="editNim" required class="input-saas w-full dark:bg-gray-700"></div>
+                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Nama</label><input type="text" name="name" id="editName" required class="input-saas w-full dark:bg-gray-700" autocomplete="off"></div>
+                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Password (kosongkan jika tidak diubah)</label><input type="password" name="password" minlength="8" class="input-saas w-full dark:bg-gray-700" autocomplete="new-password"></div>
+                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">NIM</label><input type="text" name="nim" id="editNim" required class="input-saas w-full dark:bg-gray-700" autocomplete="off"></div>
                     <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Prodi</label><select name="prodi_id" id="editProdiId" onchange="filterKurikulumKonsentrasiEdit()" required class="input-saas w-full dark:bg-gray-700"><option value="">-- Pilih --</option>@foreach($prodiList as $p)<option value="{{ $p->id }}">{{ $p->nama }}</option>@endforeach</select></div>
                     <div class="grid grid-cols-1 gap-4">
                         <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Kurikulum</label><select name="kurikulum_id" id="editKurikulumId" class="input-saas w-full dark:bg-gray-700"><option value="">Bebas Kurikulum</option>@foreach($kurikulumList as $k)<option value="{{ $k->id }}" data-prodi="{{ $k->prodi_id }}">{{ $k->nama }}</option>@endforeach</select></div>
@@ -338,23 +338,96 @@
     <script>
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-        function filterKurikulumKonsentrasiCreate() {
-            const prodiId = document.getElementById('createProdiSelect').value;
-            const kurikulumSelect = document.getElementById('createKurikulumSelect');
+        
+        let createKurikulumData = [];
+        let editKurikulumData = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const createKurikulumSelect = document.getElementById('createKurikulumSelect');
+            if (createKurikulumSelect) {
+                createKurikulumData = Array.from(createKurikulumSelect.options).map(opt => ({
+                    value: opt.value,
+                    text: opt.text,
+                    prodiId: opt.getAttribute('data-prodi') || ''
+                }));
+            }
+            const editKurikulumSelect = document.getElementById('editKurikulumId');
+            if (editKurikulumSelect) {
+                editKurikulumData = Array.from(editKurikulumSelect.options).map(opt => ({
+                    value: opt.value,
+                    text: opt.text,
+                    prodiId: opt.getAttribute('data-prodi') || ''
+                }));
+            }
             
-            Array.from(kurikulumSelect.options).forEach(opt => {
-                if(opt.value !== '') opt.style.display = (opt.getAttribute('data-prodi') === prodiId) ? '' : 'none';
-            });
-            kurikulumSelect.value = '';
+            // Trigger filters initially on load if values exist
+            filterKurikulumKonsentrasiCreate(true);
+            filterKurikulumKonsentrasiEdit(true);
+        });
+
+        function openCreateModal() {
+            const createForm = document.getElementById('createForm');
+            if (createForm) {
+                createForm.reset();
+            }
+            filterKurikulumKonsentrasiCreate();
+            openModal('createModal');
         }
 
-        function filterKurikulumKonsentrasiEdit() {
-            const prodiId = document.getElementById('editProdiId').value;
-            const kurikulumSelect = document.getElementById('editKurikulumId');
-            
-            Array.from(kurikulumSelect.options).forEach(opt => {
-                if(opt.value !== '') opt.style.display = (opt.getAttribute('data-prodi') === prodiId) ? '' : 'none';
+        function filterKurikulumKonsentrasiCreate(isInitial = false) {
+            const prodiSelect = document.getElementById('createProdiSelect');
+            const kurikulumSelect = document.getElementById('createKurikulumSelect');
+            if (!prodiSelect || !kurikulumSelect || createKurikulumData.length === 0) return;
+
+            const prodiId = prodiSelect.value;
+            const currentVal = kurikulumSelect.value;
+
+            // Clear and add placeholder
+            kurikulumSelect.innerHTML = '';
+            kurikulumSelect.options[0] = new Option(createKurikulumData[0].text, createKurikulumData[0].value);
+
+            let isValid = false;
+            let index = 1;
+            createKurikulumData.slice(1).forEach(data => {
+                if (data.prodiId === prodiId) {
+                    kurikulumSelect.options[index++] = new Option(data.text, data.value);
+                    if (data.value === currentVal) isValid = true;
+                }
             });
+
+            if (isValid && !isInitial) {
+                kurikulumSelect.value = currentVal;
+            } else {
+                kurikulumSelect.value = '';
+            }
+        }
+
+        function filterKurikulumKonsentrasiEdit(isInitial = false) {
+            const prodiSelect = document.getElementById('editProdiId');
+            const kurikulumSelect = document.getElementById('editKurikulumId');
+            if (!prodiSelect || !kurikulumSelect || editKurikulumData.length === 0) return;
+
+            const prodiId = prodiSelect.value;
+            const currentVal = kurikulumSelect.value;
+
+            // Clear and add placeholder
+            kurikulumSelect.innerHTML = '';
+            kurikulumSelect.options[0] = new Option(editKurikulumData[0].text, editKurikulumData[0].value);
+
+            let isValid = false;
+            let index = 1;
+            editKurikulumData.slice(1).forEach(data => {
+                if (data.prodiId === prodiId) {
+                    kurikulumSelect.options[index++] = new Option(data.text, data.value);
+                    if (data.value === currentVal) isValid = true;
+                }
+            });
+
+            if (isValid) {
+                kurikulumSelect.value = currentVal;
+            } else {
+                kurikulumSelect.value = '';
+            }
         }
 
         function openEditModal(m) {
@@ -363,9 +436,18 @@
             document.getElementById('editNim').value = m.nim;
             document.getElementById('editProdiId').value = m.prodi_id;
             
+            // Set kurikulum value first so filter can validate it
+            const editKurikulumSelect = document.getElementById('editKurikulumId');
+            if (editKurikulumSelect) {
+                editKurikulumSelect.value = m.kurikulum_id || '';
+            }
+            
             filterKurikulumKonsentrasiEdit();
             
-            document.getElementById('editKurikulumId').value = m.kurikulum_id || '';
+            // Set again to be secure
+            if (editKurikulumSelect) {
+                editKurikulumSelect.value = m.kurikulum_id || '';
+            }
             
             document.getElementById('editAngkatan').value = m.angkatan;
             document.getElementById('editSemesterSekarang').value = m.semester_sekarang || 1;
