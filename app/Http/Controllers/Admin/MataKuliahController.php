@@ -153,33 +153,93 @@ class MataKuliahController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'kode_mk'  => 'required|string|unique:mata_kuliah,kode_mk',
+        $isAllFaculty = $request->prodi_id === 'all_faculty';
+
+        $rules = [
             'nama_mk'  => 'required|string',
             'jenis'    => 'required|in:wajib,pilihan',
             'sks'      => 'required|integer|min:1',
             'semester' => 'required|integer|min:1',
-            'prodi_id' => 'nullable|exists:prodi,id',
             'kurikulum_id' => 'nullable|exists:kurikulum,id',
             'konsentrasi_id' => 'nullable|exists:konsentrasi,id',
-        ]);
-        
-        // Auto-assign prodi for admin_fakultas if not provided
-        if (empty($validated['prodi_id']) && $request->get('fakultas_scoped')) {
-            $prodi = Prodi::where('fakultas_id', $request->get('fakultas_scope'))->first();
-            if ($prodi) {
-                $validated['prodi_id'] = $prodi->id;
-            }
+        ];
+
+        if ($isAllFaculty) {
+            $rules['prodi_id'] = 'required|string';
+            $rules['kode_mk'] = 'required|string';
+        } else {
+            $rules['prodi_id'] = 'nullable|exists:prodi,id';
+            $rules['kode_mk'] = 'required|string|unique:mata_kuliah,kode_mk';
         }
-        
-        MataKuliah::create($validated);
-        
+
+        $validated = $request->validate($rules);
+
+        $fakultasId = null;
+
+        if ($isAllFaculty) {
+            if (auth()->user()->role === 'admin_fakultas') {
+                $fakultasId = auth()->user()->fakultas_id;
+            } else if ($request->filled('fakultas_id')) {
+                $fakultasId = $request->fakultas_id;
+            }
+
+            if (!$fakultasId) {
+                return redirect()->back()->withErrors(['prodi_id' => 'Fakultas harus ditentukan untuk opsi Semua Prodi.'])->withInput();
+            }
+
+            $prodis = Prodi::where('fakultas_id', $fakultasId)->get();
+            if ($prodis->isEmpty()) {
+                return redirect()->back()->withErrors(['prodi_id' => 'Tidak ada program studi di fakultas ini.'])->withInput();
+            }
+
+            $toCreate = [];
+            foreach ($prodis as $prodi) {
+                // Generate initials
+                $words = explode(' ', $prodi->nama);
+                $initials = '';
+                foreach ($words as $word) {
+                    $initials .= strtoupper(substr($word, 0, 1));
+                }
+                $prodiCode = $initials;
+                $generatedCode = $validated['kode_mk'] . '-' . $prodiCode;
+
+                if (MataKuliah::where('kode_mk', $generatedCode)->exists()) {
+                    return redirect()->back()->withErrors(['kode_mk' => "Kode mata kuliah {$generatedCode} sudah terpakai."])->withInput();
+                }
+
+                $toCreate[] = [
+                    'prodi_id' => $prodi->id,
+                    'kode_mk' => $generatedCode,
+                ];
+            }
+
+            foreach ($toCreate as $item) {
+                MataKuliah::create(array_merge($validated, [
+                    'prodi_id' => $item['prodi_id'],
+                    'kode_mk' => $item['kode_mk'],
+                ]));
+            }
+        } else {
+            // Auto-assign prodi for admin_fakultas if not provided
+            if (empty($validated['prodi_id']) && $request->get('fakultas_scoped')) {
+                $prodi = Prodi::where('fakultas_id', $request->get('fakultas_scope'))->first();
+                if ($prodi) {
+                    $validated['prodi_id'] = $prodi->id;
+                }
+            }
+            MataKuliah::create($validated);
+        }
+
         // Clear cache
         \Illuminate\Support\Facades\Cache::forget('master.mata_kuliah');
         if (class_exists(\App\Services\CacheService::class)) {
             $cacheService = app(\App\Services\CacheService::class);
             $cacheService->clearMataKuliahCache();
-            $cacheService->clearDashboardStats($request->get('fakultas_scope'));
+            if ($isAllFaculty && $fakultasId) {
+                $cacheService->clearDashboardStats($fakultasId);
+            } else {
+                $cacheService->clearDashboardStats($request->get('fakultas_scope'));
+            }
         }
 
         return redirect()->back()->with('success', 'Mata Kuliah berhasil ditambahkan');

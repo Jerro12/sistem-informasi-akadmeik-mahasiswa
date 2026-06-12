@@ -274,7 +274,7 @@
                     <!-- Fakultas dropdown for superadmin -->
                     <div>
                         <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Fakultas</label>
-                        <select id="createFakultasSelect" onchange="filterProdiCreate()" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                        <select name="fakultas_id" id="createFakultasSelect" onchange="filterProdiCreate()" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
                             <option value="">Pilih Fakultas</option>
                             @foreach($fakultasList as $fakultas)
                             <option value="{{ $fakultas->id }}">{{ $fakultas->nama }}</option>
@@ -288,6 +288,7 @@
                         <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Program Studi</label>
                         <select name="prodi_id" id="createProdiSelect" onchange="filterKurikulumKonsentrasiCreate()" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
                             <option value="">Pilih Program Studi</option>
+                            <option value="all_faculty">Semua Prodi di Fakultas Ini</option>
                             @foreach($prodiList as $prodi)
                             <option value="{{ $prodi->id }}" data-fakultas="{{ $prodi->fakultas_id }}">{{ $prodi->nama }}</option>
                             @endforeach
@@ -449,7 +450,7 @@
             const options = prodiSelect.querySelectorAll('option');
             
             options.forEach(option => {
-                if (option.value === '') return; // Keep placeholder
+                if (option.value === '' || option.value === 'all_faculty') return; // Keep placeholder and all_faculty option
                 const optFakultasId = option.getAttribute('data-fakultas');
                 option.style.display = (fakultasId === '' || optFakultasId === fakultasId) ? '' : 'none';
             });
