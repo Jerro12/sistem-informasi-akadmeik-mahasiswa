@@ -1,6 +1,7 @@
-@extends('layouts.app')
-
-@section('content')
+<x-app-layout>
+    <x-slot name="header">
+        Input Nilai Detail
+    </x-slot>
 <div class="p-6">
     <div class="flex items-center justify-between mb-6">
         <div>
@@ -110,4 +111,4 @@
         @endif
     </form>
 </div>
-@endsection
+</x-app-layout>

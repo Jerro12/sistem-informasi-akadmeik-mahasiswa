@@ -24,9 +24,21 @@ class MataKuliahController extends Controller
     {
         $query = MataKuliah::with('prodi.fakultas');
 
-        // 1. Filter Category (Prefix)
-        if ($request->filled('category')) {
-            $query->where('kode_mk', 'like', $request->category . '%');
+        // 1. Filters (Semester, Prodi, Konsentrasi, Kurikulum)
+        if ($request->filled('semester')) {
+            $query->where('semester', $request->semester);
+        }
+
+        if ($request->filled('prodi')) {
+            $query->where('prodi_id', $request->prodi);
+        }
+
+        if ($request->filled('kosentrasi')) {
+            $query->where('konsentrasi_id', $request->kosentrasi);
+        }
+
+        if ($request->filled('kurikulum')) {
+            $query->where('kurikulum_id', $request->kurikulum);
         }
 
         // 2. Search
@@ -99,8 +111,20 @@ class MataKuliahController extends Controller
     {
         $query = MataKuliah::query();
 
-        if ($request->filled('category')) {
-            $query->where('kode_mk', 'like', $request->category . '%');
+        if ($request->filled('semester')) {
+            $query->where('semester', $request->semester);
+        }
+
+        if ($request->filled('prodi')) {
+            $query->where('prodi_id', $request->prodi);
+        }
+
+        if ($request->filled('kosentrasi')) {
+            $query->where('konsentrasi_id', $request->kosentrasi);
+        }
+
+        if ($request->filled('kurikulum')) {
+            $query->where('kurikulum_id', $request->kurikulum);
         }
 
         if ($request->filled('search')) {

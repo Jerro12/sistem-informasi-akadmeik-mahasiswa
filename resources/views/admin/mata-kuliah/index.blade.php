@@ -1,4 +1,24 @@
 <x-app-layout>
+    @php
+        $categories = [
+            'AIK' => 'Al-Islam Kemuhammadiyahan',
+            'MK' => 'Mata Kuliah Umum',
+            'UN' => 'Mata Kuliah Universitas',
+            'TI' => 'Teknik Informatika',
+            'SI' => 'Sistem Informasi',
+            'TE' => 'Teknik Elektro',
+            'MN' => 'Manajemen',
+            'AK' => 'Akuntansi',
+            'MT' => 'Matematika',
+            'UP' => 'Ujian Proposal',
+            'UH' => 'Ujian Hasil',
+            'UT' => 'Ujian Tutup / Sidang',
+            'SK' => 'Skripsi',
+            'TA' => 'Tugas Akhir',
+            'KP' => 'Kerja Praktek',
+        ];
+    @endphp
+
     <x-slot name="header">
         Data Mata Kuliah
     </x-slot>
@@ -19,35 +39,55 @@
 
     <!-- Toolbar: Filter, Search, Action -->
     <div class="mb-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <form action="{{ route('admin.mata-kuliah.index') }}" method="GET" class="flex flex-col md:flex-row gap-3 w-full lg:w-auto">
+        <form action="{{ route('admin.mata-kuliah.index') }}" method="GET" class="flex flex-col lg:flex-row gap-3 w-full lg:w-auto flex-wrap">
             @if(request('sort')) <input type="hidden" name="sort" value="{{ request('sort') }}"> @endif
             @if(request('order')) <input type="hidden" name="order" value="{{ request('order') }}"> @endif
 
-            <!-- Filter Kategori -->
-            <div class="relative min-w-[200px]">
-                <select name="category" onchange="this.form.submit()" class="input-saas w-full pl-4 pr-10 py-2.5 appearance-none cursor-pointer">
-                    <option value="">Semua Kategori</option>
-                    @php
-                        $categories = [
-                            'AIK' => 'Al-Islam Kemuhammadiyahan',
-                            'MK' => 'Mata Kuliah Umum',
-                            'UN' => 'Mata Kuliah Universitas',
-                            'TI' => 'Teknik Informatika',
-                            'SI' => 'Sistem Informasi',
-                            'TE' => 'Teknik Elektro',
-                            'MN' => 'Manajemen',
-                            'AK' => 'Akuntansi',
-                            'MT' => 'Matematika',
-                            'UP' => 'Ujian Proposal',
-                            'UH' => 'Ujian Hasil',
-                            'UT' => 'Ujian Tutup / Sidang',
-                            'SK' => 'Skripsi',
-                            'TA' => 'Tugas Akhir',
-                            'KP' => 'Kerja Praktek',
-                        ];
-                    @endphp
-                    @foreach($categories as $code => $name)
-                    <option value="{{ $code }}" {{ request('category') == $code ? 'selected' : '' }}>{{ $name }}</option>
+            <!-- Filter Semester -->
+            <div class="relative min-w-[140px] flex-1 sm:flex-none">
+                <select name="semester" onchange="this.form.submit()" class="input-saas w-full pl-4 pr-10 py-2.5 appearance-none cursor-pointer text-sm">
+                    <option value="">Semua Semester</option>
+                    @for($i = 1; $i <= 8; $i++)
+                    <option value="{{ $i }}" {{ request('semester') == $i ? 'selected' : '' }}>Semester {{ $i }}</option>
+                    @endfor
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-siakad-secondary">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+            </div>
+
+            <!-- Filter Prodi -->
+            <div class="relative min-w-[160px] flex-1 sm:flex-none">
+                <select name="prodi" onchange="this.form.submit()" class="input-saas w-full pl-4 pr-10 py-2.5 appearance-none cursor-pointer text-sm">
+                    <option value="">Semua Prodi</option>
+                    @foreach($prodiList as $p)
+                    <option value="{{ $p->id }}" {{ request('prodi') == $p->id ? 'selected' : '' }}>{{ $p->nama }}</option>
+                    @endforeach
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-siakad-secondary">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+            </div>
+
+            <!-- Filter Konsentrasi -->
+            <div class="relative min-w-[160px] flex-1 sm:flex-none">
+                <select name="kosentrasi" onchange="this.form.submit()" class="input-saas w-full pl-4 pr-10 py-2.5 appearance-none cursor-pointer text-sm">
+                    <option value="">Semua Konsentrasi</option>
+                    @foreach($konsentrasiList as $k)
+                    <option value="{{ $k->id }}" {{ request('kosentrasi') == $k->id ? 'selected' : '' }}>{{ $k->nama_konsentrasi }}</option>
+                    @endforeach
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-siakad-secondary">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+            </div>
+
+            <!-- Filter Kurikulum -->
+            <div class="relative min-w-[160px] flex-1 sm:flex-none">
+                <select name="kurikulum" onchange="this.form.submit()" class="input-saas w-full pl-4 pr-10 py-2.5 appearance-none cursor-pointer text-sm">
+                    <option value="">Semua Kurikulum</option>
+                    @foreach($kurikulumList as $k)
+                    <option value="{{ $k->id }}" {{ request('kurikulum') == $k->id ? 'selected' : '' }}>{{ $k->nama }}</option>
                     @endforeach
                 </select>
                 <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-siakad-secondary">

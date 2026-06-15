@@ -264,20 +264,29 @@
                         </div>
                     </div>
                     <div>
+                        <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Program Studi</label>
+                        <select id="createClassProdiSelect" onchange="filterMataKuliahAndDosenCreate()" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                            <option value="">Semua Program Studi</option>
+                            @foreach($prodis as $p)
+                            <option value="{{ $p->id }}">{{ $p->nama }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
                         <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Mata Kuliah</label>
-                        <select name="mata_kuliah_id" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
+                        <select name="mata_kuliah_id" id="createClassMKSelect" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
                             <option value="">Pilih Mata Kuliah</option>
                             @foreach($mataKuliah as $mk)
-                            <option value="{{ $mk->id }}">{{ $mk->kode_mk }} - {{ $mk->nama_mk }}</option>
+                            <option value="{{ $mk->id }}" data-prodi="{{ $mk->prodi_id ?? '' }}">{{ $mk->kode_mk }} - {{ $mk->nama_mk }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Dosen Pengampu</label>
-                        <select name="dosen_id" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
+                        <select name="dosen_id" id="createClassDosenSelect" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
                             <option value="">Pilih Dosen</option>
                             @foreach($dosen as $d)
-                            <option value="{{ $d->id }}">{{ $d->user->name }}</option>
+                            <option value="{{ $d->id }}" data-prodi="{{ $d->prodi_id ?? '' }}">{{ $d->user->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -346,18 +355,29 @@
                         </div>
                     </div>
                     <div>
+                        <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Program Studi</label>
+                        <select id="editClassProdiSelect" onchange="filterMataKuliahAndDosenEdit()" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                            <option value="">Semua Program Studi</option>
+                            @foreach($prodis as $p)
+                            <option value="{{ $p->id }}">{{ $p->nama }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
                         <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Mata Kuliah</label>
                         <select name="mata_kuliah_id" id="editMK" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
+                            <option value="">Pilih Mata Kuliah</option>
                             @foreach($mataKuliah as $mk)
-                            <option value="{{ $mk->id }}">{{ $mk->kode_mk }} - {{ $mk->nama_mk }}</option>
+                            <option value="{{ $mk->id }}" data-prodi="{{ $mk->prodi_id ?? '' }}">{{ $mk->kode_mk }} - {{ $mk->nama_mk }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Dosen Pengampu</label>
                         <select name="dosen_id" id="editDosen" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
+                            <option value="">Pilih Dosen</option>
                             @foreach($dosen as $d)
-                            <option value="{{ $d->id }}">{{ $d->user->name }}</option>
+                            <option value="{{ $d->id }}" data-prodi="{{ $d->prodi_id ?? '' }}">{{ $d->user->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -448,6 +468,48 @@
     </div>
 
     <script>
+        function filterMataKuliahAndDosenCreate() {
+            const prodiId = document.getElementById('createClassProdiSelect').value;
+            const mkSelect = document.getElementById('createClassMKSelect');
+            const dosenSelect = document.getElementById('createClassDosenSelect');
+            
+            Array.from(mkSelect.options).forEach(opt => {
+                if (opt.value === '') return;
+                const optProdiId = opt.getAttribute('data-prodi');
+                opt.style.display = (prodiId === '' || optProdiId === prodiId) ? '' : 'none';
+            });
+            mkSelect.value = '';
+            
+            Array.from(dosenSelect.options).forEach(opt => {
+                if (opt.value === '') return;
+                const optProdiId = opt.getAttribute('data-prodi');
+                opt.style.display = (prodiId === '' || optProdiId === prodiId) ? '' : 'none';
+            });
+            dosenSelect.value = '';
+        }
+
+        function filterMataKuliahAndDosenEdit(selectedMkId = null, selectedDosenId = null) {
+            const prodiId = document.getElementById('editClassProdiSelect').value;
+            const mkSelect = document.getElementById('editMK');
+            const dosenSelect = document.getElementById('editDosen');
+            
+            Array.from(mkSelect.options).forEach(opt => {
+                if (opt.value === '') return;
+                const optProdiId = opt.getAttribute('data-prodi');
+                opt.style.display = (prodiId === '' || optProdiId === prodiId) ? '' : 'none';
+            });
+            if (!selectedMkId) mkSelect.value = '';
+            else mkSelect.value = selectedMkId;
+            
+            Array.from(dosenSelect.options).forEach(opt => {
+                if (opt.value === '') return;
+                const optProdiId = opt.getAttribute('data-prodi');
+                opt.style.display = (prodiId === '' || optProdiId === prodiId) ? '' : 'none';
+            });
+            if (!selectedDosenId) dosenSelect.value = '';
+            else dosenSelect.value = selectedDosenId;
+        }
+
         function editKelas(data) {
             document.getElementById('editForm').action = `/admin/kelas/${data.id}`;
             document.getElementById('editNama').value = data.nama_kelas;
@@ -458,6 +520,15 @@
             document.getElementById('editJamMulai').value = data.jam_mulai || '';
             document.getElementById('editJamSelesai').value = data.jam_selesai || '';
             document.getElementById('editRuangan').value = data.ruangan || '';
+            
+            // Set Program Studi based on selected Mata Kuliah's prodi_id
+            const selectedOption = document.querySelector(`#editMK option[value="${data.mata_kuliah_id}"]`);
+            const prodiId = selectedOption ? selectedOption.getAttribute('data-prodi') : '';
+            document.getElementById('editClassProdiSelect').value = prodiId || '';
+            
+            // Run filter so options are filtered correctly but keep current selection
+            filterMataKuliahAndDosenEdit(data.mata_kuliah_id, data.dosen_id);
+            
             document.getElementById('editModal').style.display = 'flex';
         }
     </script>
