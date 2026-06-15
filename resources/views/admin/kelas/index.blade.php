@@ -273,11 +273,26 @@
                         </select>
                     </div>
                     <div>
+                        <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Semester</label>
+                        <select id="createClassSemesterSelect" onchange="filterMataKuliahAndDosenCreate()" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                            <option value="">Semua Semester ({{ ucfirst($activeSemester) }})</option>
+                            @if($activeSemester === 'genap')
+                                @for($i = 2; $i <= 8; $i += 2)
+                                <option value="{{ $i }}">Semester {{ $i }}</option>
+                                @endfor
+                            @else
+                                @for($i = 1; $i <= 7; $i += 2)
+                                <option value="{{ $i }}">Semester {{ $i }}</option>
+                                @endfor
+                            @endif
+                        </select>
+                    </div>
+                    <div>
                         <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Mata Kuliah</label>
                         <select name="mata_kuliah_id" id="createClassMKSelect" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
                             <option value="">Pilih Mata Kuliah</option>
                             @foreach($mataKuliah as $mk)
-                            <option value="{{ $mk->id }}" data-prodi="{{ $mk->prodi_id ?? '' }}">{{ $mk->kode_mk }} - {{ $mk->nama_mk }}</option>
+                            <option value="{{ $mk->id }}" data-prodi="{{ $mk->prodi_id ?? '' }}" data-semester="{{ $mk->semester }}">{{ $mk->kode_mk }} - {{ $mk->nama_mk }} (Sem {{ $mk->semester }})</option>
                             @endforeach
                         </select>
                     </div>
@@ -364,11 +379,26 @@
                         </select>
                     </div>
                     <div>
+                        <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Semester</label>
+                        <select id="editClassSemesterSelect" onchange="filterMataKuliahAndDosenEdit()" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                            <option value="">Semua Semester ({{ ucfirst($activeSemester) }})</option>
+                            @if($activeSemester === 'genap')
+                                @for($i = 2; $i <= 8; $i += 2)
+                                <option value="{{ $i }}">Semester {{ $i }}</option>
+                                @endfor
+                            @else
+                                @for($i = 1; $i <= 7; $i += 2)
+                                <option value="{{ $i }}">Semester {{ $i }}</option>
+                                @endfor
+                            @endif
+                        </select>
+                    </div>
+                    <div>
                         <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Mata Kuliah</label>
                         <select name="mata_kuliah_id" id="editMK" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
                             <option value="">Pilih Mata Kuliah</option>
                             @foreach($mataKuliah as $mk)
-                            <option value="{{ $mk->id }}" data-prodi="{{ $mk->prodi_id ?? '' }}">{{ $mk->kode_mk }} - {{ $mk->nama_mk }}</option>
+                            <option value="{{ $mk->id }}" data-prodi="{{ $mk->prodi_id ?? '' }}" data-semester="{{ $mk->semester }}">{{ $mk->kode_mk }} - {{ $mk->nama_mk }} (Sem {{ $mk->semester }})</option>
                             @endforeach
                         </select>
                     </div>
@@ -470,16 +500,33 @@
     <script>
         function filterMataKuliahAndDosenCreate() {
             const prodiId = document.getElementById('createClassProdiSelect').value;
+            const semester = document.getElementById('createClassSemesterSelect').value;
             const mkSelect = document.getElementById('createClassMKSelect');
             const dosenSelect = document.getElementById('createClassDosenSelect');
             
+            const activeSemester = "{{ $activeSemester }}";
+            
+            // Filter Mata Kuliah
             Array.from(mkSelect.options).forEach(opt => {
                 if (opt.value === '') return;
                 const optProdiId = opt.getAttribute('data-prodi');
-                opt.style.display = (prodiId === '' || optProdiId === prodiId) ? '' : 'none';
+                const optSemester = parseInt(opt.getAttribute('data-semester'));
+                
+                const matchesProdi = (prodiId === '' || optProdiId === prodiId);
+                
+                let matchesSemester = false;
+                if (semester !== '') {
+                    matchesSemester = (optSemester.toString() === semester);
+                } else {
+                    const isOdd = optSemester % 2 !== 0;
+                    matchesSemester = (activeSemester === 'ganjil' ? isOdd : !isOdd);
+                }
+                
+                opt.style.display = (matchesProdi && matchesSemester) ? '' : 'none';
             });
             mkSelect.value = '';
             
+            // Filter Dosen
             Array.from(dosenSelect.options).forEach(opt => {
                 if (opt.value === '') return;
                 const optProdiId = opt.getAttribute('data-prodi');
@@ -490,21 +537,48 @@
 
         function filterMataKuliahAndDosenEdit(selectedMkId = null, selectedDosenId = null) {
             const prodiId = document.getElementById('editClassProdiSelect').value;
+            const semester = document.getElementById('editClassSemesterSelect').value;
             const mkSelect = document.getElementById('editMK');
             const dosenSelect = document.getElementById('editDosen');
             
+            const activeSemester = "{{ $activeSemester }}";
+            
+            // Filter Mata Kuliah
             Array.from(mkSelect.options).forEach(opt => {
                 if (opt.value === '') return;
                 const optProdiId = opt.getAttribute('data-prodi');
-                opt.style.display = (prodiId === '' || optProdiId === prodiId) ? '' : 'none';
+                const optSemester = parseInt(opt.getAttribute('data-semester'));
+                
+                const matchesProdi = (prodiId === '' || optProdiId === prodiId);
+                
+                let matchesSemester = false;
+                if (semester !== '') {
+                    matchesSemester = (optSemester.toString() === semester);
+                } else {
+                    const isOdd = optSemester % 2 !== 0;
+                    matchesSemester = (activeSemester === 'ganjil' ? isOdd : !isOdd);
+                }
+                
+                if (selectedMkId && opt.value.toString() === selectedMkId.toString()) {
+                    matchesSemester = true;
+                }
+                
+                opt.style.display = (matchesProdi && matchesSemester) ? '' : 'none';
             });
             if (!selectedMkId) mkSelect.value = '';
             else mkSelect.value = selectedMkId;
             
+            // Filter Dosen
             Array.from(dosenSelect.options).forEach(opt => {
                 if (opt.value === '') return;
                 const optProdiId = opt.getAttribute('data-prodi');
-                opt.style.display = (prodiId === '' || optProdiId === prodiId) ? '' : 'none';
+                
+                let matchesDosen = (prodiId === '' || optProdiId === prodiId);
+                if (selectedDosenId && opt.value.toString() === selectedDosenId.toString()) {
+                    matchesDosen = true;
+                }
+                
+                opt.style.display = matchesDosen ? '' : 'none';
             });
             if (!selectedDosenId) dosenSelect.value = '';
             else dosenSelect.value = selectedDosenId;
@@ -521,10 +595,13 @@
             document.getElementById('editJamSelesai').value = data.jam_selesai || '';
             document.getElementById('editRuangan').value = data.ruangan || '';
             
-            // Set Program Studi based on selected Mata Kuliah's prodi_id
+            // Set Program Studi & Semester based on selected Mata Kuliah's prodi_id & semester
             const selectedOption = document.querySelector(`#editMK option[value="${data.mata_kuliah_id}"]`);
             const prodiId = selectedOption ? selectedOption.getAttribute('data-prodi') : '';
+            const semester = selectedOption ? selectedOption.getAttribute('data-semester') : '';
+            
             document.getElementById('editClassProdiSelect').value = prodiId || '';
+            document.getElementById('editClassSemesterSelect').value = semester || '';
             
             // Run filter so options are filtered correctly but keep current selection
             filterMataKuliahAndDosenEdit(data.mata_kuliah_id, data.dosen_id);

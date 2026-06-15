@@ -63,9 +63,19 @@ class KelasController extends Controller
             $dosenQuery->whereHas('prodi', fn($q) => $q->where('fakultas_id', $request->get('fakultas_scope')));
         }
         $dosen = $dosenQuery->get();
-        $prodis = \App\Models\Prodi::orderBy('nama')->get();
+        $prodisQuery = \App\Models\Prodi::orderBy('nama');
+        $user = auth()->user();
+        if ($user->role === 'admin_fakultas' && $user->fakultas_id) {
+            $prodisQuery->where('fakultas_id', $user->fakultas_id);
+        } elseif ($user->role === 'admin_prodi' && $user->prodi_id) {
+            $prodisQuery->where('id', $user->prodi_id);
+        }
+        $prodis = $prodisQuery->get();
+
+        $activeTA = \App\Models\TahunAkademik::where('is_active', true)->first();
+        $activeSemester = $activeTA ? strtolower($activeTA->semester) : 'ganjil';
         
-        return view('admin.kelas.index', compact('kelas', 'mataKuliah', 'dosen', 'prodis'));
+        return view('admin.kelas.index', compact('kelas', 'mataKuliah', 'dosen', 'prodis', 'activeSemester'));
     }
 
 

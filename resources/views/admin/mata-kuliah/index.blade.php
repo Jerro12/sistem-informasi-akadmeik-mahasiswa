@@ -43,13 +43,12 @@
             @if(request('sort')) <input type="hidden" name="sort" value="{{ request('sort') }}"> @endif
             @if(request('order')) <input type="hidden" name="order" value="{{ request('order') }}"> @endif
 
-            <!-- Filter Semester -->
-            <div class="relative min-w-[140px] flex-1 sm:flex-none">
-                <select name="semester" onchange="this.form.submit()" class="input-saas w-full pl-4 pr-10 py-2.5 appearance-none cursor-pointer text-sm">
-                    <option value="">Semua Semester</option>
-                    @for($i = 1; $i <= 8; $i++)
-                    <option value="{{ $i }}" {{ request('semester') == $i ? 'selected' : '' }}>Semester {{ $i }}</option>
-                    @endfor
+            <!-- Filter Jenis Mata Kuliah -->
+            <div class="relative min-w-[150px] flex-1 sm:flex-none">
+                <select name="jenis" onchange="this.form.submit()" class="input-saas w-full pl-4 pr-10 py-2.5 appearance-none cursor-pointer text-sm">
+                    <option value="">Semua Jenis</option>
+                    <option value="wajib" {{ request('jenis') == 'wajib' ? 'selected' : '' }}>Wajib</option>
+                    <option value="pilihan" {{ request('jenis') == 'pilihan' ? 'selected' : '' }}>Pilihan</option>
                 </select>
                 <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-siakad-secondary">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>

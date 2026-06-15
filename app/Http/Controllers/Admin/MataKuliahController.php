@@ -24,9 +24,9 @@ class MataKuliahController extends Controller
     {
         $query = MataKuliah::with('prodi.fakultas');
 
-        // 1. Filters (Semester, Prodi, Konsentrasi, Kurikulum)
-        if ($request->filled('semester')) {
-            $query->where('semester', $request->semester);
+        // 1. Filters (Jenis, Prodi, Konsentrasi, Kurikulum)
+        if ($request->filled('jenis')) {
+            $query->where('jenis', $request->jenis);
         }
 
         if ($request->filled('prodi')) {
@@ -111,8 +111,8 @@ class MataKuliahController extends Controller
     {
         $query = MataKuliah::query();
 
-        if ($request->filled('semester')) {
-            $query->where('semester', $request->semester);
+        if ($request->filled('jenis')) {
+            $query->where('jenis', $request->jenis);
         }
 
         if ($request->filled('prodi')) {
