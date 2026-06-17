@@ -15,6 +15,7 @@ class Dosen extends Model
         'user_id',
         'nidn',
         'prodi_id',
+        'fakultas_id',
         'no_hp',
         'jenis_kelamin',
         'tempat_lahir',
@@ -35,6 +36,11 @@ class Dosen extends Model
     public function prodi()
     {
         return $this->belongsTo(Prodi::class);
+    }
+
+    public function fakultas()
+    {
+        return $this->belongsTo(Fakultas::class);
     }
 
     public function kelas()

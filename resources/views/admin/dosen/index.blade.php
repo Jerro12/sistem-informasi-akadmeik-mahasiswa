@@ -15,8 +15,14 @@
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama atau NIDN..." class="input-saas px-4 py-2 text-sm w-64 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300">
                 <select name="prodi_id" class="input-saas px-4 py-2 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300">
                     <option value="">Semua Prodi</option>
-                    @foreach($prodiList as $p)
-                    <option value="{{ $p->id }}" {{ request('prodi_id') == $p->id ? 'selected' : '' }}>{{ $p->nama }}</option>
+                    @if(!request()->get('fakultas_scoped'))
+                    <option value="perguruan_tinggi" {{ request('prodi_id') === 'perguruan_tinggi' ? 'selected' : '' }}>Perguruan Tinggi</option>
+                    @endif
+                    @foreach($fakultasList as $f)
+                    <option value="fakultas_{{ $f->id }}" {{ request('prodi_id') === 'fakultas_'.$f->id ? 'selected' : '' }}>Semua Prodi ({{ $f->nama }})</option>
+                    @foreach($prodiList->where('fakultas_id', $f->id) as $p)
+                    <option value="{{ $p->id }}" {{ request('prodi_id') == $p->id ? 'selected' : '' }}>&nbsp;&nbsp;&nbsp;&nbsp;{{ $p->nama }}</option>
+                    @endforeach
                     @endforeach
                 </select>
                 <button type="submit" class="btn-primary-saas px-4 py-2 rounded-lg text-sm font-medium">Filter</button>
@@ -92,7 +98,15 @@
                             <span class="text-sm font-mono text-siakad-secondary dark:text-gray-400">{{ $d->nidn }}</span>
                         </td>
                         <td class="py-4 px-5">
-                            <span class="text-sm text-siakad-secondary dark:text-gray-400">{{ $d->prodi->nama ?? '-' }}</span>
+                            <span class="text-sm text-siakad-secondary dark:text-gray-400">
+                                @if($d->prodi)
+                                    {{ $d->prodi->nama }}
+                                @elseif($d->fakultas)
+                                    Semua Prodi ({{ $d->fakultas->nama }})
+                                @else
+                                    Perguruan Tinggi
+                                @endif
+                            </span>
                         </td>
                         <td class="py-4 px-5">
                             <span class="inline-flex px-2.5 py-1 text-xs font-medium bg-siakad-primary/10 text-siakad-primary dark:bg-blue-500/10 dark:text-blue-400 rounded-full">{{ $d->kelas_count ?? $d->kelas->count() }}</span>
@@ -114,7 +128,7 @@
                                 <a href="{{ route('admin.dosen.show', $d) }}" class="p-2 text-siakad-secondary hover:text-siakad-primary hover:bg-siakad-primary/10 rounded-lg transition" title="Detail">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                 </a>
-                                <button onclick="openEditModal({{ json_encode(['id'=>$d->id,'name'=>$d->user->name,'nidn'=>$d->nidn,'prodi_id'=>$d->prodi_id]) }})" class="p-2 text-blue-600 hover:bg-blue-100 rounded-lg" title="Edit">
+                                <button onclick="openEditModal({{ json_encode(['id'=>$d->id,'name'=>$d->user->name,'nidn'=>$d->nidn,'prodi_id'=>$d->prodi_id,'fakultas_id'=>$d->fakultas_id]) }})" class="p-2 text-blue-600 hover:bg-blue-100 rounded-lg" title="Edit">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                 </button>
                                 <form action="{{ route('admin.dosen.destroy', $d) }}" method="POST" class="inline" onsubmit="return confirm('Yakin?')">@csrf @method('DELETE')
@@ -159,7 +173,15 @@
             <div class="grid grid-cols-2 gap-2 text-sm text-siakad-secondary dark:text-gray-400 mb-4">
                 <div class="col-span-2">
                     <span class="block text-xs text-gray-400">Prodi</span>
-                    <span class="font-medium text-siakad-dark dark:text-gray-200">{{ $d->prodi->nama ?? '-' }}</span>
+                    <span class="font-medium text-siakad-dark dark:text-gray-200">
+                        @if($d->prodi)
+                            {{ $d->prodi->nama }}
+                        @elseif($d->fakultas)
+                            Semua Prodi ({{ $d->fakultas->nama }})
+                        @else
+                            Perguruan Tinggi
+                        @endif
+                    </span>
                 </div>
                 <div>
                     <span class="block text-xs text-gray-400">Kelas Diampu</span>
@@ -198,8 +220,18 @@
                     <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Nama</label><input type="text" name="name" required class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
                     <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Password</label><input type="password" name="password" required minlength="8" class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
                     <div><label class="block text-sm font-medium text-siakad-secondary mb-1">NIDN</label><input type="text" name="nidn" required class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
-                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Prodi</label>
-                        <select name="prodi_id" required class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white">@foreach($prodiList as $p)<option value="{{ $p->id }}">{{ $p->nama }}</option>@endforeach</select>
+                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Prodi / Tingkatan</label>
+                        <select name="prodi_id" class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            @if(!request()->get('fakultas_scoped'))
+                            <option value="">Perguruan Tinggi</option>
+                            @endif
+                            @foreach($fakultasList as $f)
+                            <option value="fakultas_{{ $f->id }}">Semua Prodi ({{ $f->nama }})</option>
+                            @foreach($prodiList->where('fakultas_id', $f->id) as $p)
+                            <option value="{{ $p->id }}">&nbsp;&nbsp;&nbsp;&nbsp;{{ $p->nama }}</option>
+                            @endforeach
+                            @endforeach
+                        </select>
                     </div>
                     <div class="flex justify-end gap-3"><button type="button" onclick="closeModal('createModal')" class="px-4 py-2 text-sm text-siakad-secondary hover:bg-gray-100 rounded-lg">Batal</button><button type="submit" class="btn-primary-saas px-4 py-2 rounded-lg text-sm">Simpan</button></div>
                 </form>
@@ -217,8 +249,18 @@
                     <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Nama</label><input type="text" name="name" id="editName" required class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
                     <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Password (kosongkan jika tidak diubah)</label><input type="password" name="password" minlength="8" class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
                     <div><label class="block text-sm font-medium text-siakad-secondary mb-1">NIDN</label><input type="text" name="nidn" id="editNidn" required class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
-                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Prodi</label>
-                        <select name="prodi_id" id="editProdiId" required class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white">@foreach($prodiList as $p)<option value="{{ $p->id }}">{{ $p->nama }}</option>@endforeach</select>
+                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Prodi / Tingkatan</label>
+                        <select name="prodi_id" id="editProdiId" class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            @if(!request()->get('fakultas_scoped'))
+                            <option value="">Perguruan Tinggi</option>
+                            @endif
+                            @foreach($fakultasList as $f)
+                            <option value="fakultas_{{ $f->id }}">Semua Prodi ({{ $f->nama }})</option>
+                            @foreach($prodiList->where('fakultas_id', $f->id) as $p)
+                            <option value="{{ $p->id }}">&nbsp;&nbsp;&nbsp;&nbsp;{{ $p->nama }}</option>
+                            @endforeach
+                            @endforeach
+                        </select>
                     </div>
                     <div class="flex justify-end gap-3"><button type="button" onclick="closeModal('editModal')" class="px-4 py-2 text-sm text-siakad-secondary hover:bg-gray-100 rounded-lg">Batal</button><button type="submit" class="btn-primary-saas px-4 py-2 rounded-lg text-sm">Simpan</button></div>
                 </form>
@@ -233,7 +275,15 @@
             document.getElementById('editForm').action = `/admin/dosen/${d.id}`;
             document.getElementById('editName').value = d.name;
             document.getElementById('editNidn').value = d.nidn;
-            document.getElementById('editProdiId').value = d.prodi_id;
+            
+            let val = '';
+            if (d.prodi_id) {
+                val = d.prodi_id;
+            } else if (d.fakultas_id) {
+                val = 'fakultas_' + d.fakultas_id;
+            }
+            document.getElementById('editProdiId').value = val;
+            
             openModal('editModal');
         }
     </script>

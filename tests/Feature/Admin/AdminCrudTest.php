@@ -5,7 +5,7 @@ use App\Models\Fakultas;
 use App\Models\Prodi;
 
 beforeEach(function () {
-    $this->admin = User::factory()->create(['role' => 'admin']);
+    $this->admin = User::factory()->create(['role' => 'superadmin']);
 });
 
 test('admin can view fakultas list', function () {

@@ -16,7 +16,7 @@ class DosenController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Dosen::with(['user', 'prodi.fakultas'])
+        $query = Dosen::with(['user', 'prodi.fakultas', 'fakultas'])
             ->withCount('kelas');
 
         // Search
@@ -27,14 +27,24 @@ class DosenController extends Controller
             });
         }
 
-        // Filter by prodi
+        // Filter by prodi/level
         if ($prodiId = $request->get('prodi_id')) {
-            $query->where('prodi_id', $prodiId);
+            if ($prodiId === 'perguruan_tinggi' || $prodiId === 'pt') {
+                $query->whereNull('prodi_id')->whereNull('fakultas_id');
+            } elseif (str_starts_with($prodiId, 'fakultas_')) {
+                $fId = (int) str_replace('fakultas_', '', $prodiId);
+                $query->where('fakultas_id', $fId);
+            } else {
+                $query->where('prodi_id', $prodiId);
+            }
         }
 
         // Faculty scoping
         if ($request->get('fakultas_scoped') && $request->get('fakultas_scope')) {
-            $query->whereHas('prodi', fn($q) => $q->where('fakultas_id', $request->get('fakultas_scope')));
+            $query->where(function ($q) use ($request) {
+                $q->whereHas('prodi', fn($q2) => $q2->where('fakultas_id', $request->get('fakultas_scope')))
+                  ->orWhere('fakultas_id', $request->get('fakultas_scope'));
+            });
         }
 
         // Prodi scoping for admin_prodi
@@ -47,13 +57,14 @@ class DosenController extends Controller
         $sortDirection = $request->get('order', 'asc');
 
         if ($sortColumn === 'name') {
-            $query->join('users', 'dosen.user_id', '=', 'users.id')
+            $query->leftJoin('users', 'dosen.user_id', '=', 'users.id')
                   ->select('dosen.*')
                   ->orderBy('users.name', $sortDirection);
         } elseif ($sortColumn === 'prodi') {
-             $query->join('prodi', 'dosen.prodi_id', '=', 'prodi.id')
+             $query->leftJoin('prodi', 'dosen.prodi_id', '=', 'prodi.id')
+                   ->leftJoin('fakultas', 'dosen.fakultas_id', '=', 'fakultas.id')
                    ->select('dosen.*')
-                   ->orderBy('prodi.nama', $sortDirection);
+                   ->orderByRaw('COALESCE(prodi.nama, fakultas.nama, "Perguruan Tinggi") ' . $sortDirection);
         } else {
              $query->orderBy('nidn', $sortDirection);
         }
@@ -67,7 +78,14 @@ class DosenController extends Controller
         }
         $prodiList = $prodiQuery->get();
 
-        return view('admin.dosen.index', compact('dosen', 'prodiList'));
+        // Fakultas list scoped by faculty
+        $fakultasQuery = \App\Models\Fakultas::query();
+        if ($request->get('fakultas_scoped') && $request->get('fakultas_scope')) {
+            $fakultasQuery->where('id', $request->get('fakultas_scope'));
+        }
+        $fakultasList = $fakultasQuery->get();
+
+        return view('admin.dosen.index', compact('dosen', 'prodiList', 'fakultasList'));
     }
 
     public function store(Request $request)
@@ -76,10 +94,30 @@ class DosenController extends Controller
             'name' => 'required|string|max:255',
             'password' => 'required|string|min:8',
             'nidn' => 'required|string|unique:dosen,nidn',
-            'prodi_id' => 'required|exists:prodi,id',
+            'prodi_id' => 'nullable|string',
         ]);
 
-        DB::transaction(function () use ($validated) {
+        $prodiId = null;
+        $fakultasId = null;
+
+        if ($request->filled('prodi_id')) {
+            $val = $request->input('prodi_id');
+            if (str_starts_with($val, 'fakultas_')) {
+                $fakultasId = (int) str_replace('fakultas_', '', $val);
+                if (!\App\Models\Fakultas::where('id', $fakultasId)->exists()) {
+                    return back()->withErrors(['prodi_id' => 'Fakultas tidak valid.']);
+                }
+            } else {
+                $prodiId = (int) $val;
+                $prodi = Prodi::find($prodiId);
+                if (!$prodi) {
+                    return back()->withErrors(['prodi_id' => 'Prodi tidak valid.']);
+                }
+                $fakultasId = $prodi->fakultas_id;
+            }
+        }
+
+        DB::transaction(function () use ($validated, $prodiId, $fakultasId) {
             $user = User::create([
                 'name' => $validated['name'],
                 'username' => $validated['nidn'],
@@ -87,12 +125,15 @@ class DosenController extends Controller
                 'password' => Hash::make($validated['password']),
                 'password_plain' => $validated['password'],
                 'role' => 'dosen',
+                'prodi_id' => $prodiId,
+                'fakultas_id' => $fakultasId,
             ]);
 
             Dosen::create([
                 'user_id' => $user->id,
                 'nidn' => $validated['nidn'],
-                'prodi_id' => $validated['prodi_id'],
+                'prodi_id' => $prodiId,
+                'fakultas_id' => $fakultasId,
             ]);
         });
 
@@ -104,15 +145,37 @@ class DosenController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'nidn' => 'required|string|unique:dosen,nidn,' . $dosen->id . '|unique:users,username,' . $dosen->user_id,
-            'prodi_id' => 'required|exists:prodi,id',
+            'prodi_id' => 'nullable|string',
             'password' => 'nullable|string|min:8',
         ]);
 
-        DB::transaction(function () use ($validated, $dosen) {
+        $prodiId = null;
+        $fakultasId = null;
+
+        if ($request->filled('prodi_id')) {
+            $val = $request->input('prodi_id');
+            if (str_starts_with($val, 'fakultas_')) {
+                $fakultasId = (int) str_replace('fakultas_', '', $val);
+                if (!\App\Models\Fakultas::where('id', $fakultasId)->exists()) {
+                    return back()->withErrors(['prodi_id' => 'Fakultas tidak valid.']);
+                }
+            } else {
+                $prodiId = (int) $val;
+                $prodi = Prodi::find($prodiId);
+                if (!$prodi) {
+                    return back()->withErrors(['prodi_id' => 'Prodi tidak valid.']);
+                }
+                $fakultasId = $prodi->fakultas_id;
+            }
+        }
+
+        DB::transaction(function () use ($validated, $dosen, $prodiId, $fakultasId) {
             $userUpdate = [
                 'name' => $validated['name'],
                 'username' => $validated['nidn'],
                 'email' => $validated['nidn'] . '@dosen.siakad.com',
+                'prodi_id' => $prodiId,
+                'fakultas_id' => $fakultasId,
             ];
 
             if (!empty($validated['password'])) {
@@ -124,7 +187,8 @@ class DosenController extends Controller
 
             $dosen->update([
                 'nidn' => $validated['nidn'],
-                'prodi_id' => $validated['prodi_id'],
+                'prodi_id' => $prodiId,
+                'fakultas_id' => $fakultasId,
             ]);
         });
 
@@ -147,7 +211,7 @@ class DosenController extends Controller
 
     public function show(Dosen $dosen)
     {
-        $dosen->load(['user', 'prodi.fakultas', 'kelas.mataKuliah', 'kelas.krsDetail']);
+        $dosen->load(['user', 'prodi.fakultas', 'fakultas', 'kelas.mataKuliah', 'kelas.krsDetail']);
         
         // Paginate kelas (4 per page)
         $kelasIds = $dosen->kelas()->pluck('id');
@@ -162,11 +226,14 @@ class DosenController extends Controller
 
     public function export(Request $request)
     {
-        $query = Dosen::with(['user', 'prodi.fakultas'])->withCount('kelas');
+        $query = Dosen::with(['user', 'prodi.fakultas', 'fakultas'])->withCount('kelas');
 
         // Faculty scoping
         if ($request->get('fakultas_scoped') && $request->get('fakultas_scope')) {
-            $query->whereHas('prodi', fn($q) => $q->where('fakultas_id', $request->get('fakultas_scope')));
+            $query->where(function ($q) use ($request) {
+                $q->whereHas('prodi', fn($q2) => $q2->where('fakultas_id', $request->get('fakultas_scope')))
+                  ->orWhere('fakultas_id', $request->get('fakultas_scope'));
+            });
         }
 
         // Search
@@ -177,9 +244,16 @@ class DosenController extends Controller
             });
         }
 
-        // Filter by prodi
+        // Filter by prodi/level
         if ($prodiId = $request->get('prodi_id')) {
-            $query->where('prodi_id', $prodiId);
+            if ($prodiId === 'perguruan_tinggi' || $prodiId === 'pt') {
+                $query->whereNull('prodi_id')->whereNull('fakultas_id');
+            } elseif (str_starts_with($prodiId, 'fakultas_')) {
+                $fId = (int) str_replace('fakultas_', '', $prodiId);
+                $query->where('fakultas_id', $fId);
+            } else {
+                $query->where('prodi_id', $prodiId);
+            }
         }
 
         $dosenList = $query->orderBy('nidn')->get();
@@ -190,13 +264,16 @@ class DosenController extends Controller
         $html .= '<tbody>';
         
         foreach ($dosenList as $idx => $dosen) {
+            $prodiName = $dosen->prodi ? $dosen->prodi->nama : ($dosen->fakultas ? 'Semua Prodi' : 'Perguruan Tinggi');
+            $fakultasName = $dosen->prodi ? ($dosen->prodi->fakultas->nama ?? '-') : ($dosen->fakultas ? $dosen->fakultas->nama : 'Perguruan Tinggi');
+            
             $html .= '<tr>';
             $html .= '<td>' . ($idx + 1) . '</td>';
             $html .= '<td>' . $dosen->nidn . '</td>';
             $html .= '<td>' . $dosen->user->name . '</td>';
             $html .= '<td>' . $dosen->user->email . '</td>';
-            $html .= '<td>' . ($dosen->prodi->nama ?? '-') . '</td>';
-            $html .= '<td>' . ($dosen->prodi->fakultas->nama ?? '-') . '</td>';
+            $html .= '<td>' . $prodiName . '</td>';
+            $html .= '<td>' . $fakultasName . '</td>';
             $html .= '<td>' . $dosen->kelas_count . '</td>';
             $html .= '</tr>';
         }

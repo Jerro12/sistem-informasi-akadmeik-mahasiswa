@@ -22,11 +22,27 @@
                     </div>
                     <div class="flex items-center justify-between p-3 rounded-xl bg-siakad-light/30 dark:bg-gray-700/30">
                         <span class="text-xs font-medium text-siakad-secondary dark:text-gray-400 uppercase tracking-wider">Prodi</span>
-                        <span class="text-sm font-semibold text-siakad-dark dark:text-gray-200 text-right">{{ $dosen->prodi->nama }}</span>
+                        <span class="text-sm font-semibold text-siakad-dark dark:text-gray-200 text-right">
+                            @if($dosen->prodi)
+                                {{ $dosen->prodi->nama }}
+                            @elseif($dosen->fakultas)
+                                Semua Prodi
+                            @else
+                                Perguruan Tinggi
+                            @endif
+                        </span>
                     </div>
                     <div class="flex items-center justify-between p-3 rounded-xl bg-siakad-light/30 dark:bg-gray-700/30">
                         <span class="text-xs font-medium text-siakad-secondary dark:text-gray-400 uppercase tracking-wider">Fakultas</span>
-                        <span class="text-sm font-semibold text-siakad-dark dark:text-gray-200 text-right">{{ $dosen->prodi->fakultas->nama }}</span>
+                        <span class="text-sm font-semibold text-siakad-dark dark:text-gray-200 text-right">
+                            @if($dosen->prodi)
+                                {{ $dosen->prodi->fakultas->nama }}
+                            @elseif($dosen->fakultas)
+                                {{ $dosen->fakultas->nama }}
+                            @else
+                                Perguruan Tinggi
+                            @endif
+                        </span>
                     </div>
                 </div>
             </div>
