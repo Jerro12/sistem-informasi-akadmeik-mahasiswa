@@ -85,6 +85,7 @@ class SkripsiController extends Controller
         $skripsi = Skripsi::where('mahasiswa_id', $mahasiswa->id)->firstOrFail();
 
         $validated = $request->validate([
+            'dosen_id' => 'required|in:' . implode(',', array_filter([$skripsi->pembimbing1_id, $skripsi->pembimbing2_id])),
             'catatan_mahasiswa' => 'required|string',
             'file_dokumen' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
         ]);
@@ -94,12 +95,9 @@ class SkripsiController extends Controller
             $filePath = $request->file('file_dokumen')->store('skripsi/bimbingan', 'public');
         }
 
-        // Default to pembimbing 1
-        $dosenId = $skripsi->pembimbing1_id;
-
         BimbinganSkripsi::create([
             'skripsi_id' => $skripsi->id,
-            'dosen_id' => $dosenId,
+            'dosen_id' => $validated['dosen_id'],
             'tanggal_bimbingan' => now(),
             'catatan_mahasiswa' => $validated['catatan_mahasiswa'],
             'file_dokumen' => $filePath,

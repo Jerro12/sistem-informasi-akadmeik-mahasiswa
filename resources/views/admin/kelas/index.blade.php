@@ -331,6 +331,10 @@
                             <option value="{{ $d->id }}" data-prodi="{{ $d->prodi_id ?? '' }}">{{ $d->user->name }}</option>
                             @endforeach
                         </select>
+                        <div class="flex items-center gap-2 mt-2">
+                            <input type="checkbox" id="createClassShowAllFacultyDosen" onchange="filterMataKuliahAndDosenCreate()" class="rounded border-gray-300 text-siakad-primary focus:ring-siakad-primary">
+                            <label for="createClassShowAllFacultyDosen" class="text-xs text-siakad-secondary dark:text-gray-400">Tampilkan seluruh dosen se-fakultas</label>
+                        </div>
                     </div>
                     
                     <!-- Jadwal Section -->
@@ -438,6 +442,10 @@
                             <option value="{{ $d->id }}" data-prodi="{{ $d->prodi_id ?? '' }}">{{ $d->user->name }}</option>
                             @endforeach
                         </select>
+                        <div class="flex items-center gap-2 mt-2">
+                            <input type="checkbox" id="editClassShowAllFacultyDosen" onchange="filterMataKuliahAndDosenEdit(document.getElementById('editMK').value, document.getElementById('editDosen').value)" class="rounded border-gray-300 text-siakad-primary focus:ring-siakad-primary">
+                            <label for="editClassShowAllFacultyDosen" class="text-xs text-siakad-secondary dark:text-gray-400">Tampilkan seluruh dosen se-fakultas</label>
+                        </div>
                     </div>
                     
                     <!-- Jadwal Section -->
@@ -532,6 +540,7 @@
             const semester = document.getElementById('createClassSemesterSelect').value;
             const mkSelect = document.getElementById('createClassMKSelect');
             const dosenSelect = document.getElementById('createClassDosenSelect');
+            const showAllFacultyDosen = document.getElementById('createClassShowAllFacultyDosen').checked;
             
             const activeSemester = "{{ $activeSemester }}";
             
@@ -559,7 +568,11 @@
             Array.from(dosenSelect.options).forEach(opt => {
                 if (opt.value === '') return;
                 const optProdiId = opt.getAttribute('data-prodi');
-                opt.style.display = (prodiId === '' || optProdiId === prodiId) ? '' : 'none';
+                if (showAllFacultyDosen) {
+                    opt.style.display = '';
+                } else {
+                    opt.style.display = (prodiId === '' || optProdiId === prodiId) ? '' : 'none';
+                }
             });
             dosenSelect.value = '';
         }
@@ -569,6 +582,7 @@
             const semester = document.getElementById('editClassSemesterSelect').value;
             const mkSelect = document.getElementById('editMK');
             const dosenSelect = document.getElementById('editDosen');
+            const showAllFacultyDosen = document.getElementById('editClassShowAllFacultyDosen').checked;
             
             const activeSemester = "{{ $activeSemester }}";
             
@@ -602,7 +616,7 @@
                 if (opt.value === '') return;
                 const optProdiId = opt.getAttribute('data-prodi');
                 
-                let matchesDosen = (prodiId === '' || optProdiId === prodiId);
+                let matchesDosen = showAllFacultyDosen || (prodiId === '' || optProdiId === prodiId);
                 if (selectedDosenId && opt.value.toString() === selectedDosenId.toString()) {
                     matchesDosen = true;
                 }
@@ -631,6 +645,12 @@
             
             document.getElementById('editClassProdiSelect').value = prodiId || '';
             document.getElementById('editClassSemesterSelect').value = semester || '';
+            
+            // Auto check showAllFacultyDosen if dosen's prodi is different from course prodi
+            const selectedDosenOption = document.querySelector(`#editDosen option[value="${data.dosen_id}"]`);
+            const dosenProdiId = selectedDosenOption ? selectedDosenOption.getAttribute('data-prodi') : '';
+            const isDifferentProdi = prodiId && dosenProdiId && (prodiId.toString() !== dosenProdiId.toString());
+            document.getElementById('editClassShowAllFacultyDosen').checked = isDifferentProdi;
             
             // Run filter so options are filtered correctly but keep current selection
             filterMataKuliahAndDosenEdit(data.mata_kuliah_id, data.dosen_id);

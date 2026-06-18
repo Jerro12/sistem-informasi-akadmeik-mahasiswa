@@ -174,7 +174,7 @@
 
                             @if($b->file_dokumen)
                                 <div class="text-right pt-1">
-                                    <a href="{{ asset('storage/' . $b->file_dokumen) }}" target="_blank" class="text-[10px] text-siakad-primary hover:underline font-semibold inline-flex items-center gap-0.5">
+                                    <a href="{{ route('bimbingan.download', $b) }}" target="_blank" class="text-[10px] text-siakad-primary hover:underline font-semibold inline-flex items-center gap-0.5">
                                         📄 Unduh Berkas
                                     </a>
                                 </div>

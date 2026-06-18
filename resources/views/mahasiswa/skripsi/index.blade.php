@@ -198,6 +198,17 @@
                 @csrf
                 <div class="space-y-4">
                     <div>
+                        <label class="block text-sm font-medium text-siakad-dark mb-2">Dosen Pembimbing *</label>
+                        <select name="dosen_id" class="input-saas w-full text-sm" style="background-color: var(--bg-card);" required>
+                            @if($skripsi->pembimbing1)
+                                <option value="{{ $skripsi->pembimbing1->id }}">Pembimbing 1 - {{ $skripsi->pembimbing1->user->name }}</option>
+                            @endif
+                            @if($skripsi->pembimbing2)
+                                <option value="{{ $skripsi->pembimbing2->id }}">Pembimbing 2 - {{ $skripsi->pembimbing2->user->name }}</option>
+                            @endif
+                        </select>
+                    </div>
+                    <div>
                         <label class="block text-sm font-medium text-siakad-dark mb-2">Progress / Catatan *</label>
                         <textarea name="catatan_mahasiswa" rows="4" class="input-saas w-full text-sm" style="background-color: var(--bg-card);" placeholder="Deskripsikan progress Anda..." required></textarea>
                     </div>

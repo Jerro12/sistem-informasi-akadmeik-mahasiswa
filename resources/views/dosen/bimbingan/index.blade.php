@@ -61,7 +61,7 @@
             }
 
             function bindPaginationLinks() {
-                tableContainer.querySelectorAll('.pagination a').forEach(link => {
+                tableContainer.querySelectorAll('a[href*="page="]').forEach(link => {
                     link.addEventListener('click', function(e) {
                         e.preventDefault();
                         const url = new URL(this.href);

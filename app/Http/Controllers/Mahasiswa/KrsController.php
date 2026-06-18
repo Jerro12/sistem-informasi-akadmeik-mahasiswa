@@ -53,6 +53,66 @@ class KrsController extends Controller
               ->where('id', '!=', $krs->id); // Exclude KRS aktif saat ini
         })->get()->pluck('kelas.mata_kuliah_id')->unique()->filter()->toArray();
 
+        // Auto-create Kelas for eligible MataKuliah if not exists
+        if ($tahunAktif) {
+            $matchingMataKuliahs = \App\Models\MataKuliah::where(function($q) use ($mahasiswa, $takenMkIds, $krs, $tahunAktif, $targetSemester) {
+                // Filter ganjil/genap berdasarkan semester tahun akademik aktif
+                if (strtolower($tahunAktif->semester) === 'ganjil') {
+                    $q->whereRaw('semester % 2 != 0');
+                } else {
+                    $q->whereRaw('semester % 2 = 0');
+                }
+
+                // Tampilkan matkul semester target (Wajib tampil)
+                // ATAU matkul semester bawah (<) yang BELUM PERNAH diambil di KRS sebelumnya
+                $q->where(function($query) use ($mahasiswa, $takenMkIds, $targetSemester) {
+                    $query->where('semester', $targetSemester)
+                          ->orWhere(function($q2) use ($mahasiswa, $takenMkIds, $targetSemester) {
+                              $q2->where('semester', '<', $targetSemester)
+                                 ->whereNotIn('mata_kuliah.id', $takenMkIds);
+                          });
+                })
+                ->where(function($query) use ($mahasiswa) {
+                    $query->where('prodi_id', $mahasiswa->prodi_id)
+                          ->orWhereNull('prodi_id');
+                });
+
+                if ($mahasiswa->kurikulum_id) {
+                    $q->where(function($query) use ($mahasiswa) {
+                        $query->where('kurikulum_id', $mahasiswa->kurikulum_id)
+                              ->orWhereNull('kurikulum_id');
+                    });
+                }
+                
+                if ($krs->konsentrasi_id) {
+                    $q->where(function($query) use ($krs) {
+                        $query->where('konsentrasi_id', $krs->konsentrasi_id)
+                              ->orWhereNull('konsentrasi_id');
+                    });
+                } else {
+                    $q->whereNull('konsentrasi_id');
+                }
+            })->get();
+
+            $defaultDosen = \App\Models\Dosen::where('prodi_id', $mahasiswa->prodi_id)->first() ?? \App\Models\Dosen::first();
+
+            foreach ($matchingMataKuliahs as $mk) {
+                $exists = \App\Models\Kelas::where('mata_kuliah_id', $mk->id)
+                    ->where('tahun_akademik_id', $tahunAktif->id)
+                    ->exists();
+                if (!$exists && $defaultDosen) {
+                    \App\Models\Kelas::create([
+                        'mata_kuliah_id' => $mk->id,
+                        'dosen_id' => $defaultDosen->id,
+                        'tahun_akademik_id' => $tahunAktif->id,
+                        'nama_kelas' => 'Kelas A',
+                        'kapasitas' => 40,
+                        'is_closed' => false,
+                    ]);
+                }
+            }
+        }
+
         $availableKelas = \App\Models\Kelas::with(['mataKuliah', 'dosen.user', 'krsDetail'])
             ->where('tahun_akademik_id', $tahunAktif?->id)
             ->where('is_closed', false) // [FIX] Jangan tampilkan kelas yang sudah ditutup

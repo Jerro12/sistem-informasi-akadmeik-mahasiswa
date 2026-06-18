@@ -66,7 +66,7 @@ class SkripsiController extends Controller
     {
         $dosen = Auth::user()->dosen;
 
-        if ($bimbingan->dosen_id !== $dosen->id) {
+        if (!$bimbingan->skripsi || ($bimbingan->skripsi->pembimbing1_id !== $dosen->id && $bimbingan->skripsi->pembimbing2_id !== $dosen->id)) {
             abort(403);
         }
 
@@ -78,6 +78,7 @@ class SkripsiController extends Controller
         $bimbingan->update([
             'catatan_dosen' => $validated['catatan_dosen'],
             'status' => $validated['status'],
+            'dosen_id' => $dosen->id,
         ]);
 
         return redirect()->back()->with('success', 'Review bimbingan berhasil disimpan');

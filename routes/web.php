@@ -28,3 +28,7 @@ require __DIR__.'/profile.php';
 require __DIR__.'/admin/index.php';
 require __DIR__.'/dosen/index.php';
 require __DIR__.'/mahasiswa/index.php';
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/bimbingan/download/{bimbingan}', [App\Http\Controllers\BimbinganDownloadController::class, 'download'])->name('bimbingan.download');
+});

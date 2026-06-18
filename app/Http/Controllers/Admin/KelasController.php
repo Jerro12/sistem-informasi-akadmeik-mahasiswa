@@ -68,9 +68,12 @@ class KelasController extends Controller
         $mataKuliah = $this->akademikService->getAllMataKuliah();
         
         // Scope dosen list for dropdown
-        $dosenQuery = \App\Models\Dosen::with('user');
-        if ($request->get('fakultas_scoped') && $request->get('fakultas_scope')) {
-            $dosenQuery->whereHas('prodi', fn($q) => $q->where('fakultas_id', $request->get('fakultas_scope')));
+        $dosenQuery = \App\Models\Dosen::with(['user', 'prodi']);
+        $user = auth()->user();
+        if ($user->role === 'admin_fakultas' && $user->fakultas_id) {
+            $dosenQuery->whereHas('prodi', fn($q) => $q->where('fakultas_id', $user->fakultas_id));
+        } elseif ($user->role === 'admin_prodi' && $user->prodi_id && $user->prodi) {
+            $dosenQuery->whereHas('prodi', fn($q) => $q->where('fakultas_id', $user->prodi->fakultas_id));
         }
         $dosen = $dosenQuery->get();
         $prodisQuery = \App\Models\Prodi::orderBy('nama');

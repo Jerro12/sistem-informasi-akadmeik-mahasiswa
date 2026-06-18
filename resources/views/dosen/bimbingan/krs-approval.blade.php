@@ -29,7 +29,7 @@
     </div>
 
     <!-- Reject Modal -->
-    <div id="rejectModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+    <div id="rejectModal" class="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" style="display: none;">
         <div class="bg-white dark:bg-siakad-dark rounded-xl w-full max-w-md shadow-xl">
             <div class="px-6 py-4 border-b border-siakad-light dark:border-siakad-light/20">
                 <h3 class="text-lg font-semibold text-siakad-dark dark:text-white">Tolak KRS</h3>
@@ -82,7 +82,7 @@
             }
 
             function bindPaginationLinks() {
-                tableContainer.querySelectorAll('.pagination a').forEach(link => {
+                tableContainer.querySelectorAll('a[href*="page="]').forEach(link => {
                     link.addEventListener('click', function(e) {
                         e.preventDefault();
                         const url = new URL(this.href);
@@ -124,10 +124,10 @@
 
         function openRejectModal(url) {
             document.getElementById('rejectForm').action = url;
-            document.getElementById('rejectModal').classList.remove('hidden');
+            document.getElementById('rejectModal').style.display = 'flex';
         }
         function closeRejectModal() {
-            document.getElementById('rejectModal').classList.add('hidden');
+            document.getElementById('rejectModal').style.display = 'none';
         }
     </script>
 </x-app-layout>
