@@ -59,7 +59,7 @@ class KrsException extends SiakadException
      */
     public static function classFull(string $className, int $capacity): self
     {
-        $e = new self("Kelas {$className} penuh! Kapasitas: {$capacity}");
+        $e = new self("Kelas untuk mata kuliah ini penuh! Kapasitas: {$capacity}");
         $e->errorCode = self::CLASS_FULL;
         $e->context = ['class' => $className, 'capacity' => $capacity];
         return $e;

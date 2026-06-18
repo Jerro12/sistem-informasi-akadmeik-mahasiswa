@@ -171,7 +171,7 @@
                             <svg class="w-7 h-7 text-siakad-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
                         </div>
                         <p class="text-siakad-secondary font-medium">Belum ada mata kuliah diambil</p>
-                        <p class="text-xs text-siakad-secondary/70">Pilih kelas di samping untuk memulai</p>
+                        <p class="text-xs text-siakad-secondary/70">Pilih mata kuliah di samping untuk memulai</p>
                     </div>
                     @endforelse
                 </div>
@@ -193,44 +193,50 @@
                 </div>
                 
                 <div class="max-h-[60vh] overflow-y-auto">
-                    @forelse($availableKelas as $semester => $kelasList)
+                    @forelse($availableMataKuliah as $semester => $mkList)
                     <div x-data="{ open: false }" class="border-b border-siakad-light/50 last:border-b-0">
                         <button @click="open = !open" class="w-full px-4 py-3 bg-siakad-light/30 dark:bg-slate-700/30 flex items-center justify-between hover:bg-siakad-light/50 dark:hover:bg-slate-700/50 transition cursor-pointer">
                             <div class="text-left">
                                 <h4 class="font-semibold text-siakad-primary text-sm">{{ $semester }}</h4>
-                                <p class="text-[10px] text-siakad-secondary">{{ $kelasList->count() }} kelas tersedia</p>
+                                <p class="text-[10px] text-siakad-secondary">{{ $mkList->count() }} mata kuliah tersedia</p>
                             </div>
                             <svg class="w-4 h-4 text-siakad-secondary transition-transform duration-200" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                             </svg>
                         </button>
                         <div x-show="open" x-collapse class="divide-y divide-siakad-light/30">
-                            @foreach($kelasList as $k)
+                            @foreach($mkList as $mk)
+                            @php
+                                $kelasTA = $mk->kelas->first();
+                                $dosenName = $kelasTA?->dosen?->user?->name ?? '-';
+                                $kapasitas = $kelasTA?->kapasitas ?? 40;
+                                $terisi = $kelasTA?->krsDetail?->count() ?? 0;
+                            @endphp
                             <div class="p-4">
                                 <div class="flex items-start gap-3">
                                     <div class="flex-1 min-w-0">
                                         <div class="flex items-center gap-2">
-                                            <p class="font-medium text-siakad-dark text-sm truncate">{{ $k->mataKuliah->nama_mk }}</p>
-                                            @if($k->mataKuliah->jenis == 'pilihan')
+                                            <p class="font-medium text-siakad-dark text-sm truncate">{{ $mk->nama_mk }}</p>
+                                            @if($mk->jenis == 'pilihan')
                                                 <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-700 uppercase">Pilihan</span>
                                             @else
                                                 <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-100 text-blue-700 uppercase">Wajib</span>
                                             @endif
                                         </div>
-                                        <p class="text-[11px] text-siakad-secondary mt-0.5">{{ $k->mataKuliah->sks }} SKS • {{ $k->dosen->user->name ?? '-' }}</p>
+                                        <p class="text-[11px] text-siakad-secondary mt-0.5">{{ $mk->sks }} SKS • {{ $dosenName }}</p>
                                         <div class="flex items-center gap-2 mt-2">
                                             <div class="flex-1 h-1 bg-siakad-light rounded-full overflow-hidden">
-                                                <div class="h-full bg-siakad-primary rounded-full" style="width: {{ min(100, ($k->krsDetail->count() / $k->kapasitas) * 100) }}%"></div>
+                                                <div class="h-full bg-siakad-primary rounded-full" style="width: {{ min(100, ($terisi / $kapasitas) * 100) }}%"></div>
                                             </div>
-                                            <span class="text-[10px] text-siakad-secondary">{{ $k->krsDetail->count() }}/{{ $k->kapasitas }}</span>
+                                            <span class="text-[10px] text-siakad-secondary">{{ $terisi }}/{{ $kapasitas }}</span>
                                         </div>
                                     </div>
                                 </div>
                                 <form action="{{ url('mahasiswa/krs') }}" method="POST" class="mt-3">
                                     @csrf
-                                    <input type="hidden" name="kelas_id" value="{{ $k->id }}">
+                                    <input type="hidden" name="mata_kuliah_id" value="{{ $mk->id }}">
                                     <button type="submit" class="w-full py-2 px-3 bg-siakad-primary/10 text-siakad-primary rounded-lg font-medium text-sm hover:bg-siakad-primary/20 transition">
-                                        + Ambil Kelas
+                                        + Ambil Mata Kuliah
                                     </button>
                                 </form>
                             </div>
@@ -239,7 +245,7 @@
                     </div>
                     @empty
                     <div class="p-6 text-center text-siakad-secondary text-sm">
-                        Tidak ada kelas tersedia
+                        Tidak ada mata kuliah tersedia
                     </div>
                     @endforelse
                 </div>

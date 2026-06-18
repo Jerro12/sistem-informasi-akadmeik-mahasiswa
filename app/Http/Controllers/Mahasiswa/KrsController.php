@@ -113,10 +113,8 @@ class KrsController extends Controller
             }
         }
 
-        $availableKelas = \App\Models\Kelas::with(['mataKuliah', 'dosen.user', 'krsDetail'])
-            ->where('tahun_akademik_id', $tahunAktif?->id)
-            ->where('is_closed', false) // [FIX] Jangan tampilkan kelas yang sudah ditutup
-            ->whereHas('mataKuliah', function($q) use ($mahasiswa, $takenMkIds, $krs, $tahunAktif, $targetSemester) {
+        $availableMataKuliah = \App\Models\MataKuliah::with(['kelas' => fn($q) => $q->where('tahun_akademik_id', $tahunAktif?->id)->with(['dosen.user', 'krsDetail'])])
+            ->where(function($q) use ($mahasiswa, $takenMkIds, $krs, $tahunAktif, $targetSemester) {
                 // Filter ganjil/genap berdasarkan semester tahun akademik aktif
                 if ($tahunAktif) {
                     if (strtolower($tahunAktif->semester) === 'ganjil') {
@@ -159,14 +157,14 @@ class KrsController extends Controller
                     $q->whereNull('konsentrasi_id');
                 }
             })
-            ->whereDoesntHave('krsDetail', function($q) use ($krs) {
+            ->whereDoesntHave('kelas.krsDetail', function($q) use ($krs) {
                 $q->where('krs_id', $krs->id);
             })
             ->get()
-            ->groupBy(fn($k) => 'Semester ' . $k->mataKuliah->semester);
+            ->groupBy(fn($mk) => 'Semester ' . $mk->semester);
         
         // Sort by semester number
-        $availableKelas = $availableKelas->sortKeys();
+        $availableMataKuliah = $availableMataKuliah->sortKeys();
 
         // Concentration logic: Show if target semester >= 5
         $concentrations = collect();
@@ -176,7 +174,7 @@ class KrsController extends Controller
                 ->get();
         }
 
-        return view('mahasiswa.krs.index', compact('krs', 'availableKelas', 'concentrations'));
+        return view('mahasiswa.krs.index', compact('krs', 'availableMataKuliah', 'concentrations'));
     }
 
     public function updateConcentration(Request $request)
@@ -193,14 +191,38 @@ class KrsController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate(['kelas_id' => 'required|exists:kelas,id']);
+        $request->validate(['mata_kuliah_id' => 'required|exists:mata_kuliah,id']);
         
         $mahasiswa = Auth::user()->mahasiswa;
         $krs = $this->krsService->getActiveKrsOrNew($mahasiswa);
+        $tahunAktif = \App\Models\TahunAkademik::where('is_active', true)->first();
+        if (!$tahunAktif) {
+            return redirect()->back()->with('error', 'Tidak ada tahun akademik aktif.');
+        }
+
+        // Cari atau buat Kelas untuk mata kuliah ini di tahun akademik aktif
+        $kelas = \App\Models\Kelas::where('mata_kuliah_id', $request->mata_kuliah_id)
+            ->where('tahun_akademik_id', $tahunAktif->id)
+            ->first();
+
+        if (!$kelas) {
+            $defaultDosen = \App\Models\Dosen::where('prodi_id', $mahasiswa->prodi_id)->first() ?? \App\Models\Dosen::first();
+            if (!$defaultDosen) {
+                return redirect()->back()->with('error', 'Dosen pengampu default tidak ditemukan.');
+            }
+            $kelas = \App\Models\Kelas::create([
+                'mata_kuliah_id' => $request->mata_kuliah_id,
+                'dosen_id' => $defaultDosen->id,
+                'tahun_akademik_id' => $tahunAktif->id,
+                'nama_kelas' => 'Kelas A',
+                'kapasitas' => 40,
+                'is_closed' => false,
+            ]);
+        }
 
         try {
-            $this->krsService->addKelas($krs, $request->kelas_id);
-            return redirect()->back()->with('success', 'Kelas berhasil diambil');
+            $this->krsService->addKelas($krs, $kelas->id);
+            return redirect()->back()->with('success', 'Mata kuliah berhasil diambil');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
