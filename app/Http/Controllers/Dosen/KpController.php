@@ -15,7 +15,18 @@ class KpController extends Controller
         $dosen = Auth::user()->dosen;
         $kpList = KerjaPraktek::where('pembimbing_id', $dosen->id)
             ->with(['mahasiswa.user'])
-            ->orderByRaw("FIELD(status, 'berlangsung', 'pengajuan', 'disetujui', 'selesai_kp', 'penyusunan_laporan', 'seminar', 'revisi', 'selesai', 'ditolak')")
+            ->orderByRaw("CASE status 
+                WHEN 'berlangsung' THEN 1 
+                WHEN 'pengajuan' THEN 2 
+                WHEN 'disetujui' THEN 3 
+                WHEN 'selesai_kp' THEN 4 
+                WHEN 'penyusunan_laporan' THEN 5 
+                WHEN 'seminar' THEN 6 
+                WHEN 'revisi' THEN 7 
+                WHEN 'selesai' THEN 8 
+                WHEN 'ditolak' THEN 9 
+                ELSE 10 
+            END ASC")
             ->get();
 
         $pendingLogbook = LogbookKp::whereHas('kerjaPraktek', fn($q) => $q->where('pembimbing_id', $dosen->id))

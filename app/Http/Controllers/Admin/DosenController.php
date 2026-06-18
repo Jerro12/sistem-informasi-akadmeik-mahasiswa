@@ -30,12 +30,12 @@ class DosenController extends Controller
         // Filter by prodi/level
         if ($prodiId = $request->get('prodi_id')) {
             if ($prodiId === 'perguruan_tinggi' || $prodiId === 'pt') {
-                $query->whereNull('prodi_id')->whereNull('fakultas_id');
+                $query->whereNull('dosen.prodi_id')->whereNull('dosen.fakultas_id');
             } elseif (str_starts_with($prodiId, 'fakultas_')) {
                 $fId = (int) str_replace('fakultas_', '', $prodiId);
-                $query->where('fakultas_id', $fId);
+                $query->where('dosen.fakultas_id', $fId);
             } else {
-                $query->where('prodi_id', $prodiId);
+                $query->where('dosen.prodi_id', $prodiId);
             }
         }
 
@@ -49,7 +49,7 @@ class DosenController extends Controller
 
         // Prodi scoping for admin_prodi
         if ($request->get('prodi_scoped') && $request->get('prodi_scope')) {
-            $query->where('prodi_id', $request->get('prodi_scope'));
+            $query->where('dosen.prodi_id', $request->get('prodi_scope'));
         }
 
         // Sorting
@@ -93,7 +93,7 @@ class DosenController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'password' => 'required|string|min:8',
-            'nidn' => 'required|string|unique:dosen,nidn',
+            'nidn' => 'required|string|unique:dosen,nidn|unique:users,username',
             'prodi_id' => 'nullable|string',
         ]);
 
@@ -218,7 +218,7 @@ class DosenController extends Controller
         $teachingLoad = $dosen->kelas()->with(['mataKuliah', 'krsDetail'])->paginate(4);
 
         // Calculate totals for stats (based on all classes, not just paginated ones)
-        $totalSks = $dosen->kelas->sum(fn($k) => $k->mataKuliah->sks);
+        $totalSks = $dosen->kelas->sum(fn($k) => $k->mataKuliah?->sks ?? 0);
         $totalStudents = \App\Models\KrsDetail::whereIn('kelas_id', $kelasIds)->count();
 
         return view('admin.dosen.show', compact('dosen', 'teachingLoad', 'totalSks', 'totalStudents'));
@@ -247,12 +247,12 @@ class DosenController extends Controller
         // Filter by prodi/level
         if ($prodiId = $request->get('prodi_id')) {
             if ($prodiId === 'perguruan_tinggi' || $prodiId === 'pt') {
-                $query->whereNull('prodi_id')->whereNull('fakultas_id');
+                $query->whereNull('dosen.prodi_id')->whereNull('dosen.fakultas_id');
             } elseif (str_starts_with($prodiId, 'fakultas_')) {
                 $fId = (int) str_replace('fakultas_', '', $prodiId);
-                $query->where('fakultas_id', $fId);
+                $query->where('dosen.fakultas_id', $fId);
             } else {
-                $query->where('prodi_id', $prodiId);
+                $query->where('dosen.prodi_id', $prodiId);
             }
         }
 

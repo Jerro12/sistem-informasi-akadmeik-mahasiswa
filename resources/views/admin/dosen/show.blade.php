@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        Detail Dosen - {{ $dosen->user->name }}
+        Detail Dosen - {{ $dosen->user?->name ?? '-' }}
     </x-slot>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -9,16 +9,16 @@
             <div class="card-saas p-8 dark:bg-gray-800">
                 <div class="text-center mb-8">
                     <div class="w-24 h-24 rounded-full bg-siakad-primary/10 dark:bg-blue-900/30 flex items-center justify-center text-siakad-primary dark:text-blue-400 text-3xl font-bold mx-auto mb-5 ring-4 ring-white dark:ring-gray-700 shadow-lg">
-                        {{ strtoupper(substr($dosen->user->name, 0, 1)) }}
+                        {{ strtoupper(substr($dosen->user?->name ?? '-', 0, 1)) }}
                     </div>
-                    <h3 class="text-xl font-bold text-siakad-dark dark:text-white mb-1">{{ $dosen->user->name }}</h3>
+                    <h3 class="text-xl font-bold text-siakad-dark dark:text-white mb-1">{{ $dosen->user?->name ?? '-' }}</h3>
                     <p class="text-sm font-medium text-siakad-secondary dark:text-gray-400">{{ $dosen->nidn }}</p>
                 </div>
 
                 <div class="space-y-4">
                     <div class="flex items-center justify-between p-3 rounded-xl bg-siakad-light/30 dark:bg-gray-700/30">
                         <span class="text-xs font-medium text-siakad-secondary dark:text-gray-400 uppercase tracking-wider">Email</span>
-                        <span class="text-sm font-semibold text-siakad-dark dark:text-gray-200 text-right">{{ $dosen->user->email }}</span>
+                        <span class="text-sm font-semibold text-siakad-dark dark:text-gray-200 text-right">{{ $dosen->user?->email ?? '-' }}</span>
                     </div>
                     <div class="flex items-center justify-between p-3 rounded-xl bg-siakad-light/30 dark:bg-gray-700/30">
                         <span class="text-xs font-medium text-siakad-secondary dark:text-gray-400 uppercase tracking-wider">Prodi</span>
@@ -100,11 +100,11 @@
                                     {{ substr($kelas->nama_kelas, 0, 1) }}
                                 </div>
                                 <div>
-                                    <h4 class="font-bold text-siakad-dark dark:text-white text-lg">{{ $kelas->mataKuliah->nama_mk }}</h4>
-                                    <div class="flex items-center gap-2 mt-1">
-                                        <span class="px-2 py-0.5 rounded textxs font-medium bg-siakad-light dark:bg-gray-700 text-siakad-dark dark:text-gray-300">{{ $kelas->nama_kelas }}</span>
-                                        <span class="text-sm text-siakad-secondary dark:text-gray-500">• {{ $kelas->mataKuliah->kode_mk }} • {{ $kelas->mataKuliah->sks }} SKS</span>
-                                    </div>
+                                     <h4 class="font-bold text-siakad-dark dark:text-white text-lg">{{ $kelas->mataKuliah?->nama_mk ?? '-' }}</h4>
+                                     <div class="flex items-center gap-2 mt-1">
+                                         <span class="px-2 py-0.5 rounded textxs font-medium bg-siakad-light dark:bg-gray-700 text-siakad-dark dark:text-gray-300">{{ $kelas->nama_kelas }}</span>
+                                         <span class="text-sm text-siakad-secondary dark:text-gray-500">• {{ $kelas->mataKuliah?->kode_mk ?? '-' }} • {{ $kelas->mataKuliah?->sks ?? 0 }} SKS</span>
+                                     </div>
                                 </div>
                             </div>
                             <div class="text-right">

@@ -54,8 +54,16 @@ class PembayaranController extends Controller
 
     public function show(Pembayaran $pembayaran)
     {
-        $pembayaran->load(['mahasiswa.user', 'tahunAkademik', 'mahasiswa.prodi.fakultas']);
-        return view('admin.pembayaran.show', compact('pembayaran'));
+        if (!$pembayaran->bukti_transfer) {
+            abort(404);
+        }
+
+        $path = storage_path('app/public/' . $pembayaran->bukti_transfer);
+        if (!file_exists($path)) {
+            abort(404);
+        }
+
+        return response()->file($path);
     }
 
     public function verify(Pembayaran $pembayaran)

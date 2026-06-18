@@ -15,11 +15,22 @@ beforeEach(function () {
 });
 
 test('mahasiswa can view krs page', function () {
+    $ta = TahunAkademik::where('is_active', true)->first() ?? TahunAkademik::factory()->create(['is_active' => true]);
     $user = User::factory()->create(['role' => 'mahasiswa']);
     $prodi = Prodi::factory()->create();
-    Mahasiswa::factory()->create([
+    $mahasiswa = Mahasiswa::factory()->create([
         'user_id' => $user->id,
         'prodi_id' => $prodi->id,
+        'semester_sekarang' => 5,
+    ]);
+
+    // Create successful payment
+    \App\Models\Pembayaran::create([
+        'mahasiswa_id' => $mahasiswa->id,
+        'tahun_akademik_id' => $ta->id,
+        'order_id' => 'PAY-TEST-123',
+        'amount' => 150000,
+        'status' => 'success',
     ]);
 
     $response = $this->actingAs($user)->get(route('mahasiswa.krs.index'));

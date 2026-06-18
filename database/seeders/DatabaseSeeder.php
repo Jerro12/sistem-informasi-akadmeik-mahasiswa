@@ -182,6 +182,7 @@ class DatabaseSeeder extends Seeder
             'angkatan' => 2022,
             'dosen_pa_id' => $dosen->id,
             'status' => 'aktif',
+            'semester_sekarang' => 5,
         ]);
 
         // ==========================================

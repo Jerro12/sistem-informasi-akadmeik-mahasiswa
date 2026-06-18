@@ -146,7 +146,7 @@
                             </td>
                             <td class="py-4 px-4 text-right">
                                 @if($p->bukti_transfer)
-                                    <a href="{{ asset('storage/' . $p->bukti_transfer) }}" target="_blank" class="inline-flex items-center gap-1 text-siakad-primary dark:text-blue-400 hover:underline text-[10px] font-bold uppercase tracking-wider mb-2 block">
+                                    <a href="{{ route('admin.pembayaran.show', $p) }}" target="_blank" class="inline-flex items-center gap-1 text-siakad-primary dark:text-blue-400 hover:underline text-[10px] font-bold uppercase tracking-wider mb-2">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                         Lihat Bukti
                                     </a>

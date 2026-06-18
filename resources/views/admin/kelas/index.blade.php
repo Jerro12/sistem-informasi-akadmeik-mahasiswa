@@ -8,8 +8,29 @@
             <p class="text-sm text-siakad-secondary dark:text-gray-400">Kelola data kelas dan jadwal kuliah dalam sistem</p>
         </div>
         <div class="flex items-center gap-3 w-full md:w-auto">
-            <form method="GET" class="flex-1 md:flex-none">
+            <form method="GET" action="{{ route('admin.kelas.index') }}" class="flex flex-col md:flex-row items-center gap-3 flex-1 md:flex-none">
+                @if(request('sort')) <input type="hidden" name="sort" value="{{ request('sort') }}"> @endif
+                @if(request('order')) <input type="hidden" name="order" value="{{ request('order') }}"> @endif
+
+                <select name="prodi_id" onchange="this.form.submit()" class="input-saas px-4 py-2 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300">
+                    <option value="">Semua Prodi</option>
+                    @foreach($prodis as $p)
+                    <option value="{{ $p->id }}" {{ request('prodi_id') == $p->id ? 'selected' : '' }}>{{ $p->nama }}</option>
+                    @endforeach
+                </select>
+
+                <select name="semester" onchange="this.form.submit()" class="input-saas px-4 py-2 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300">
+                    <option value="">Semua Semester</option>
+                    @for($i = 1; $i <= 8; $i++)
+                    <option value="{{ $i }}" {{ request('semester') == $i ? 'selected' : '' }}>Semester {{ $i }}</option>
+                    @endfor
+                </select>
+
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari Kelas / MK / Dosen..." class="input-saas px-4 py-2.5 text-sm w-full md:w-64 dark:bg-gray-900 dark:border-gray-700 dark:text-gray-300">
+                <button type="submit" class="btn-primary-saas px-4 py-2 rounded-lg text-sm font-medium">Filter</button>
+                @if(request()->anyFilled(['prodi_id', 'semester', 'search']))
+                    <a href="{{ route('admin.kelas.index') }}" class="btn-ghost-saas px-3 py-2 border rounded-lg text-sm text-center">Reset</a>
+                @endif
             </form>
             <button onclick="document.getElementById('printModal').style.display = 'flex'" class="btn-ghost-saas px-4 py-2.5 rounded-lg text-sm font-medium flex items-center gap-2 border border-siakad-primary/20 text-siakad-primary hover:bg-siakad-primary/5 transition flex-shrink-0">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
@@ -52,6 +73,7 @@
                                 </span>
                             </a>
                         </th>
+                        <th class="text-left py-3 px-5 text-xs font-semibold text-siakad-secondary dark:text-gray-400 uppercase tracking-wider">Semester</th>
 
                         <!-- Sortable: Dosen -->
                         <th class="text-left py-3 px-5 text-xs font-semibold text-siakad-secondary dark:text-gray-400 uppercase tracking-wider">
@@ -95,6 +117,11 @@
                                 <span class="text-sm font-medium text-siakad-dark dark:text-white">{{ $k->mataKuliah->nama_mk ?? '-' }}</span>
                                 <span class="block text-xs text-siakad-secondary dark:text-gray-400 font-mono">{{ $k->mataKuliah->kode_mk ?? '' }}</span>
                             </div>
+                        </td>
+                        <td class="py-4 px-5">
+                            <span class="inline-flex px-2.5 py-1 text-xs font-medium bg-siakad-secondary/10 text-siakad-secondary dark:bg-gray-700 dark:text-gray-300 rounded-full">
+                                Sem {{ $k->mataKuliah->semester ?? '-' }}
+                            </span>
                         </td>
                         <td class="py-4 px-5">
                             <span class="text-sm text-siakad-secondary dark:text-gray-400">{{ $k->dosen->user->name ?? '-' }}</span>
@@ -141,7 +168,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="py-12 text-center text-siakad-secondary">
+                        <td colspan="8" class="py-12 text-center text-siakad-secondary">
                             <p class="mb-2">Tidak ada data kelas</p>
                             <a href="{{ route('admin.kelas.index') }}" class="text-sm text-siakad-primary hover:underline">Reset Filter</a>
                         </td>
@@ -168,7 +195,7 @@
                 <div>
                     <span class="inline-flex px-2.5 py-1 text-xs font-semibold bg-siakad-primary text-white dark:bg-blue-600 rounded-md mb-2">Kelas {{ $k->nama_kelas }}</span>
                     <h4 class="font-bold text-siakad-dark dark:text-white">{{ $k->mataKuliah->nama_mk ?? '-' }}</h4>
-                    <p class="text-xs text-siakad-secondary dark:text-gray-400 font-mono">{{ $k->mataKuliah->kode_mk ?? '' }}</p>
+                    <p class="text-xs text-siakad-secondary dark:text-gray-400 font-mono">{{ $k->mataKuliah->kode_mk ?? '' }} • Semester {{ $k->mataKuliah->semester ?? '-' }}</p>
                 </div>
             </div>
 
@@ -323,6 +350,7 @@
                                     <option value="Kamis">Kamis</option>
                                     <option value="Jumat">Jumat</option>
                                     <option value="Sabtu">Sabtu</option>
+                                    <option value="Minggu">Minggu</option>
                                 </select>
                             </div>
                             <div>
@@ -429,6 +457,7 @@
                                     <option value="Kamis">Kamis</option>
                                     <option value="Jumat">Jumat</option>
                                     <option value="Sabtu">Sabtu</option>
+                                    <option value="Minggu">Minggu</option>
                                 </select>
                             </div>
                             <div>

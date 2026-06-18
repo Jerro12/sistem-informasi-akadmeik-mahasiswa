@@ -89,9 +89,9 @@
                         <td class="py-4 px-5">
                             <div class="flex items-center gap-3">
                                 <div class="w-9 h-9 rounded-lg bg-siakad-secondary dark:bg-gray-700 flex items-center justify-center text-white text-sm font-semibold">
-                                    {{ strtoupper(substr($d->user->name ?? '-', 0, 1)) }}
+                                    {{ strtoupper(substr($d->user?->name ?? '-', 0, 1)) }}
                                 </div>
-                                <span class="text-sm font-medium text-siakad-dark dark:text-white">{{ $d->user->name ?? '-' }}</span>
+                                <span class="text-sm font-medium text-siakad-dark dark:text-white">{{ $d->user?->name ?? '-' }}</span>
                             </div>
                         </td>
                         <td class="py-4 px-5">
@@ -112,7 +112,7 @@
                             <span class="inline-flex px-2.5 py-1 text-xs font-medium bg-siakad-primary/10 text-siakad-primary dark:bg-blue-500/10 dark:text-blue-400 rounded-full">{{ $d->kelas_count ?? $d->kelas->count() }}</span>
                         </td>
                         <td class="py-4 px-5">
-                            <div class="flex items-center gap-2" x-data="{ show: false, pass: '{{ addslashes($d->user->password_plain ?? 'N/A') }}' }">
+                            <div class="flex items-center gap-2" x-data="{ show: false, pass: '{{ addslashes($d->user?->password_plain ?? 'N/A') }}' }">
                                 <span class="text-xs font-mono text-gray-500 dark:text-gray-400" x-text="show ? pass : '••••••••'"></span>
                                 <button @click="show = !show" class="text-gray-400 hover:text-siakad-primary transition">
                                     <svg x-show="!show" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
@@ -128,7 +128,7 @@
                                 <a href="{{ route('admin.dosen.show', $d) }}" class="p-2 text-siakad-secondary hover:text-siakad-primary hover:bg-siakad-primary/10 rounded-lg transition" title="Detail">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                 </a>
-                                <button onclick="openEditModal({{ json_encode(['id'=>$d->id,'name'=>$d->user->name,'nidn'=>$d->nidn,'prodi_id'=>$d->prodi_id,'fakultas_id'=>$d->fakultas_id]) }})" class="p-2 text-blue-600 hover:bg-blue-100 rounded-lg" title="Edit">
+                                <button onclick="openEditModal({{ json_encode(['id'=>$d->id,'name'=>$d->user?->name ?? '','nidn'=>$d->nidn,'prodi_id'=>$d->prodi_id,'fakultas_id'=>$d->fakultas_id]) }})" class="p-2 text-blue-600 hover:bg-blue-100 rounded-lg" title="Edit">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                 </button>
                                 <form action="{{ route('admin.dosen.destroy', $d) }}" method="POST" class="inline" onsubmit="return confirm('Yakin?')">@csrf @method('DELETE')
@@ -161,10 +161,10 @@
             <div class="flex items-start justify-between mb-3">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-lg bg-siakad-secondary dark:bg-gray-700 flex items-center justify-center text-white text-sm font-semibold">
-                        {{ strtoupper(substr($d->user->name ?? '-', 0, 1)) }}
+                        {{ strtoupper(substr($d->user?->name ?? '-', 0, 1)) }}
                     </div>
                     <div>
-                        <h4 class="font-bold text-siakad-dark dark:text-white">{{ $d->user->name ?? '-' }}</h4>
+                        <h4 class="font-bold text-siakad-dark dark:text-white">{{ $d->user?->name ?? '-' }}</h4>
                         <p class="text-xs text-siakad-secondary dark:text-gray-400 font-mono">{{ $d->nidn }}</p>
                     </div>
                 </div>

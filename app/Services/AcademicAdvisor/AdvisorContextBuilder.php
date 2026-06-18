@@ -199,7 +199,27 @@ class AdvisorContextBuilder
             }
         }
 
-        // 3. TERSEDIA_DI_KURIKULUM - from database (all mata kuliah not yet taken)
+        // 3. TERSEDIA_DI_KURIKULUM - from config
+        $configKurikulum = config("academic_rules.kurikulum.{$prodiKey}");
+        if ($configKurikulum) {
+            foreach ($configKurikulum as $semester => $courses) {
+                foreach ($courses as $c) {
+                    $kode = $c['kode'];
+                    if (!isset($statuses[$kode])) {
+                        $statuses[$kode] = [
+                            'kode' => $kode,
+                            'nama' => $c['nama'],
+                            'sks' => $c['sks'],
+                            'status' => 'TERSEDIA_DI_KURIKULUM',
+                            'nilai' => null,
+                            'semester' => (int) $semester,
+                        ];
+                    }
+                }
+            }
+        }
+
+        // 4. TERSEDIA_DI_KURIKULUM - from database (all mata kuliah not yet taken)
         $allMataKuliah = MataKuliah::orderBy('semester')->orderBy('nama_mk')->get();
 
         foreach ($allMataKuliah as $mk) {
@@ -223,19 +243,49 @@ class AdvisorContextBuilder
      */
     protected function getCurriculum(string $prodiKey): array
     {
-        $allMataKuliah = MataKuliah::orderBy('semester')->orderBy('nama_mk')->get();
-
-        $grouped = $allMataKuliah->groupBy('semester');
-        
         $result = [];
-        foreach ($grouped as $semester => $courses) {
-            $result[] = [
-                'semester' => (int) $semester,
-                'mata_kuliah' => $courses->map(fn($mk) => [
+        $semesterCourses = [];
+
+        // 1. Load from config if available
+        $configKurikulum = config("academic_rules.kurikulum.{$prodiKey}");
+        if ($configKurikulum) {
+            foreach ($configKurikulum as $semester => $courses) {
+                $sem = (int) $semester;
+                if (!isset($semesterCourses[$sem])) {
+                    $semesterCourses[$sem] = [];
+                }
+                foreach ($courses as $c) {
+                    $semesterCourses[$sem][$c['kode']] = [
+                        'kode' => $c['kode'],
+                        'nama' => $c['nama'],
+                        'sks' => $c['sks'],
+                    ];
+                }
+            }
+        }
+
+        // 2. Load from database
+        $allMataKuliah = MataKuliah::orderBy('semester')->orderBy('nama_mk')->get();
+        foreach ($allMataKuliah as $mk) {
+            $sem = (int) $mk->semester;
+            if (!isset($semesterCourses[$sem])) {
+                $semesterCourses[$sem] = [];
+            }
+            if (!isset($semesterCourses[$sem][$mk->kode_mk])) {
+                $semesterCourses[$sem][$mk->kode_mk] = [
                     'kode' => $mk->kode_mk,
                     'nama' => $mk->nama_mk,
                     'sks' => $mk->sks,
-                ])->values()->toArray(),
+                ];
+            }
+        }
+
+        // 3. Format as list sorted by semester
+        ksort($semesterCourses);
+        foreach ($semesterCourses as $semester => $courses) {
+            $result[] = [
+                'semester' => $semester,
+                'mata_kuliah' => array_values($courses),
             ];
         }
 

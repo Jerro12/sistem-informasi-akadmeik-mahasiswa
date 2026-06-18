@@ -28,7 +28,7 @@ class JadwalController extends Controller
             ->with(['mataKuliah', 'jadwal'])
             ->get();
 
-        $hariOrder = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        $hariOrder = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
         $jadwalPerHari = collect();
 
         foreach ($hariOrder as $hari) {

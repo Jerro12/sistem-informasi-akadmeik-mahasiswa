@@ -29,6 +29,16 @@ class KelasController extends Controller
             });
         }
 
+        // Filter by prodi
+        if ($prodiId = $request->get('prodi_id')) {
+            $query->whereHas('mataKuliah', fn($q) => $q->where('prodi_id', $prodiId));
+        }
+
+        // Filter by semester
+        if ($semester = $request->get('semester')) {
+            $query->whereHas('mataKuliah', fn($q) => $q->where('semester', $semester));
+        }
+
         // Faculty scoping for admin_fakultas (scope by dosen's prodi's fakultas)
         if ($request->get('fakultas_scoped') && $request->get('fakultas_scope')) {
             $fakultasId = $request->get('fakultas_scope');
@@ -86,7 +96,7 @@ class KelasController extends Controller
             'dosen_id'       => 'required|exists:dosen,id',
             'nama_kelas'     => 'required|string',
             'kapasitas'      => 'nullable|integer|min:1',
-            'hari'           => 'nullable|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu',
+            'hari'           => 'nullable|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu,Minggu',
             'jam_mulai'      => 'nullable|date_format:H:i',
             'jam_selesai'    => 'nullable|date_format:H:i',
             'ruangan'        => 'nullable|string|max:50',
@@ -123,7 +133,7 @@ class KelasController extends Controller
             'dosen_id'       => 'required|exists:dosen,id',
             'nama_kelas'     => 'required|string',
             'kapasitas'      => 'nullable|integer|min:1',
-            'hari'           => 'nullable|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu',
+            'hari'           => 'nullable|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu,Minggu',
             'jam_mulai'      => 'nullable|date_format:H:i',
             'jam_selesai'    => 'nullable|date_format:H:i',
             'ruangan'        => 'nullable|string|max:50',

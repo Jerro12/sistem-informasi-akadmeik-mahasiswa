@@ -23,7 +23,20 @@ class SkripsiController extends Controller
         $skripsiList = Skripsi::where('pembimbing1_id', $dosen->id)
             ->orWhere('pembimbing2_id', $dosen->id)
             ->with(['mahasiswa.user', 'pembimbing1.user', 'pembimbing2.user'])
-            ->orderByRaw("FIELD(status, 'bimbingan', 'pengajuan', 'review', 'seminar_proposal', 'penelitian', 'seminar_hasil', 'sidang', 'revisi', 'selesai', 'ditolak', 'diterima')")
+            ->orderByRaw("CASE status 
+                WHEN 'bimbingan' THEN 1 
+                WHEN 'pengajuan' THEN 2 
+                WHEN 'review' THEN 3 
+                WHEN 'seminar_proposal' THEN 4 
+                WHEN 'penelitian' THEN 5 
+                WHEN 'seminar_hasil' THEN 6 
+                WHEN 'sidang' THEN 7 
+                WHEN 'revisi' THEN 8 
+                WHEN 'selesai' THEN 9 
+                WHEN 'ditolak' THEN 10 
+                WHEN 'diterima' THEN 11 
+                ELSE 12 
+            END ASC")
             ->get();
 
         // Pending bimbingan

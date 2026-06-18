@@ -6,7 +6,7 @@
     @php
         $today = \Carbon\Carbon::now()->locale('id')->isoFormat('dddd');
         $now = \Carbon\Carbon::now();
-        $hariOrder = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        $hariOrder = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
     @endphp
 
     <div x-data="{ selectedDay: '{{ $today }}', viewMode: 'card' }">

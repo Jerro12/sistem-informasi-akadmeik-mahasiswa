@@ -91,4 +91,23 @@ class PaymentController extends Controller
 
         return redirect()->back()->with('error', 'Gagal mengunggah bukti transfer.');
     }
+
+    public function viewBukti(\App\Models\Pembayaran $pembayaran)
+    {
+        $mahasiswa = Auth::user()->mahasiswa;
+        if (!$mahasiswa || $pembayaran->mahasiswa_id !== $mahasiswa->id) {
+            abort(403, 'Unauthorized');
+        }
+
+        if (!$pembayaran->bukti_transfer) {
+            abort(404);
+        }
+
+        $path = storage_path('app/public/' . $pembayaran->bukti_transfer);
+        if (!file_exists($path)) {
+            abort(404);
+        }
+
+        return response()->file($path);
+    }
 }
