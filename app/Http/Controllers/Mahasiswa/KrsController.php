@@ -35,6 +35,17 @@ class KrsController extends Controller
 
         $krs = $this->krsService->getActiveKrsOrNew($mahasiswa);
         
+        // Hitung target semester secara dinamis agar jika paritas semester mhs vs TA mismatch
+        // (misal: mhs masih terdaftar semester ganjil tapi TA sudah ganti genap), mhs otomatis melihat matkul semester depannya.
+        $targetSemester = $mahasiswa->semester_sekarang;
+        if ($tahunAktif) {
+            $isStudentSemesterEven = ($mahasiswa->semester_sekarang % 2 === 0);
+            $isTaSemesterEven = (strtolower($tahunAktif->semester) === 'genap');
+            if ($isStudentSemesterEven !== $isTaSemesterEven) {
+                $targetSemester = $mahasiswa->semester_sekarang + 1;
+            }
+        }
+        
         // Ambil ID mata kuliah yang sudah pernah diambil mahasiswa di KRS SEBELUMNYA
         // (exclude KRS semester aktif saat ini, agar matkul yang dihapus dari draft bisa ditambah lagi)
         $takenMkIds = \App\Models\KrsDetail::whereHas('krs', function($q) use ($mahasiswa, $krs) {
@@ -45,7 +56,7 @@ class KrsController extends Controller
         $availableKelas = \App\Models\Kelas::with(['mataKuliah', 'dosen.user', 'krsDetail'])
             ->where('tahun_akademik_id', $tahunAktif?->id)
             ->where('is_closed', false) // [FIX] Jangan tampilkan kelas yang sudah ditutup
-            ->whereHas('mataKuliah', function($q) use ($mahasiswa, $takenMkIds, $krs, $tahunAktif) {
+            ->whereHas('mataKuliah', function($q) use ($mahasiswa, $takenMkIds, $krs, $tahunAktif, $targetSemester) {
                 // Filter ganjil/genap berdasarkan semester tahun akademik aktif
                 if ($tahunAktif) {
                     if (strtolower($tahunAktif->semester) === 'ganjil') {
@@ -55,12 +66,12 @@ class KrsController extends Controller
                     }
                 }
 
-                // Tampilkan matkul semester sekarang (Wajib tampil)
+                // Tampilkan matkul semester target (Wajib tampil)
                 // ATAU matkul semester bawah (<) yang BELUM PERNAH diambil di KRS sebelumnya
-                $q->where(function($query) use ($mahasiswa, $takenMkIds) {
-                    $query->where('semester', $mahasiswa->semester_sekarang)
-                          ->orWhere(function($q2) use ($mahasiswa, $takenMkIds) {
-                              $q2->where('semester', '<', $mahasiswa->semester_sekarang)
+                $q->where(function($query) use ($mahasiswa, $takenMkIds, $targetSemester) {
+                    $query->where('semester', $targetSemester)
+                          ->orWhere(function($q2) use ($mahasiswa, $takenMkIds, $targetSemester) {
+                              $q2->where('semester', '<', $targetSemester)
                                  ->whereNotIn('mata_kuliah.id', $takenMkIds);
                           });
                 })
@@ -97,9 +108,9 @@ class KrsController extends Controller
         // Sort by semester number
         $availableKelas = $availableKelas->sortKeys();
 
-        // Concentration logic: Show if semester >= 5
+        // Concentration logic: Show if target semester >= 5
         $concentrations = collect();
-        if ($mahasiswa->semester_sekarang >= 5) {
+        if ($targetSemester >= 5) {
             $concentrations = Konsentrasi::where('prodi_id', $mahasiswa->prodi_id)
                 ->where('is_active', true)
                 ->get();
