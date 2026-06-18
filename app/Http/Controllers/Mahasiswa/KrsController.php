@@ -27,20 +27,24 @@ class KrsController extends Controller
 
         // Check for payment
         $tahunAktif = \App\Models\TahunAkademik::where('is_active', true)->first();
-        if ($tahunAktif && !$this->paymentService->isPaid($mahasiswa, $tahunAktif)) {
+        // Hanya redirect ke pembayaran jika biaya_krs > 0 dan belum bayar
+        if ($tahunAktif && $tahunAktif->biaya_krs > 0 && !$this->paymentService->isPaid($mahasiswa, $tahunAktif)) {
             return redirect()->route('mahasiswa.pembayaran.index')
                 ->with('error', 'Silakan lakukan pembayaran biaya KRS terlebih dahulu untuk semester ini.');
         }
 
         $krs = $this->krsService->getActiveKrsOrNew($mahasiswa);
         
-        // Ambil ID mata kuliah yang sudah pernah diambil mahasiswa di semester-semester sebelumnya
-        $takenMkIds = \App\Models\KrsDetail::whereHas('krs', function($q) use ($mahasiswa) {
-            $q->where('mahasiswa_id', $mahasiswa->id);
-        })->get()->pluck('kelas.mata_kuliah_id')->unique()->toArray();
+        // Ambil ID mata kuliah yang sudah pernah diambil mahasiswa di KRS SEBELUMNYA
+        // (exclude KRS semester aktif saat ini, agar matkul yang dihapus dari draft bisa ditambah lagi)
+        $takenMkIds = \App\Models\KrsDetail::whereHas('krs', function($q) use ($mahasiswa, $krs) {
+            $q->where('mahasiswa_id', $mahasiswa->id)
+              ->where('id', '!=', $krs->id); // Exclude KRS aktif saat ini
+        })->get()->pluck('kelas.mata_kuliah_id')->unique()->filter()->toArray();
 
         $availableKelas = \App\Models\Kelas::with(['mataKuliah', 'dosen.user', 'krsDetail'])
-            ->where('tahun_akademik_id', $tahunAktif?->id) 
+            ->where('tahun_akademik_id', $tahunAktif?->id)
+            ->where('is_closed', false) // [FIX] Jangan tampilkan kelas yang sudah ditutup
             ->whereHas('mataKuliah', function($q) use ($mahasiswa, $takenMkIds, $krs, $tahunAktif) {
                 // Filter ganjil/genap berdasarkan semester tahun akademik aktif
                 if ($tahunAktif) {
@@ -52,7 +56,7 @@ class KrsController extends Controller
                 }
 
                 // Tampilkan matkul semester sekarang (Wajib tampil)
-                // ATAU matkul semester bawah (<) yang BELUM PERNAH diambil
+                // ATAU matkul semester bawah (<) yang BELUM PERNAH diambil di KRS sebelumnya
                 $q->where(function($query) use ($mahasiswa, $takenMkIds) {
                     $query->where('semester', $mahasiswa->semester_sekarang)
                           ->orWhere(function($q2) use ($mahasiswa, $takenMkIds) {

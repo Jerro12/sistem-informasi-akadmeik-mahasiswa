@@ -41,6 +41,7 @@
             
             <div class="mt-5 pt-5 border-t border-white/20 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 @if($krs->status == 'draft' || empty($krs->status))
+                    {{-- Status: Draft - belum dipatenkan --}}
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-full bg-amber-400/20 flex items-center justify-center flex-shrink-0">
                             <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
@@ -56,12 +57,48 @@
                         </button>
                     </form>
                     @endif
+
+                @elseif($krs->status == 'pending')
+                    {{-- Status: Pending - menunggu verifikasi --}}
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-amber-400/20 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <p class="text-sm text-white font-medium">KRS sedang menunggu verifikasi dari <span class="text-amber-300 font-bold">Dosen PA / Admin</span>.</p>
+                    </div>
+                    <a href="{{ route('mahasiswa.krs.print') }}" target="_blank" class="px-6 py-2.5 bg-white hover:bg-slate-100 text-siakad-primary rounded-xl font-bold text-sm shadow-lg transition-all hover:scale-105 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        Cetak KRS
+                    </a>
+
+                @elseif($krs->status == 'rejected')
+                    {{-- Status: Rejected - KRS ditolak, perlu direvisi --}}
+                    <div class="flex flex-col gap-1">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-red-400/20 flex items-center justify-center flex-shrink-0">
+                                <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                            <p class="text-sm text-white font-medium">KRS <span class="text-red-400 font-bold">ditolak</span>. Silakan revisi dan ajukan kembali.</p>
+                        </div>
+                        @if($krs->catatan)
+                        <p class="text-xs text-red-300 ml-13 pl-1 mt-1">Catatan: <span class="italic">{{ $krs->catatan }}</span></p>
+                        @endif
+                    </div>
+                    <form action="{{ route('mahasiswa.krs.revise') }}" method="POST" onsubmit="return confirm('Reset KRS ke draft untuk direvisi? KRS akan kembali ke status draft.')">
+                        @csrf
+                        <button type="submit" class="px-6 py-2.5 bg-red-500 hover:bg-red-400 text-white rounded-xl font-bold text-sm shadow-lg shadow-red-500/20 transition-all hover:scale-105 flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            Revisi KRS
+                        </button>
+                    </form>
+
                 @else
+                    {{-- Status: Approved - KRS disetujui --}}
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-full bg-emerald-400/20 flex items-center justify-center flex-shrink-0">
                             <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                         </div>
-                        <p class="text-sm text-white font-medium">KRS Berhasil dipatenkan. Status: <span class="text-emerald-400">Sukses / Aktif</span></p>
+                        <p class="text-sm text-white font-medium">KRS telah <span class="text-emerald-400 font-bold">disetujui</span>. Anda dapat mencetak KRS resmi.</p>
                     </div>
                     <a href="{{ route('mahasiswa.krs.print') }}" target="_blank" class="px-6 py-2.5 bg-white hover:bg-slate-100 text-siakad-primary rounded-xl font-bold text-sm shadow-lg transition-all hover:scale-105 flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
