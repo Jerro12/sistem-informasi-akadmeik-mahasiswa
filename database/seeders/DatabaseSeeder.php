@@ -265,6 +265,29 @@ class DatabaseSeeder extends Seeder
             KrsDetail::create(['krs_id' => $krsSekarang->id, 'kelas_id' => $kelas5->id]);
         }
 
+        // Create kelas untuk semester 6 dan 8 (Teknik Informatika) agar tersedia di KRS
+        $mataKuliahSmt6 = MataKuliah::where('prodi_id', $prodi->id)->where('semester', 6)->get();
+        foreach ($mataKuliahSmt6 as $mk) {
+            Kelas::create([
+                'mata_kuliah_id' => $mk->id,
+                'tahun_akademik_id' => $taAktif->id,
+                'dosen_id' => $dosen->id,
+                'nama_kelas' => 'A',
+                'kapasitas' => 40,
+            ]);
+        }
+
+        $mataKuliahSmt8 = MataKuliah::where('prodi_id', $prodi->id)->where('semester', 8)->get();
+        foreach ($mataKuliahSmt8 as $mk) {
+            Kelas::create([
+                'mata_kuliah_id' => $mk->id,
+                'tahun_akademik_id' => $taAktif->id,
+                'dosen_id' => $dosen->id,
+                'nama_kelas' => 'A',
+                'kapasitas' => 40,
+            ]);
+        }
+
         // ==========================================
         // OUTPUT
         // ==========================================
