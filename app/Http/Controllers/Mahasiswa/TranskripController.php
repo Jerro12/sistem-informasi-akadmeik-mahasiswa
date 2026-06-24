@@ -36,4 +36,19 @@ class TranskripController extends Controller
             'transcript', 'ipsHistory', 'gradeDistribution', 'maxSks', 'mahasiswa'
         ));
     }
+
+    public function print()
+    {
+        $mahasiswa = Auth::user()->mahasiswa;
+
+        if (!$mahasiswa) {
+            abort(403, 'Unauthorized');
+        }
+
+        $mahasiswa->load(['prodi.fakultas', 'dosenPa.user']);
+        $transcript = $this->calculationService->getTranscript($mahasiswa);
+        $ipkData = $this->calculationService->calculateIPK($mahasiswa);
+
+        return view('mahasiswa.transkrip.print', compact('mahasiswa', 'transcript', 'ipkData'));
+    }
 }

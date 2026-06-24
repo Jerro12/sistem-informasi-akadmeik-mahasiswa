@@ -167,20 +167,22 @@
                             </div>
                             <div class="sm:col-span-1">
                                 <label class="block text-xs font-semibold text-siakad-secondary dark:text-gray-400 uppercase mb-2">Dosen Penguji 1</label>
-                                <select name="penguji1_id" required class="input-saas w-full text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                    <option value="" disabled selected>-- Pilih Penguji 1 --</option>
-                                    @foreach($dosenList as $d)
-                                        <option value="{{ $d->id }}" {{ $ujian->penguji1_id == $d->id ? 'selected' : '' }}>{{ $d->user->name }}</option>
-                                    @endforeach
+                                <select name="penguji1_id" required class="w-full text-sm select-dosen-ajax">
+                                    @if($ujian->penguji1_id)
+                                        <option value="{{ $ujian->penguji1_id }}" selected>{{ $ujian->penguji1->user->name }}</option>
+                                    @else
+                                        <option value="">-- Pilih Penguji 1 --</option>
+                                    @endif
                                 </select>
                             </div>
                             <div class="sm:col-span-1">
                                 <label class="block text-xs font-semibold text-siakad-secondary dark:text-gray-400 uppercase mb-2">Dosen Penguji 2</label>
-                                <select name="penguji2_id" required class="input-saas w-full text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                    <option value="" disabled selected>-- Pilih Penguji 2 --</option>
-                                    @foreach($dosenList as $d)
-                                        <option value="{{ $d->id }}" {{ $ujian->penguji2_id == $d->id ? 'selected' : '' }}>{{ $d->user->name }}</option>
-                                    @endforeach
+                                <select name="penguji2_id" required class="w-full text-sm select-dosen-ajax">
+                                    @if($ujian->penguji2_id)
+                                        <option value="{{ $ujian->penguji2_id }}" selected>{{ $ujian->penguji2->user->name }}</option>
+                                    @else
+                                        <option value="">-- Pilih Penguji 2 --</option>
+                                    @endif
                                 </select>
                             </div>
                         </div>
@@ -213,3 +215,42 @@
         </div>
     </div>
 </x-app-layout>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const selects = document.querySelectorAll('.select-dosen-ajax');
+        selects.forEach(select => {
+            new TomSelect(select, {
+                valueField: 'id',
+                labelField: 'name',
+                searchField: 'name',
+                placeholder: 'Ketik nama dosen...',
+                load: function(query, callback) {
+                    if (!query.length) return callback();
+                    fetch(`{{ route('admin.dosen.search') }}?q=${encodeURIComponent(query)}`)
+                        .then(response => response.json())
+                        .then(json => {
+                            callback(json.map(item => ({
+                                id: item.id,
+                                name: item.name + (item.nidn ? ` (NIDN: ${item.nidn})` : '')
+                            })));
+                        }).catch(()=>{
+                            callback();
+                        });
+                },
+                render: {
+                    option: function(item, escape) {
+                        return `<div class="py-2 px-3">
+                            <div class="font-medium text-sm text-gray-800 dark:text-white">${escape(item.name)}</div>
+                        </div>`;
+                    },
+                    item: function(item, escape) {
+                        return `<div class="font-medium text-sm text-gray-800 dark:text-white">${escape(item.name)}</div>`;
+                    }
+                }
+            });
+        });
+    });
+</script>
+@endpush

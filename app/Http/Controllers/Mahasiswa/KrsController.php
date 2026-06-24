@@ -27,10 +27,10 @@ class KrsController extends Controller
 
         // Check for payment
         $tahunAktif = \App\Models\TahunAkademik::where('is_active', true)->first();
-        // Hanya redirect ke pembayaran jika biaya_krs > 0 dan belum bayar
-        if ($tahunAktif && $tahunAktif->biaya_krs > 0 && !$this->paymentService->isPaid($mahasiswa, $tahunAktif)) {
+        // Hanya redirect ke pembayaran jika belum bayar (status success)
+        if ($tahunAktif && !$this->paymentService->isPaid($mahasiswa, $tahunAktif)) {
             return redirect()->route('mahasiswa.pembayaran.index')
-                ->with('error', 'Silakan lakukan pembayaran biaya KRS terlebih dahulu untuk semester ini.');
+                ->with('error', 'Silakan lakukan upload bukti pembayaran dan tunggu verifikasi admin sebelum mengisi KRS.');
         }
 
         $krs = $this->krsService->getActiveKrsOrNew($mahasiswa);

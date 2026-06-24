@@ -9,4 +9,6 @@ Route::middleware(['auth', 'role:dosen'])->prefix('dosen')->name('dosen.')->grou
     Route::get('/kp/{kp}', [KpController::class, 'show'])->name('kp.show');
     Route::post('/kp/logbook/{logbook}/review', [KpController::class, 'reviewLogbook'])->name('kp.logbook.review');
     Route::put('/kp/{kp}/status', [KpController::class, 'updateStatus'])->name('kp.update-status');
+    Route::post('/kp/{kp}/approve', [KpController::class, 'approve'])->name('kp.approve');
+    Route::post('/kp/{kp}/reject', [KpController::class, 'reject'])->name('kp.reject');
 });

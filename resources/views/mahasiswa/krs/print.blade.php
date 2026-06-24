@@ -5,42 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KRS_{{ $mahasiswa->nim }}_{{ $krs->tahunAkademik->tahun }}</title>
     <style>
-        body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; line-height: 1.4; color: #000; margin: 0; padding: 0; }
-        .container { width: 21cm; min-height: 29.7cm; padding: 1.5cm; margin: auto; background: #fff; }
+        body { font-family: 'Arial', sans-serif; font-size: 9pt; color: #000; margin: 0; padding: 0; }
+        .container { width: 21cm; min-height: 29.7cm; padding: 0.5cm 1cm; margin: auto; background: #fff; box-sizing: border-box; }
         
         /* Header / Kop Surat */
-        .header { text-align: center; border-bottom: 3px double #000; padding-bottom: 10px; margin-bottom: 20px; position: relative; }
-        .header h1 { font-size: 16pt; margin: 0; text-transform: uppercase; }
-        .header h2 { font-size: 14pt; margin: 5px 0; text-transform: uppercase; }
-        .header p { font-size: 10pt; margin: 2px 0; }
+        .header { display: flex; align-items: center; border-bottom: 2px solid #ccc; padding-bottom: 2px; margin-bottom: 5px; }
+        .header-logo { width: 50px; height: 50px; margin-right: 15px; display: flex; align-items: center; justify-content: center; }
+        .header-logo img { width: 100%; height: auto; object-fit: contain; }
+        .header-text h1 { font-size: 14pt; margin: 0; color: #0055A5; text-transform: uppercase; letter-spacing: 1px; }
+        .header-text h2 { font-size: 10pt; margin: 0; font-weight: normal; color: #555; text-transform: uppercase; }
         
-        .title { text-align: center; text-decoration: underline; font-weight: bold; font-size: 14pt; margin-bottom: 20px; text-transform: uppercase; }
+        .title-bar { background-color: #d1d5db; text-align: center; font-weight: bold; font-size: 11pt; padding: 3px 0; margin-bottom: 10px; text-transform: uppercase; border: 1px solid #9ca3af; }
         
         /* Info Table */
-        .info-table { width: 100%; margin-bottom: 20px; border-collapse: collapse; }
-        .info-table td { padding: 3px 0; vertical-align: top; font-size: 11pt; }
-        .info-table td.label { width: 140px; }
-        .info-table td.separator { width: 15px; text-align: center; }
+        .info-container { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 8pt; font-weight: bold; text-transform: uppercase; }
+        .info-col { width: 48%; }
+        .info-table { width: 100%; border-collapse: collapse; }
+        .info-table td { padding: 1px 0; vertical-align: top; }
+        .info-table td.label { width: 120px; }
+        .info-table td.separator { width: 10px; text-align: center; }
         
         /* Course Table */
-        .course-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-        .course-table th, .course-table td { border: 1px solid #000; padding: 6px 8px; font-size: 10pt; }
-        .course-table th { background-color: #f2f2f2; text-transform: uppercase; font-weight: bold; }
+        .course-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 7.5pt; }
+        .course-table th, .course-table td { border: 1px solid #9ca3af; padding: 2px 4px; }
+        .course-table th { background-color: #e5e7eb; text-transform: uppercase; font-weight: bold; text-align: left;}
         .course-table .center { text-align: center; }
-        .total-row { font-weight: bold; }
+        .course-table .right { text-align: right; }
+        
+        .oval { width: 14px; height: 8px; border: 1px solid #000; border-radius: 50%; display: inline-block; vertical-align: middle; }
+        .oval.filled { background-color: #000; }
+        
+        .total-row td { background-color: #f3f4f6; font-weight: bold; }
+        
+        /* Summary Section */
+        .summary-section { margin-top: 10px; font-size: 8pt; line-height: 1.3; }
         
         /* Signature Area */
-        .signature-container { width: 100%; margin-top: 40px; }
-        .signature-box { width: 33.3%; float: left; text-align: center; font-size: 10pt; }
-        .signature-box p { margin: 0; }
-        .signature-space { height: 70px; }
-        .clear { clear: both; }
-
+        .signature-container { width: 100%; margin-top: 15px; font-size: 8pt; }
+        .signature-row { display: flex; justify-content: space-between; }
+        .signature-box { width: 30%; text-align: left; }
+        .signature-box.right-box { text-align: center; }
+        .signature-box p { margin: 2px 0; }
+        .signature-space { height: 40px; }
+        
+        /* Footer Lines */
+        .footer-lines { margin-top: 15px; border: 1px solid #000; padding: 3px 8px; font-size: 7pt; display: flex; justify-content: space-between; }
+        
         @media print {
             body { background: none; }
             .container { width: 100%; padding: 0; margin: 0; border: none; }
             .no-print { display: none; }
-            @page { margin: 1cm; }
+            @page { margin: 0.5cm; }
         }
     </style>
 </head>
@@ -48,107 +63,144 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>UNIVERSITAS CONTOH INDONESIA</h1>
-            <h2>FAKULTAS {{ strtoupper($mahasiswa->prodi->fakultas->nama ?? 'AKADEMIK') }}</h2>
-            <p>Alamat Kampus Utama, Jl. Pendidikan No. 123, Kota, Indonesia</p>
-            <p>Email: info@universitas.ac.id | Website: www.universitas.ac.id</p>
+            <div class="header-logo">
+                <img src="{{ asset('images/logo-umpar.png') }}" alt="Logo UMPAR" onerror="this.outerHTML='<div style=\'width:60px;height:60px;background:#ccc;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;\'>LOGO</div>'">
+            </div>
+            <div class="header-text">
+                <h1>FAKULTAS {{ strtoupper($mahasiswa->prodi->fakultas->nama ?? 'TEKNIK') }}</h1>
+                <h2>UNIVERSITAS MUHAMMADIYAH PAREPARE</h2>
+            </div>
         </div>
 
-        <div class="title">KARTU RENCANA STUDI (KRS)</div>
+        <div class="title-bar">KARTU RENCANA STUDI (KRS)</div>
 
         <!-- Student Info -->
-        <table class="info-table">
-            <tr>
-                <td class="label">NIM</td>
-                <td class="separator">:</td>
-                <td><strong>{{ $mahasiswa->nim }}</strong></td>
-                <td class="label">Semester</td>
-                <td class="separator">:</td>
-                <td>{{ ucfirst($krs->tahunAkademik->semester) }}</td>
-            </tr>
-            <tr>
-                <td class="label">Nama Mahasiswa</td>
-                <td class="separator">:</td>
-                <td><strong>{{ $mahasiswa->user->name }}</strong></td>
-                <td class="label">Tahun Akademik</td>
-                <td class="separator">:</td>
-                <td>{{ $krs->tahunAkademik->tahun }}</td>
-            </tr>
-            <tr>
-                <td class="label">Program Studi</td>
-                <td class="separator">:</td>
-                <td>{{ $mahasiswa->prodi->nama ?? '-' }}</td>
-                <td class="label">Dosen PA</td>
-                <td class="separator">:</td>
-                <td>{{ $mahasiswa->dosenPa->user->name ?? '-' }}</td>
-            </tr>
-        </table>
+        <div class="info-container">
+            <div class="info-col">
+                <table class="info-table">
+                    <tr><td class="label">PROGRAM STUDI</td><td class="separator">:</td><td>{{ strtoupper($mahasiswa->prodi->nama ?? '-') }}</td></tr>
+                    <tr><td class="label">JENJANG PROGRAM</td><td class="separator">:</td><td>STRATA SATU (S1)</td></tr>
+                    <tr><td class="label">TAHUN AKADEMIK</td><td class="separator">:</td><td>{{ $krs->tahunAkademik->tahun }}</td></tr>
+                    <tr><td class="label">SEMESTER</td><td class="separator">:</td><td>{{ strtoupper($krs->tahunAkademik->semester) }}</td></tr>
+                </table>
+            </div>
+            <div class="info-col">
+                <table class="info-table">
+                    <tr><td class="label">NAMA MAHASISWA</td><td class="separator">:</td><td>{{ strtoupper($mahasiswa->user->name) }}</td></tr>
+                    <tr><td class="label">NIM</td><td class="separator">:</td><td>{{ $mahasiswa->nim }}</td></tr>
+                    <tr><td class="label">TEMPAT, TGL. LAHIR</td><td class="separator">:</td><td>{{ strtoupper($mahasiswa->tempat_lahir ?? '-') }}, {{ $mahasiswa->tanggal_lahir ? $mahasiswa->tanggal_lahir->format('d/m/Y') : '-' }}</td></tr>
+                    <tr><td class="label">KELAS</td><td class="separator">:</td><td>-</td></tr>
+                    <tr><td class="label">KONSENTRASI</td><td class="separator">:</td><td>-</td></tr>
+                </table>
+            </div>
+        </div>
 
-        <!-- Courses -->
+        <!-- Courses Table -->
         <table class="course-table">
-            <thead>
-                <tr>
-                    <th style="width: 5%;">No</th>
-                    <th style="width: 15%;">Kode MK</th>
-                    <th>Mata Kuliah</th>
-                    <th style="width: 8%;">SKS</th>
-                    <th style="width: 25%;">Dosen Pengampu</th>
-                </tr>
-            </thead>
+            @php 
+                $grandTotalSks = 0;
+                $romanNumerals = [1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV', 5 => 'V', 6 => 'VI', 7 => 'VII', 8 => 'VIII', 9 => 'IX', 10 => 'X'];
+            @endphp
+            
             <tbody>
-                @php $totalSks = 0; @endphp
-                @foreach($krs->krsDetail as $index => $detail)
+            @forelse($groupedKelas as $semester => $kelasGroup)
+                @php $semesterSks = 0; @endphp
                 <tr>
-                    <td class="center">{{ $index + 1 }}</td>
-                    <td class="center">{{ $detail->kelas->mataKuliah->kode_mk }}</td>
-                    <td>{{ $detail->kelas->mataKuliah->nama_mk }}</td>
-                    <td class="center">{{ $detail->kelas->mataKuliah->sks }}</td>
-                    <td>{{ $detail->kelas->dosen->user->name ?? '-' }}</td>
+                    <th style="width: 10%;">SMT {{ $romanNumerals[$semester] ?? $semester }}</th>
+                    <th style="width: 15%;">KODE MK</th>
+                    <th>MATAKULIAH</th>
+                    <th style="width: 20%;">DOSEN</th>
+                    <th style="width: 5%; text-align: center;">SKS</th>
                 </tr>
-                @php $totalSks += $detail->kelas->mataKuliah->sks; @endphp
+                @foreach($kelasGroup as $index => $kelas)
+                    @php 
+                        $isTaken = in_array($kelas->id, $takenKelasIds);
+                        if ($isTaken) {
+                            $semesterSks += $kelas->mataKuliah->sks;
+                            $grandTotalSks += $kelas->mataKuliah->sks;
+                        }
+                    @endphp
+                    <tr>
+                        <td>
+                            <span style="display:inline-block; width: 15px;">{{ $index + 1 }}</span>
+                            <div class="oval {{ $isTaken ? 'filled' : '' }}"></div>
+                        </td>
+                        <td>{{ $kelas->mataKuliah->kode_mk }}</td>
+                        <td>{{ $kelas->mataKuliah->nama_mk }}</td>
+                        <td></td>
+                        <td class="center">{{ $kelas->mataKuliah->sks }}</td>
+                    </tr>
                 @endforeach
                 <tr class="total-row">
-                    <td colspan="3" class="center">TOTAL SKS YANG DIAMBIL</td>
-                    <td class="center">{{ $totalSks }}</td>
-                    <td></td>
+                    <td colspan="4" class="right">JUMLAH SKS</td>
+                    <td class="center">{{ $semesterSks }}</td>
                 </tr>
+            @empty
+                <tr><td colspan="5" class="center">Tidak ada mata kuliah yang ditawarkan pada semester ini.</td></tr>
+            @endforelse
             </tbody>
         </table>
 
-        <!-- Signatures -->
+        <!-- Summary -->
+        <div class="summary-section">
+            <table style="border:none; width: 300px;">
+                <tr><td>- Indeks Prestasi (IP) Semester Lalu</td><td style="width:10px;">:</td><td>-</td></tr>
+                <tr><td>- Jumlah SKS yang Diprogramkan Semester Ini</td><td>:</td><td>{{ $grandTotalSks }}</td></tr>
+            </table>
+        </div>
+
+        <!-- Date & Signatures -->
+        @php
+            $namaBulan = [
+                1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+            ];
+            $tglSekarang = now();
+        @endphp
+        
+        <div style="text-align: right; font-size: 9pt; margin-top: 10px;">
+            Parepare, {{ $tglSekarang->format('d/m/Y') }}
+        </div>
+
         <div class="signature-container">
-            <div class="signature-box">
-                <p>Mengetahui,</p>
-                <p>Dosen Pembimbing Akademik</p>
-                <div class="signature-space"></div>
-                <p><strong>( {{ $mahasiswa->dosenPa->user->name ?? '........................................' }} )</strong></p>
-                <p>NIDN. {{ $mahasiswa->dosenPa->nidn ?? '....................' }}</p>
-            </div>
-            
-            <div class="signature-box">
-                <p>&nbsp;</p>
-                <p>Mahasiswa,</p>
-                <div class="signature-space"></div>
-                <p><strong>( {{ $mahasiswa->user->name }} )</strong></p>
-                <p>NIM. {{ $mahasiswa->nim }}</p>
-            </div>
+            <div class="signature-row">
+                <!-- Ketua Prodi -->
+                <div class="signature-box">
+                    <p>Ketua Program Studi</p>
+                    <div class="signature-space"></div>
+                    <p style="text-decoration: underline; font-weight: bold;">{{ $mahasiswa->prodi->nama_ketua_prodi ?? '........................................' }}</p>
+                    <p>NBM : {{ $mahasiswa->prodi->nidn_ketua_prodi ?? '....................' }}</p>
+                </div>
 
-            <div class="signature-box">
-                <p>Disetujui,</p>
-                <p>Ketua Program Studi</p>
-                <div class="signature-space"></div>
-                <p><strong>( ........................................ )</strong></p>
-                <p>NIP. ....................</p>
+                <!-- Dosen PA -->
+                <div class="signature-box">
+                    <p>Penasehat Akademik</p>
+                    <div class="signature-space"></div>
+                    <p style="text-decoration: underline; font-weight: bold;">{{ $mahasiswa->dosenPa->user->name ?? '........................................' }}</p>
+                    <p>NBM : {{ $mahasiswa->dosenPa->nidn ?? '....................' }}</p>
+                </div>
+
+                <!-- Mahasiswa -->
+                <div class="signature-box right-box">
+                    <p>Mahasiswa</p>
+                    <div class="signature-space"></div>
+                    <p style="text-decoration: underline; font-weight: bold;">{{ strtoupper($mahasiswa->user->name) }}</p>
+                    <p>NIM : {{ $mahasiswa->nim }}</p>
+                </div>
             </div>
-            <div class="clear"></div>
         </div>
 
-        <div style="margin-top: 30px; font-size: 8pt; italic; text-align: right; color: #555;">
-            Dicetak melalui Sistem Informasi Akademik pada: {{ now()->format('d/m/Y H:i:s') }}
+        <div class="footer-lines">
+            <span>1. Kuning : BAAK</span>
+            <span>2. Hijau : Penasehat Akademik</span>
+            <span>4. Putih : Program Studi</span>
+            <span>5. Merah : Mahasiswa</span>
         </div>
+        
     </div>
     
-    <div class="no-print" style="position: fixed; bottom: 20px; right: 20px; background: white; padding: 10px; border-radius: 10px; shadow: 0 0 10px rgba(0,0,0,0.1);">
+    <div class="no-print" style="position: fixed; bottom: 20px; right: 20px; background: white; padding: 10px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
         <button onclick="window.print()" style="padding: 8px 16px; background: #2563eb; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Cetak Sekarang</button>
         <button onclick="window.close()" style="padding: 8px 16px; background: #64748b; color: #fff; border: none; border-radius: 6px; cursor: pointer; margin-left: 8px;">Tutup</button>
     </div>

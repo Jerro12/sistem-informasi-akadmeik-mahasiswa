@@ -325,16 +325,9 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Dosen Pengampu</label>
-                        <select name="dosen_id" id="createClassDosenSelect" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
+                        <select name="dosen_id" id="createClassDosenSelect" class="w-full text-sm select-dosen-ajax" required>
                             <option value="">Pilih Dosen</option>
-                            @foreach($dosen as $d)
-                            <option value="{{ $d->id }}" data-prodi="{{ $d->prodi_id ?? '' }}">{{ $d->user->name }}</option>
-                            @endforeach
                         </select>
-                        <div class="flex items-center gap-2 mt-2">
-                            <input type="checkbox" id="createClassShowAllFacultyDosen" onchange="filterMataKuliahAndDosenCreate()" class="rounded border-gray-300 text-siakad-primary focus:ring-siakad-primary">
-                            <label for="createClassShowAllFacultyDosen" class="text-xs text-siakad-secondary dark:text-gray-400">Tampilkan seluruh dosen se-fakultas</label>
-                        </div>
                     </div>
                     
                     <!-- Jadwal Section -->
@@ -436,16 +429,9 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Dosen Pengampu</label>
-                        <select name="dosen_id" id="editDosen" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
+                        <select name="dosen_id" id="editDosen" class="w-full text-sm select-dosen-ajax" required>
                             <option value="">Pilih Dosen</option>
-                            @foreach($dosen as $d)
-                            <option value="{{ $d->id }}" data-prodi="{{ $d->prodi_id ?? '' }}">{{ $d->user->name }}</option>
-                            @endforeach
                         </select>
-                        <div class="flex items-center gap-2 mt-2">
-                            <input type="checkbox" id="editClassShowAllFacultyDosen" onchange="filterMataKuliahAndDosenEdit(document.getElementById('editMK').value, document.getElementById('editDosen').value)" class="rounded border-gray-300 text-siakad-primary focus:ring-siakad-primary">
-                            <label for="editClassShowAllFacultyDosen" class="text-xs text-siakad-secondary dark:text-gray-400">Tampilkan seluruh dosen se-fakultas</label>
-                        </div>
                     </div>
                     
                     <!-- Jadwal Section -->
@@ -539,8 +525,6 @@
             const prodiId = document.getElementById('createClassProdiSelect').value;
             const semester = document.getElementById('createClassSemesterSelect').value;
             const mkSelect = document.getElementById('createClassMKSelect');
-            const dosenSelect = document.getElementById('createClassDosenSelect');
-            const showAllFacultyDosen = document.getElementById('createClassShowAllFacultyDosen').checked;
             
             const activeSemester = "{{ $activeSemester }}";
             
@@ -565,24 +549,18 @@
             mkSelect.value = '';
             
             // Filter Dosen
-            Array.from(dosenSelect.options).forEach(opt => {
-                if (opt.value === '') return;
-                const optProdiId = opt.getAttribute('data-prodi');
-                if (showAllFacultyDosen) {
-                    opt.style.display = '';
-                } else {
-                    opt.style.display = (prodiId === '' || optProdiId === prodiId) ? '' : 'none';
-                }
-            });
-            dosenSelect.value = '';
+            const dosenTsCreate = document.getElementById('createClassDosenSelect')?.tomselect;
+            if (dosenTsCreate) {
+                dosenTsCreate.clear(true);
+                dosenTsCreate.clearOptions();
+                dosenTsCreate.load('');
+            }
         }
 
         function filterMataKuliahAndDosenEdit(selectedMkId = null, selectedDosenId = null) {
             const prodiId = document.getElementById('editClassProdiSelect').value;
             const semester = document.getElementById('editClassSemesterSelect').value;
             const mkSelect = document.getElementById('editMK');
-            const dosenSelect = document.getElementById('editDosen');
-            const showAllFacultyDosen = document.getElementById('editClassShowAllFacultyDosen').checked;
             
             const activeSemester = "{{ $activeSemester }}";
             
@@ -610,21 +588,14 @@
             });
             if (!selectedMkId) mkSelect.value = '';
             else mkSelect.value = selectedMkId;
-            
+
             // Filter Dosen
-            Array.from(dosenSelect.options).forEach(opt => {
-                if (opt.value === '') return;
-                const optProdiId = opt.getAttribute('data-prodi');
-                
-                let matchesDosen = showAllFacultyDosen || (prodiId === '' || optProdiId === prodiId);
-                if (selectedDosenId && opt.value.toString() === selectedDosenId.toString()) {
-                    matchesDosen = true;
-                }
-                
-                opt.style.display = matchesDosen ? '' : 'none';
-            });
-            if (!selectedDosenId) dosenSelect.value = '';
-            else dosenSelect.value = selectedDosenId;
+            const dosenTsEdit = document.getElementById('editDosen')?.tomselect;
+            if (dosenTsEdit && !selectedDosenId) {
+                dosenTsEdit.clear(true);
+                dosenTsEdit.clearOptions();
+                dosenTsEdit.load('');
+            }
         }
 
         function editKelas(data) {
@@ -646,11 +617,13 @@
             document.getElementById('editClassProdiSelect').value = prodiId || '';
             document.getElementById('editClassSemesterSelect').value = semester || '';
             
-            // Auto check showAllFacultyDosen if dosen's prodi is different from course prodi
-            const selectedDosenOption = document.querySelector(`#editDosen option[value="${data.dosen_id}"]`);
-            const dosenProdiId = selectedDosenOption ? selectedDosenOption.getAttribute('data-prodi') : '';
-            const isDifferentProdi = prodiId && dosenProdiId && (prodiId.toString() !== dosenProdiId.toString());
-            document.getElementById('editClassShowAllFacultyDosen').checked = isDifferentProdi;
+            // Add Dosen to TomSelect if it's not present (so we can select it dynamically)
+            const dosenSelectEl = document.getElementById('editDosen');
+            if (dosenSelectEl.tomselect) {
+                const ts = dosenSelectEl.tomselect;
+                ts.addOption({id: data.dosen.id, name: data.dosen.user.name});
+                ts.setValue(data.dosen.id);
+            }
             
             // Run filter so options are filtered correctly but keep current selection
             filterMataKuliahAndDosenEdit(data.mata_kuliah_id, data.dosen_id);
@@ -658,4 +631,42 @@
             document.getElementById('editModal').style.display = 'flex';
         }
     </script>
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const selects = document.querySelectorAll('.select-dosen-ajax');
+            selects.forEach(select => {
+                new TomSelect(select, {
+                    valueField: 'id',
+                    labelField: 'name',
+                    searchField: 'name',
+                    placeholder: 'Ketik nama dosen...',
+                    preload: true,
+                    load: function(query, callback) {
+                        fetch(`{{ route('admin.dosen.search') }}?q=${encodeURIComponent(query)}`)
+                            .then(response => response.json())
+                            .then(json => {
+                                callback(json.map(item => ({
+                                    id: item.id,
+                                    name: item.name + (item.nidn ? ` (NIDN: ${item.nidn})` : '')
+                                })));
+                            }).catch(()=>{
+                                callback();
+                            });
+                    },
+                    render: {
+                        option: function(item, escape) {
+                            return `<div class="py-2 px-3">
+                                <div class="font-medium text-sm text-gray-800 dark:text-white">${escape(item.name)}</div>
+                            </div>`;
+                        },
+                        item: function(item, escape) {
+                            return `<div class="font-medium text-sm text-gray-800 dark:text-white">${escape(item.name)}</div>`;
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+    @endpush
 </x-app-layout>

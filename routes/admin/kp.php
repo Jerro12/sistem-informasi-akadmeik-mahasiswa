@@ -9,4 +9,6 @@ Route::middleware(['auth', 'role:admin', 'fakultas.scope', 'prodi.scope'])->pref
     Route::post('/kp/{kp}/assign-pembimbing', [KpController::class, 'assignPembimbing'])->name('kp.assign-pembimbing');
     Route::put('/kp/{kp}/status', [KpController::class, 'updateStatus'])->name('kp.update-status');
     Route::put('/kp/{kp}/nilai', [KpController::class, 'updateNilai'])->name('kp.update-nilai');
+    Route::get('/kp/{kp}/surat-permohonan', [KpController::class, 'suratPermohonan'])->name('kp.surat-permohonan');
 });
+

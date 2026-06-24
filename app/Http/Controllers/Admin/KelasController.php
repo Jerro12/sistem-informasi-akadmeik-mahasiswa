@@ -286,5 +286,32 @@ class KelasController extends Controller
             'groupedJadwal' => $sortedGroupedJadwal,
         ]);
     }
-}
 
+    /**
+     * API endpoint untuk pencarian dosen (autocomplete)
+     * GET /admin/dosen/search?q=nama&prodi_id=1
+     */
+    public function searchDosen(Request $request)
+    {
+        $q = $request->get('q', '');
+
+        $query = \App\Models\Dosen::with(['user', 'prodi'])
+            ->where(function($qBuilder) use ($q) {
+                $qBuilder->whereHas('user', fn($uq) => $uq->where('name', 'like', "%{$q}%")
+                    ->orWhere('email', 'like', "%{$q}%"))
+                ->orWhere('nidn', 'like', "%{$q}%");
+            });
+
+        // Semua filter prodi dan fakultas (termasuk role scope) dihapus 
+        // agar admin dapat mencari dan memilih dosen Mata Kuliah Umum (MKU) dari prodi/fakultas lain.
+
+        $dosenList = $query->limit(50)->get()->map(fn($d) => [
+            'id' => $d->id,
+            'name' => $d->user->name ?? 'Tanpa Nama',
+            'nidn' => $d->nidn,
+            'prodi' => $d->prodi->nama ?? '-',
+        ]);
+
+        return response()->json($dosenList);
+    }
+}

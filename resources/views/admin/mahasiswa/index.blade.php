@@ -302,7 +302,7 @@
                         <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Angkatan</label><input type="number" name="angkatan" required value="{{ date('Y') }}" class="input-saas w-full dark:bg-gray-700"></div>
                         <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Semester Sekarang</label><input type="number" name="semester_sekarang" required value="1" min="1" max="14" class="input-saas w-full dark:bg-gray-700"></div>
                     </div>
-                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Dosen PA</label><select name="dosen_pa_id" class="input-saas w-full dark:bg-gray-700"><option value="">-- Pilih --</option>@foreach($dosenList as $d)<option value="{{ $d->id }}">{{ $d->user->name }}</option>@endforeach</select></div>
+                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Dosen PA</label><select name="dosen_pa_id" class="w-full text-sm select-dosen-ajax"><option value="">-- Pilih --</option></select></div>
                     <div class="flex justify-end gap-3"><button type="button" onclick="closeModal('createModal')" class="px-4 py-2 text-sm text-siakad-secondary hover:bg-gray-100 rounded-lg">Batal</button><button type="submit" class="btn-primary-saas px-4 py-2 rounded-lg text-sm">Simpan</button></div>
                 </form>
             </div>
@@ -327,7 +327,7 @@
                         <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Angkatan</label><input type="number" name="angkatan" id="editAngkatan" required class="input-saas w-full dark:bg-gray-700"></div>
                         <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Semester Sekarang</label><input type="number" name="semester_sekarang" id="editSemesterSekarang" required min="1" max="14" class="input-saas w-full dark:bg-gray-700"></div>
                     </div>
-                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Dosen PA</label><select name="dosen_pa_id" id="editDosenPaId" class="input-saas w-full dark:bg-gray-700"><option value="">-- Pilih --</option>@foreach($dosenList as $d)<option value="{{ $d->id }}">{{ $d->user->name }}</option>@endforeach</select></div>
+                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Dosen PA</label><select name="dosen_pa_id" id="editDosenPaId" class="w-full text-sm select-dosen-ajax"><option value="">-- Pilih --</option></select></div>
                     <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Status</label><select name="status" id="editStatus" required class="input-saas w-full dark:bg-gray-700"><option value="aktif">Aktif</option><option value="cuti">Cuti</option><option value="lulus">Lulus</option><option value="do">DO</option></select></div>
                     <div class="flex justify-end gap-3"><button type="button" onclick="closeModal('editModal')" class="px-4 py-2 text-sm text-siakad-secondary hover:bg-gray-100 rounded-lg">Batal</button><button type="submit" class="btn-primary-saas px-4 py-2 rounded-lg text-sm">Simpan</button></div>
                 </form>
@@ -451,10 +451,61 @@
             
             document.getElementById('editAngkatan').value = m.angkatan;
             document.getElementById('editSemesterSekarang').value = m.semester_sekarang || 1;
-            document.getElementById('editDosenPaId').value = m.dosen_pa_id || '';
+            document.getElementById('editKurikulumId').value = m.kurikulum_id || '';
+
+            const dosenPaEl = document.getElementById('editDosenPaId');
+            if (dosenPaEl.tomselect && m.dosen_pa_id) {
+                // If we had the actual name we could add it, but since we don't in the openEditModal payload
+                // we'll just try to set it. Alternatively, since openEditModal json_encode only has id,
+                // we'll fetch or the user will just search again if needed.
+                // Or better, let's just do:
+                dosenPaEl.tomselect.addOption({id: m.dosen_pa_id, name: 'Dosen ID: ' + m.dosen_pa_id});
+                dosenPaEl.tomselect.setValue(m.dosen_pa_id);
+            } else if (dosenPaEl.tomselect) {
+                dosenPaEl.tomselect.clear();
+            }
             document.getElementById('editStatus').value = m.status || 'aktif';
             openModal('editModal');
         }
     </script>
 </x-app-layout>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const selects = document.querySelectorAll('.select-dosen-ajax');
+        selects.forEach(select => {
+            new TomSelect(select, {
+                valueField: 'id',
+                labelField: 'name',
+                searchField: 'name',
+                placeholder: 'Ketik nama dosen...',
+                load: function(query, callback) {
+                    if (!query.length) return callback();
+                    fetch(`{{ route('admin.dosen.search') }}?q=${encodeURIComponent(query)}`)
+                        .then(response => response.json())
+                        .then(json => {
+                            callback(json.map(item => ({
+                                id: item.id,
+                                name: item.name + (item.nidn ? ` (NIDN: ${item.nidn})` : '')
+                            })));
+                        }).catch(()=>{
+                            callback();
+                        });
+                },
+                render: {
+                    option: function(item, escape) {
+                        return `<div class="py-2 px-3">
+                            <div class="font-medium text-sm text-gray-800 dark:text-white">${escape(item.name)}</div>
+                        </div>`;
+                    },
+                    item: function(item, escape) {
+                        return `<div class="font-medium text-sm text-gray-800 dark:text-white">${escape(item.name)}</div>`;
+                    }
+                }
+            });
+        });
+    });
+</script>
+@endpush
 

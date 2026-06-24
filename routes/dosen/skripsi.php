@@ -9,4 +9,6 @@ Route::middleware(['auth', 'role:dosen'])->prefix('dosen')->name('dosen.')->grou
     Route::get('/skripsi/{skripsi}', [SkripsiController::class, 'show'])->name('skripsi.show');
     Route::post('/skripsi/bimbingan/{bimbingan}/review', [SkripsiController::class, 'reviewBimbingan'])->name('skripsi.bimbingan.review');
     Route::put('/skripsi/{skripsi}/status', [SkripsiController::class, 'updateStatus'])->name('skripsi.update-status');
+    Route::post('/skripsi/{skripsi}/approve', [SkripsiController::class, 'approve'])->name('skripsi.approve');
+    Route::post('/skripsi/{skripsi}/reject', [SkripsiController::class, 'reject'])->name('skripsi.reject');
 });

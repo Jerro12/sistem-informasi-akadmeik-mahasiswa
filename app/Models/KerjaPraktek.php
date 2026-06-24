@@ -20,6 +20,7 @@ class KerjaPraktek extends Model
         'nama_pembimbing_lapangan',
         'jabatan_pembimbing_lapangan',
         'no_telp_pembimbing',
+        'no_hp_mahasiswa',
         'tanggal_mulai',
         'tanggal_selesai',
         'judul_laporan',
@@ -31,6 +32,8 @@ class KerjaPraktek extends Model
         'nilai_akhir',
         'nilai_huruf',
         'catatan',
+        'pembimbing_approved',
+        'pembimbing_catatan',
     ];
 
     protected $casts = [

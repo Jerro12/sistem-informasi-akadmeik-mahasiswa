@@ -4,6 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\KelasController;
 
 Route::middleware(['auth', 'role:admin', 'fakultas.scope'])->prefix('admin')->name('admin.')->group(function () {
+    // API pencarian dosen (autocomplete)
+    Route::get('/dosen/search', [KelasController::class, 'searchDosen'])->name('dosen.search');
+    
     Route::get('/kelas', [KelasController::class, 'index'])->name('kelas.index');
     Route::post('/kelas', [KelasController::class, 'store'])->name('kelas.store');
     Route::put('/kelas/{kelas}', [KelasController::class, 'update'])->name('kelas.update');

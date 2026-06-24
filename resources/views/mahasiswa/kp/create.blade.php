@@ -15,13 +15,13 @@
                     <div><label class="block text-sm font-medium text-siakad-dark mb-1">Tanggal Mulai *</label><input type="date" name="tanggal_mulai" class="input-saas w-full text-sm" required></div>
                     <div><label class="block text-sm font-medium text-siakad-dark mb-1">Tanggal Selesai *</label><input type="date" name="tanggal_selesai" class="input-saas w-full text-sm" required></div>
                 </div>
+                <div><label class="block text-sm font-medium text-siakad-dark mb-1">No. HP Mahasiswa *</label><input type="text" name="no_hp_mahasiswa" class="input-saas w-full text-sm" placeholder="Contoh: 08123456789" required></div>
                 <hr class="border-siakad-light">
                 <p class="text-xs text-siakad-secondary">Pembimbing Lapangan (opsional)</p>
                 <div class="grid grid-cols-2 gap-4">
                     <div><label class="block text-sm font-medium text-siakad-dark mb-1">Nama</label><input type="text" name="nama_pembimbing_lapangan" class="input-saas w-full text-sm"></div>
                     <div><label class="block text-sm font-medium text-siakad-dark mb-1">Jabatan</label><input type="text" name="jabatan_pembimbing_lapangan" class="input-saas w-full text-sm"></div>
                 </div>
-                <div><label class="block text-sm font-medium text-siakad-dark mb-1">No. Telp Pembimbing</label><input type="text" name="no_telp_pembimbing" class="input-saas w-full text-sm"></div>
                 <div class="pt-4 flex justify-end gap-3">
                     <a href="{{ route('mahasiswa.kp.index') }}" class="btn-ghost-saas px-4 py-2.5 rounded-lg text-sm">Batal</a>
                     <button type="submit" class="btn-primary-saas px-6 py-2.5 rounded-lg text-sm font-medium">Ajukan</button>

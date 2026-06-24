@@ -44,20 +44,22 @@
                     @csrf
                     <div>
                         <label class="block text-xs font-medium text-siakad-dark mb-1">Pembimbing 1 *</label>
-                        <select name="pembimbing1_id" class="input-saas w-full text-sm" required>
-                            <option value="">Pilih Dosen</option>
-                            @foreach($dosenList as $dosen)
-                            <option value="{{ $dosen->id }}" {{ $skripsi->pembimbing1_id == $dosen->id ? 'selected' : '' }}>{{ $dosen->user->name }}</option>
-                            @endforeach
+                        <select name="pembimbing1_id" id="pembimbing1" class="w-full text-sm select-dosen-ajax" required>
+                            @if($skripsi->pembimbing1_id)
+                                <option value="{{ $skripsi->pembimbing1_id }}" selected>{{ $skripsi->pembimbing1->user->name }}</option>
+                            @else
+                                <option value="">Pilih Dosen</option>
+                            @endif
                         </select>
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-siakad-dark mb-1">Pembimbing 2</label>
-                        <select name="pembimbing2_id" class="input-saas w-full text-sm">
-                            <option value="">Tidak ada</option>
-                            @foreach($dosenList as $dosen)
-                            <option value="{{ $dosen->id }}" {{ $skripsi->pembimbing2_id == $dosen->id ? 'selected' : '' }}>{{ $dosen->user->name }}</option>
-                            @endforeach
+                        <select name="pembimbing2_id" id="pembimbing2" class="w-full text-sm select-dosen-ajax">
+                            @if($skripsi->pembimbing2_id)
+                                <option value="{{ $skripsi->pembimbing2_id }}" selected>{{ $skripsi->pembimbing2->user->name }}</option>
+                            @else
+                                <option value="">Tidak ada</option>
+                            @endif
                         </select>
                     </div>
                     <div class="col-span-2">
@@ -188,3 +190,42 @@
         </div>
     </div>
 </x-app-layout>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const selects = document.querySelectorAll('.select-dosen-ajax');
+        selects.forEach(select => {
+            new TomSelect(select, {
+                valueField: 'id',
+                labelField: 'name',
+                searchField: 'name',
+                placeholder: select.getAttribute('id') === 'pembimbing2' ? 'Pilih Dosen (Opsional)...' : 'Ketik nama dosen...',
+                load: function(query, callback) {
+                    if (!query.length) return callback();
+                    fetch(`{{ route('admin.dosen.search') }}?q=${encodeURIComponent(query)}`)
+                        .then(response => response.json())
+                        .then(json => {
+                            callback(json.map(item => ({
+                                id: item.id,
+                                name: item.name + (item.nidn ? ` (NIDN: ${item.nidn})` : '')
+                            })));
+                        }).catch(()=>{
+                            callback();
+                        });
+                },
+                render: {
+                    option: function(item, escape) {
+                        return `<div class="py-2 px-3">
+                            <div class="font-medium text-sm text-gray-800 dark:text-white">${escape(item.name)}</div>
+                        </div>`;
+                    },
+                    item: function(item, escape) {
+                        return `<div class="font-medium text-sm text-gray-800 dark:text-white">${escape(item.name)}</div>`;
+                    }
+                }
+            });
+        });
+    });
+</script>
+@endpush

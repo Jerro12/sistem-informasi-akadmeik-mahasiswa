@@ -147,7 +147,7 @@
                     <div class="p-4 flex items-center gap-4 hover:bg-siakad-light/20 transition">
                         <div class="flex-1 min-w-0">
                             <p class="font-medium text-siakad-dark truncate">{{ $detail->kelas->mataKuliah->nama_mk }}</p>
-                            <p class="text-xs text-siakad-secondary">{{ $detail->kelas->mataKuliah->kode_mk }} • {{ $detail->kelas->dosen->user->name }}</p>
+                            <p class="text-xs text-siakad-secondary">{{ $detail->kelas->mataKuliah->kode_mk }}</p>
                         </div>
                         <div class="text-center px-3">
                             <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-siakad-primary/10 text-siakad-primary font-semibold text-sm">
@@ -206,12 +206,6 @@
                         </button>
                         <div x-show="open" x-collapse class="divide-y divide-siakad-light/30">
                             @foreach($mkList as $mk)
-                            @php
-                                $kelasTA = $mk->kelas->first();
-                                $dosenName = $kelasTA?->dosen?->user?->name ?? '-';
-                                $kapasitas = $kelasTA?->kapasitas ?? 40;
-                                $terisi = $kelasTA?->krsDetail?->count() ?? 0;
-                            @endphp
                             <div class="p-4">
                                 <div class="flex items-start gap-3">
                                     <div class="flex-1 min-w-0">
@@ -223,13 +217,7 @@
                                                 <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-100 text-blue-700 uppercase">Wajib</span>
                                             @endif
                                         </div>
-                                        <p class="text-[11px] text-siakad-secondary mt-0.5">{{ $mk->sks }} SKS • {{ $dosenName }}</p>
-                                        <div class="flex items-center gap-2 mt-2">
-                                            <div class="flex-1 h-1 bg-siakad-light rounded-full overflow-hidden">
-                                                <div class="h-full bg-siakad-primary rounded-full" style="width: {{ min(100, ($terisi / $kapasitas) * 100) }}%"></div>
-                                            </div>
-                                            <span class="text-[10px] text-siakad-secondary">{{ $terisi }}/{{ $kapasitas }}</span>
-                                        </div>
+                                        <p class="text-[11px] text-siakad-secondary mt-0.5">{{ $mk->kode_mk }} • {{ $mk->sks }} SKS</p>
                                     </div>
                                 </div>
                                 <form action="{{ url('mahasiswa/krs') }}" method="POST" class="mt-3">

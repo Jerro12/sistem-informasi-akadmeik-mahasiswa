@@ -15,3 +15,4 @@ require __DIR__.'/ruangan.php';
 require __DIR__.'/skripsi.php';
 require __DIR__.'/user.php';
 require __DIR__.'/penilaian.php';
+require __DIR__.'/pejabat.php';

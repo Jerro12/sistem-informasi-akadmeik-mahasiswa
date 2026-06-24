@@ -14,7 +14,16 @@
             <div class="card-saas p-6">
                 <h3 class="font-semibold text-siakad-dark mb-4">Assign Pembimbing</h3>
                 <form action="{{ route('admin.kp.assign-pembimbing', $kp) }}" method="POST" class="flex items-end gap-3">@csrf
-                    <div class="flex-1"><label class="block text-xs font-medium text-siakad-dark mb-1">Pembimbing Kampus</label><select name="pembimbing_id" class="input-saas w-full text-sm" required><option value="">Pilih Dosen</option>@foreach($dosenList as $d)<option value="{{ $d->id }}" {{ $kp->pembimbing_id == $d->id ? 'selected' : '' }}>{{ $d->user->name }}</option>@endforeach</select></div>
+                    <div class="flex-1">
+                        <label class="block text-xs font-medium text-siakad-dark mb-1">Pembimbing Kampus</label>
+                        <select name="pembimbing_id" id="pembimbing_id" class="w-full text-sm select-dosen-ajax" required>
+                            @if($kp->pembimbing_id)
+                                <option value="{{ $kp->pembimbing_id }}" selected>{{ $kp->pembimbing->user->name }}</option>
+                            @else
+                                <option value="">Pilih Dosen</option>
+                            @endif
+                        </select>
+                    </div>
                     <button type="submit" class="btn-primary-saas px-4 py-2.5 rounded-lg text-sm font-medium">Simpan</button>
                 </form>
             </div>
@@ -41,8 +50,61 @@
             @endif
         </div>
         <div class="space-y-6">
-            <div class="card-saas p-5"><h3 class="font-semibold text-siakad-dark mb-3">Info Perusahaan</h3><p class="text-sm text-siakad-dark">{{ $kp->nama_perusahaan }}</p><p class="text-xs text-siakad-secondary">{{ $kp->alamat_perusahaan }}</p><p class="text-xs text-siakad-secondary">{{ $kp->bidang_usaha }}</p></div>
-            <div class="card-saas p-5"><h3 class="font-semibold text-siakad-dark mb-3">Logbook</h3><p class="text-3xl font-bold text-siakad-primary">{{ $kp->logbook->count() }}</p><p class="text-sm text-siakad-secondary">entries</p></div>
+            <div class="card-saas p-5"><h3 class="font-semibold text-siakad-dark dark:text-white mb-3">Info Perusahaan</h3><div class="text-sm space-y-2"><p class="text-siakad-dark dark:text-gray-300">{{ $kp->nama_perusahaan }}</p><p class="text-xs text-siakad-secondary dark:text-gray-400">{{ $kp->alamat_perusahaan }}</p><p class="text-xs text-siakad-secondary dark:text-gray-400">Bidang: {{ $kp->bidang_usaha ?? '-' }}</p></div></div>
+            <div class="card-saas p-5"><h3 class="font-semibold text-siakad-dark dark:text-white mb-3">Pembimbing Lapangan</h3><p class="text-sm text-siakad-dark dark:text-gray-300">{{ $kp->nama_pembimbing_lapangan ?? '-' }}</p><p class="text-xs text-siakad-secondary dark:text-gray-400">{{ $kp->jabatan_pembimbing_lapangan }}</p></div>
+            <div class="card-saas p-5">
+                <h3 class="font-semibold text-siakad-dark dark:text-white mb-3">HP Mahasiswa</h3>
+                <p class="text-sm text-siakad-dark dark:text-gray-300">{{ $kp->no_hp_mahasiswa ?? '-' }}</p>
+            </div>
+            @if($kp->pembimbing_id)
+            <div class="card-saas p-5">
+                <h3 class="font-semibold text-siakad-dark mb-3">Surat Permohonan</h3>
+                <a href="{{ route('admin.kp.surat-permohonan', $kp) }}" target="_blank"
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-siakad-primary text-white rounded-lg text-sm font-medium hover:bg-siakad-primary/90 transition w-full justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    Cetak Surat Permohonan
+                </a>
+            </div>
+            @endif
         </div>
     </div>
 </x-app-layout>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const selects = document.querySelectorAll('.select-dosen-ajax');
+        selects.forEach(select => {
+            new TomSelect(select, {
+                valueField: 'id',
+                labelField: 'name',
+                searchField: 'name',
+                placeholder: 'Ketik nama dosen...',
+                load: function(query, callback) {
+                    if (!query.length) return callback();
+                    fetch(`{{ route('admin.dosen.search') }}?q=${encodeURIComponent(query)}`)
+                        .then(response => response.json())
+                        .then(json => {
+                            callback(json.map(item => ({
+                                id: item.id,
+                                name: item.name + (item.nidn ? ` (NIDN: ${item.nidn})` : '')
+                            })));
+                        }).catch(()=>{
+                            callback();
+                        });
+                },
+                render: {
+                    option: function(item, escape) {
+                        return `<div class="py-2 px-3">
+                            <div class="font-medium text-sm text-gray-800 dark:text-white">${escape(item.name)}</div>
+                        </div>`;
+                    },
+                    item: function(item, escape) {
+                        return `<div class="font-medium text-sm text-gray-800 dark:text-white">${escape(item.name)}</div>`;
+                    }
+                }
+            });
+        });
+    });
+</script>
+@endpush

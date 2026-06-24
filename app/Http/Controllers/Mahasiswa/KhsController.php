@@ -102,4 +102,44 @@ class KhsController extends Controller
             'mahasiswa', 'tahunAkademik', 'nilaiList', 'ipsData', 'ipkData', 'gradeDistribution'
         ));
     }
+
+    /**
+     * Print KHS for a specific semester (official format)
+     */
+    public function print(TahunAkademik $tahunAkademik)
+    {
+        $user = Auth::user();
+        $mahasiswa = $user->mahasiswa;
+
+        if (!$mahasiswa) {
+            abort(403, 'Unauthorized');
+        }
+
+        $krs = Krs::where('mahasiswa_id', $mahasiswa->id)
+            ->where('tahun_akademik_id', $tahunAkademik->id)
+            ->where('status', 'approved')
+            ->first();
+
+        if (!$krs) {
+            return redirect()->route('mahasiswa.khs.index')
+                ->with('error', 'KRS untuk semester ini belum diapprove');
+        }
+
+        $nilaiList = Nilai::where('mahasiswa_id', $mahasiswa->id)
+            ->whereHas('kelas', function ($q) use ($tahunAkademik) {
+                $q->whereHas('krsDetail.krs', fn($q2) => $q2->where('tahun_akademik_id', $tahunAkademik->id));
+            })
+            ->with(['kelas.mataKuliah', 'kelas.dosen.user'])
+            ->get()
+            ->sortBy('kelas.mataKuliah.kode_mk');
+
+        $ipsData = $this->calculationService->calculateIPS($mahasiswa, $tahunAkademik->id);
+        $ipkData = $this->calculationService->calculateIPK($mahasiswa);
+
+        $mahasiswa->load(['prodi.fakultas', 'dosenPa.user']);
+
+        return view('mahasiswa.khs.print', compact(
+            'mahasiswa', 'tahunAkademik', 'nilaiList', 'ipsData', 'ipkData'
+        ));
+    }
 }

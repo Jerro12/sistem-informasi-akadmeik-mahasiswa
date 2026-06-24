@@ -148,4 +148,14 @@ class KpController extends Controller
 
         return redirect()->back()->with('success', 'Nilai berhasil disimpan');
     }
+
+    /**
+     * Cetak/unduh surat permohonan KP dalam format HTML (printable)
+     */
+    public function suratPermohonan(KerjaPraktek $kp)
+    {
+        $kp->load(['mahasiswa.user', 'mahasiswa.prodi.fakultas', 'pembimbing.user']);
+
+        return view('admin.kp.surat-permohonan', compact('kp'));
+    }
 }

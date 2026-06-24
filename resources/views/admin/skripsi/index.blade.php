@@ -47,23 +47,48 @@
         </div>
     </div>
 
+    <!-- Progress Tabs -->
+    <div class="flex overflow-x-auto gap-2 mb-6 pb-2 hide-scrollbar">
+        @php
+            $currentStatus = request('status', 'semua');
+            $tabs = [
+                'semua' => 'Semua',
+                'pengajuan' => 'Pengajuan',
+                'seminar_proposal' => 'Proposal',
+                'seminar_hasil' => 'Hasil',
+                'sidang' => 'Tutup',
+                'selesai' => 'Selesai',
+            ];
+        @endphp
+        @foreach($tabs as $val => $label)
+            <a href="{{ request()->fullUrlWithQuery(['status' => $val === 'semua' ? null : $val]) }}"
+               class="px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap transition {{ $currentStatus === $val || (empty(request('status')) && $val === 'semua') ? 'bg-siakad-primary text-white shadow-md' : 'bg-white dark:bg-gray-800 text-siakad-secondary dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700' }}">
+                {{ $label }}
+            </a>
+        @endforeach
+    </div>
+
     <!-- Filter -->
     <div class="card-saas p-4 mb-6 dark:bg-gray-800">
         <form method="GET" class="flex flex-wrap items-end gap-4">
+            @if(request('status'))
+                <input type="hidden" name="status" value="{{ request('status') }}">
+            @endif
+            @if(request('sort'))
+                <input type="hidden" name="sort" value="{{ request('sort') }}">
+                <input type="hidden" name="order" value="{{ request('order') }}">
+            @endif
+            
             <div class="flex-1 min-w-[200px]">
                 <label class="block text-xs font-medium text-siakad-dark dark:text-gray-300 mb-1">Cari</label>
-                <input type="text" name="search" value="{{ request('search') }}" class="input-saas w-full text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" placeholder="Nama, NIM, atau judul...">
+                <div class="flex gap-2">
+                    <input type="text" name="search" value="{{ request('search') }}" class="input-saas w-full text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" placeholder="Nama, NIM, atau judul...">
+                    <button type="submit" class="btn-primary-saas px-4 py-2.5 rounded-lg text-sm font-medium flex-shrink-0">Filter</button>
+                    @if(request('search'))
+                        <a href="{{ request()->fullUrlWithQuery(['search' => null]) }}" class="px-4 py-2.5 bg-gray-100 text-gray-600 hover:bg-gray-200 rounded-lg text-sm font-medium transition dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">Reset</a>
+                    @endif
+                </div>
             </div>
-            <div class="w-48">
-                <label class="block text-xs font-medium text-siakad-dark dark:text-gray-300 mb-1">Status</label>
-                <select name="status" class="input-saas w-full text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
-                    <option value="">Semua Status</option>
-                    @foreach($statusList as $key => $label)
-                    <option value="{{ $key }}" {{ request('status') === $key ? 'selected' : '' }}>{{ $label }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <button type="submit" class="btn-primary-saas px-4 py-2.5 rounded-lg text-sm font-medium">Filter</button>
         </form>
     </div>
 

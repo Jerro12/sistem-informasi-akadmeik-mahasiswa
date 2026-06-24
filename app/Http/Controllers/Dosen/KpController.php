@@ -74,4 +74,40 @@ class KpController extends Controller
 
         return redirect()->back()->with('success', 'Status berhasil diupdate');
     }
+
+    /**
+     * Dosen menyetujui penugasan sebagai pembimbing KP
+     */
+    public function approve(KerjaPraktek $kp)
+    {
+        $dosen = Auth::user()->dosen;
+        if ($kp->pembimbing_id !== $dosen->id) abort(403, 'Anda bukan pembimbing KP ini');
+
+        $kp->update(['pembimbing_approved' => true, 'pembimbing_catatan' => null]);
+
+        return redirect()->back()->with('success', 'Anda telah menyetujui penugasan sebagai pembimbing KP ini.');
+    }
+
+    /**
+     * Dosen menolak penugasan sebagai pembimbing KP (wajib isi komentar)
+     */
+    public function reject(Request $request, KerjaPraktek $kp)
+    {
+        $dosen = Auth::user()->dosen;
+        if ($kp->pembimbing_id !== $dosen->id) abort(403, 'Anda bukan pembimbing KP ini');
+
+        $validated = $request->validate([
+            'catatan' => 'required|string|min:5',
+        ], [
+            'catatan.required' => 'Alasan penolakan wajib diisi.',
+            'catatan.min' => 'Alasan penolakan minimal 5 karakter.',
+        ]);
+
+        $kp->update([
+            'pembimbing_approved' => false,
+            'pembimbing_catatan' => $validated['catatan'],
+        ]);
+
+        return redirect()->back()->with('success', 'Anda telah menolak penugasan sebagai pembimbing KP. Admin akan diberitahu.');
+    }
 }

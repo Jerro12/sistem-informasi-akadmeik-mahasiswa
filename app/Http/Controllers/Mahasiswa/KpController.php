@@ -7,6 +7,7 @@ use App\Models\KerjaPraktek;
 use App\Models\LogbookKp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class KpController extends Controller
 {
@@ -44,7 +45,7 @@ class KpController extends Controller
             'bidang_usaha' => 'nullable|string|max:100',
             'nama_pembimbing_lapangan' => 'nullable|string|max:100',
             'jabatan_pembimbing_lapangan' => 'nullable|string|max:100',
-            'no_telp_pembimbing' => 'nullable|string|max:20',
+            'no_hp_mahasiswa' => 'required|string|max:20',
             'tanggal_mulai' => 'required|date',
             'tanggal_selesai' => 'required|date|after:tanggal_mulai',
         ]);
@@ -77,5 +78,20 @@ class KpController extends Controller
         ]);
 
         return redirect()->route('mahasiswa.kp.index')->with('success', 'Logbook berhasil ditambahkan');
+    }
+
+    public function cetakSurat()
+    {
+        $mahasiswa = Auth::user()->mahasiswa;
+        $kp = KerjaPraktek::where('mahasiswa_id', $mahasiswa->id)
+            ->whereIn('status', [KerjaPraktek::STATUS_DISETUJUI, KerjaPraktek::STATUS_SELESAI])
+            ->firstOrFail();
+
+        // Get Ketua Prodi
+        $mahasiswa->load('prodi');
+        $ketuaProdi = $mahasiswa->prodi->nama_ketua_prodi ?? '.......................';
+        $nidnKetuaProdi = $mahasiswa->prodi->nidn_ketua_prodi ?? '.......................';
+
+        return view('mahasiswa.kp.surat', compact('mahasiswa', 'kp', 'ketuaProdi', 'nidnKetuaProdi'));
     }
 }

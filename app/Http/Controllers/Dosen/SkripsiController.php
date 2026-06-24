@@ -100,4 +100,58 @@ class SkripsiController extends Controller
 
         return redirect()->back()->with('success', 'Status skripsi berhasil diupdate');
     }
+
+    /**
+     * Dosen menyetujui penugasan sebagai pembimbing skripsi
+     */
+    public function approve(Skripsi $skripsi)
+    {
+        $dosen = Auth::user()->dosen;
+
+        if ($skripsi->pembimbing1_id !== $dosen->id && $skripsi->pembimbing2_id !== $dosen->id) {
+            abort(403, 'Anda bukan pembimbing skripsi ini');
+        }
+
+        // Tentukan field berdasarkan pembimbing 1 atau 2
+        if ($skripsi->pembimbing1_id === $dosen->id) {
+            $skripsi->update(['pembimbing1_approved' => true, 'pembimbing1_catatan' => null]);
+        } else {
+            $skripsi->update(['pembimbing2_approved' => true, 'pembimbing2_catatan' => null]);
+        }
+
+        return redirect()->back()->with('success', 'Anda telah menyetujui penugasan sebagai pembimbing skripsi ini.');
+    }
+
+    /**
+     * Dosen menolak penugasan sebagai pembimbing skripsi (wajib isi komentar)
+     */
+    public function reject(Request $request, Skripsi $skripsi)
+    {
+        $dosen = Auth::user()->dosen;
+
+        if ($skripsi->pembimbing1_id !== $dosen->id && $skripsi->pembimbing2_id !== $dosen->id) {
+            abort(403, 'Anda bukan pembimbing skripsi ini');
+        }
+
+        $validated = $request->validate([
+            'catatan' => 'required|string|min:5',
+        ], [
+            'catatan.required' => 'Alasan penolakan wajib diisi.',
+            'catatan.min' => 'Alasan penolakan minimal 5 karakter.',
+        ]);
+
+        if ($skripsi->pembimbing1_id === $dosen->id) {
+            $skripsi->update([
+                'pembimbing1_approved' => false,
+                'pembimbing1_catatan' => $validated['catatan'],
+            ]);
+        } else {
+            $skripsi->update([
+                'pembimbing2_approved' => false,
+                'pembimbing2_catatan' => $validated['catatan'],
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Anda telah menolak penugasan sebagai pembimbing. Admin akan diberitahu.');
+    }
 }

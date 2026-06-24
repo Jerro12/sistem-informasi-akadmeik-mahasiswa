@@ -149,12 +149,25 @@
     </table>
 
     <div class="footer">
-        <div class="signature">
-            <p>Makassar, {{ date('d F Y') }}</p>
-            <p>Ketua Program Studi,</p>
-            <div class="space"></div>
-            <p><strong>( __________________________ )</strong></p>
-            <p>NIDN. ...........................</p>
+        <div style="display: flex; justify-content: space-between; width: 100%; margin-top: 30px;">
+            <!-- Wakil Dekan I -->
+            <div class="signature" style="text-align: center; width: 250px;">
+                <p>{{ $prodi->fakultas->nama ?? 'Kampus' }}, {{ date('d F Y') }}</p>
+                <p>a.n. Dekan,</p>
+                <p>Wakil Dekan I,</p>
+                <div class="space"></div>
+                <p><strong>( {{ $prodi->fakultas->nama_wakil_dekan1 ?? '........................................' }} )</strong></p>
+                <p>NIP/NIDN. ......................</p>
+            </div>
+            <!-- Ketua Program Studi -->
+            <div class="signature" style="text-align: center; width: 250px;">
+                <p>&nbsp;</p>
+                <p>Ketua Program Studi,</p>
+                <p>&nbsp;</p>
+                <div class="space"></div>
+                <p><strong>( {{ $prodi->nama_ketua_prodi ?? '........................................' }} )</strong></p>
+                <p>NIDN. {{ $prodi->nidn_ketua_prodi ?? '....................' }}</p>
+            </div>
         </div>
     </div>
 </body>
