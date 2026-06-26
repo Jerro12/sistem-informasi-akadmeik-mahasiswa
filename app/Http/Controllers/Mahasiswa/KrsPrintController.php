@@ -16,22 +16,50 @@ class KrsPrintController extends Controller
             ->with(['tahunAkademik', 'krsDetail.kelas.mataKuliah', 'krsDetail.kelas.dosen.user', 'mahasiswa.prodi.fakultas', 'mahasiswa.dosenPa.user'])
             ->firstOrFail();
 
-        // Ambil semua kelas yang ditawarkan pada tahun akademik yang sama untuk prodi mahasiswa
-        $allKelas = \App\Models\Kelas::where('tahun_akademik_id', $krs->tahun_akademik_id)
-            ->whereHas('mataKuliah', function($q) use ($mahasiswa) {
-                $q->where('prodi_id', $mahasiswa->prodi_id);
+        // Get array of taken mata kuliah IDs and kelas IDs
+        $takenMkIds = $krs->krsDetail->pluck('kelas.mata_kuliah_id')->filter()->toArray();
+        $takenKelasIds = $krs->krsDetail->pluck('kelas_id')->filter()->toArray();
+
+        // Ambil semua mata kuliah untuk prodi mahasiswa pada semester ganjil/genap sesuai tahun akademik KRS
+        $semesterType = strtolower($krs->tahunAkademik->semester);
+        $allMataKuliah = \App\Models\MataKuliah::where(function($q) use ($mahasiswa, $semesterType, $krs, $takenMkIds) {
+                $q->where(function($q2) use ($mahasiswa, $semesterType, $krs) {
+                    $q2->where(function($q3) use ($mahasiswa) {
+                            $q3->where('prodi_id', $mahasiswa->prodi_id)
+                               ->orWhereNull('prodi_id');
+                        })
+                        ->where(function($q3) use ($semesterType) {
+                            if ($semesterType === 'ganjil') {
+                                $q3->whereRaw('semester % 2 != 0');
+                            } else {
+                                $q3->whereRaw('semester % 2 = 0');
+                            }
+                        })
+                        ->when($mahasiswa->kurikulum_id, function($q3) use ($mahasiswa) {
+                            $q3->where(function($query) use ($mahasiswa) {
+                                $query->where('kurikulum_id', $mahasiswa->kurikulum_id)
+                                      ->orWhereNull('kurikulum_id');
+                            });
+                        })
+                        ->when($krs->konsentrasi_id, function($q3) use ($krs) {
+                            $q3->where(function($query) use ($krs) {
+                                $query->where('konsentrasi_id', $krs->konsentrasi_id)
+                                      ->orWhereNull('konsentrasi_id');
+                            });
+                        }, function($q3) {
+                            $q3->whereNull('konsentrasi_id');
+                        });
+                })
+                ->orWhereIn('id', $takenMkIds);
             })
-            ->with(['mataKuliah', 'dosen.user'])
+            ->with(['kelas' => function($q) use ($krs) {
+                $q->where('tahun_akademik_id', $krs->tahun_akademik_id)->with('dosen.user');
+            }])
             ->get();
 
         // Grouping berdasarkan semester mata kuliah
-        $groupedKelas = $allKelas->groupBy(function($item) {
-            return $item->mataKuliah->semester;
-        })->sortKeys();
+        $groupedMataKuliah = $allMataKuliah->groupBy('semester')->sortKeys();
 
-        // Get array of taken kelas IDs
-        $takenKelasIds = $krs->krsDetail->pluck('kelas_id')->toArray();
-
-        return view('mahasiswa.krs.print', compact('krs', 'mahasiswa', 'groupedKelas', 'takenKelasIds'));
+        return view('mahasiswa.krs.print', compact('krs', 'mahasiswa', 'groupedMataKuliah', 'takenMkIds', 'takenKelasIds'));
     }
 }

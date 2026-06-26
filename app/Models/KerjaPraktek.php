@@ -25,6 +25,7 @@ class KerjaPraktek extends Model
         'tanggal_selesai',
         'judul_laporan',
         'status',
+        'nomor_surat',
         'tanggal_seminar',
         'nilai_perusahaan',
         'nilai_pembimbing',

@@ -31,6 +31,7 @@
                 <h3 class="font-semibold text-siakad-dark mb-4">Update Status</h3>
                 <form action="{{ route('admin.kp.update-status', $kp) }}" method="POST" class="space-y-4">@csrf @method('PUT')
                     <div><label class="block text-xs font-medium text-siakad-dark mb-1">Status</label><select name="status" class="input-saas w-full text-sm">@foreach(\App\Models\KerjaPraktek::getStatusList() as $k => $v)<option value="{{ $k }}" {{ $kp->status === $k ? 'selected' : '' }}>{{ $v }}</option>@endforeach</select></div>
+                    <div><label class="block text-xs font-medium text-siakad-dark mb-1">Nomor Surat (Opsional)</label><input type="text" name="nomor_surat" value="{{ $kp->nomor_surat }}" placeholder="Contoh: 127/II.3.AU/TE//2026" class="input-saas w-full text-sm"></div>
                     <div><label class="block text-xs font-medium text-siakad-dark mb-1">Catatan</label><textarea name="catatan" rows="2" class="input-saas w-full text-sm">{{ $kp->catatan }}</textarea></div>
                     <button type="submit" class="btn-primary-saas px-4 py-2.5 rounded-lg text-sm font-medium">Update</button>
                 </form>

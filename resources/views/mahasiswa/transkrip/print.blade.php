@@ -60,7 +60,7 @@
                 <div style="display:none; width:60px;height:60px;background:#ccc;border-radius:50%;"></div>
             </div>
             <div class="header-text">
-                <h2>FAKULTAS {{ strtoupper($mahasiswa->prodi->fakultas->nama ?? 'TEKNIK') }}</h2>
+                <h2>{{ str_starts_with(strtolower($mahasiswa->prodi->fakultas->nama ?? ''), 'fakultas') ? strtoupper($mahasiswa->prodi->fakultas->nama) : 'FAKULTAS ' . strtoupper($mahasiswa->prodi->fakultas->nama ?? 'TEKNIK') }}</h2>
                 <h1>UNIVERSITAS MUHAMMADIYAH PAREPARE</h1>
             </div>
         </div>

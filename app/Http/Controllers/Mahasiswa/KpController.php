@@ -92,6 +92,14 @@ class KpController extends Controller
         $ketuaProdi = $mahasiswa->prodi->nama_ketua_prodi ?? '.......................';
         $nidnKetuaProdi = $mahasiswa->prodi->nidn_ketua_prodi ?? '.......................';
 
-        return view('mahasiswa.kp.surat', compact('mahasiswa', 'kp', 'ketuaProdi', 'nidnKetuaProdi'));
+        // Fetch other students who are also approved in the same company and same dates (group application)
+        $groupMembers = KerjaPraktek::where('nama_perusahaan', $kp->nama_perusahaan)
+            ->where('tanggal_mulai', $kp->tanggal_mulai)
+            ->where('tanggal_selesai', $kp->tanggal_selesai)
+            ->whereIn('status', [KerjaPraktek::STATUS_DISETUJUI, KerjaPraktek::STATUS_SELESAI])
+            ->with('mahasiswa.user')
+            ->get();
+
+        return view('mahasiswa.kp.surat', compact('mahasiswa', 'kp', 'ketuaProdi', 'nidnKetuaProdi', 'groupMembers'));
     }
 }

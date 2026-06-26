@@ -3,156 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Surat Permohonan KP - {{ $kp->mahasiswa->nim }}</title>
+    <title>Surat Permohonan KP_{{ $kp->mahasiswa->nim }}</title>
     <style>
-        body { font-family: 'Times New Roman', Times, serif; font-size: 12pt; line-height: 1.8; color: #000; margin: 0; padding: 0; }
-        .container { width: 21cm; min-height: 29.7cm; padding: 2.5cm 2cm; margin: auto; background: #fff; }
+        body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; line-height: 1.35; color: #000; margin: 0; padding: 0; }
+        .container { width: 21cm; min-height: 29.7cm; padding: 1.5cm 2cm 2cm 2.5cm; margin: auto; background: #fff; box-sizing: border-box; }
         
-        .header { text-align: center; border-bottom: 3px double #000; padding-bottom: 10px; margin-bottom: 20px; }
-        .header .logo-area { float: left; width: 80px; }
-        .header .title-area { text-align: center; }
-        .header h1 { font-size: 15pt; margin: 0 0 3px 0; text-transform: uppercase; font-weight: bold; }
-        .header h2 { font-size: 13pt; margin: 0 0 3px 0; text-transform: uppercase; }
-        .header p { font-size: 10pt; margin: 0; }
+        .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2.5px solid #990000; padding-bottom: 4px; margin-bottom: 18px; }
+        .header-logo { width: 75px; margin-right: 15px; display: flex; align-items: center; justify-content: center; }
+        .header-logo img { width: 100%; height: auto; }
+        .header-text { flex: 1; text-align: left; }
+        .header-text h3 { font-family: 'Arial', sans-serif; font-size: 11.5pt; font-weight: bold; margin: 0; color: #000; line-height: 1.1; }
+        .header-text h1 { font-family: 'Arial', sans-serif; font-size: 19.5pt; font-weight: 900; margin: 0; color: #990000; line-height: 1.1; letter-spacing: 0.5px; }
+        .header-text h2 { font-family: 'Arial', sans-serif; font-size: 17pt; font-weight: 900; margin: 0; color: #990000; line-height: 1.1; letter-spacing: 0.5px; }
+        .header-text h4 { font-family: 'Arial', sans-serif; font-size: 8.5pt; font-weight: bold; margin: 2px 0 0 0; color: #990000; line-height: 1.1; letter-spacing: 0.8px; }
+        .header-address { font-family: 'Arial', sans-serif; font-size: 7.5pt; text-align: right; line-height: 1.15; padding-left: 10px; font-weight: bold; }
         
-        .surat-number { margin-bottom: 20px; font-size: 11pt; }
-        .surat-number p { margin: 0; line-height: 1.4; }
+        .meta-surat { width: 100%; border-collapse: collapse; margin-bottom: 18px; margin-top: 10px; }
+        .meta-surat td { padding: 1px 0; vertical-align: top; font-size: 11pt; }
         
-        .penerima { margin-bottom: 20px; font-size: 12pt; line-height: 1.6; }
-        .penerima p { margin: 0; }
+        .recipient-block { margin-bottom: 20px; line-height: 1.4; font-size: 11pt; }
+        .isi-surat { text-align: justify; line-height: 1.45; margin-bottom: 12px; font-size: 11pt; }
         
-        .isi { font-size: 12pt; line-height: 1.8; margin-bottom: 20px; text-align: justify; }
-        .isi p { margin: 0 0 10px 0; }
-        .isi .indent { text-indent: 2cm; }
+        .tabel-mhs { width: 100%; margin-left: 20px; margin-top: 8px; margin-bottom: 15px; border-collapse: collapse; }
+        .tabel-mhs td { padding: 4px 0; vertical-align: top; font-size: 11pt; }
         
-        .data-table { width: 100%; margin: 15px 0; font-size: 12pt; }
-        .data-table td { padding: 3px 0; vertical-align: top; }
-        .data-table td.label { width: 180px; }
-        .data-table td.separator { width: 20px; }
-        
-        .penutup { font-size: 12pt; line-height: 1.8; text-align: justify; }
-        
-        .signature-area { margin-top: 30px; float: right; text-align: center; width: 280px; font-size: 12pt; }
-        .signature-area p { margin: 0; line-height: 1.6; }
-        .signature-space { height: 70px; }
+        .signature-container { width: 100%; margin-top: 35px; }
+        .signature-box { width: 280px; float: right; text-align: left; font-size: 11pt; line-height: 1.35; }
+        .signature-box p { margin: 2px 0; }
         .clear { clear: both; }
-
+        
+        .tembusan { margin-top: 30px; font-size: 10pt; line-height: 1.35; }
+        .tembusan table { margin-top: 2px; font-size: 10pt; }
+        .tembusan td { padding: 1px 0; }
+        
         @media print {
             body { background: none; }
-            .container { width: 100%; padding: 2cm; margin: 0; }
+            .container { width: 100%; padding: 0; margin: 0; }
             .no-print { display: none; }
-            @page { margin: 1cm; size: A4 portrait; }
+            @page { margin: 1.5cm 1.5cm 1.5cm 2cm; size: A4 portrait; }
         }
     </style>
 </head>
 <body onload="window.print()">
     <div class="container">
-        <!-- Header Kop Surat -->
+        <!-- Header -->
         <div class="header">
-            <div class="title-area">
-                <h1>UNIVERSITAS CONTOH INDONESIA</h1>
-                <h2>FAKULTAS {{ strtoupper($kp->mahasiswa->prodi->fakultas->nama ?? 'AKADEMIK') }}</h2>
-                <p>Program Studi {{ $kp->mahasiswa->prodi->nama ?? '-' }}</p>
-                <p>Jl. Pendidikan No. 123, Kota, Indonesia | Email: info@universitas.ac.id</p>
+            <div class="header-logo">
+                <img src="{{ asset('images/logo-umpar.png') }}" alt="Logo UMPAR" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <div style="display:none; width:75px;height:75px;background:#ccc;border-radius:50%;"></div>
+            </div>
+            <div class="header-text">
+                <h3>PROGRAM STUDI</h3>
+                <h1>{{ strtoupper($kp->mahasiswa->prodi->nama ?? 'TEKNIK INFORMATIKA') }}</h1>
+                <h2>{{ str_starts_with(strtolower($kp->mahasiswa->prodi->fakultas->nama ?? ''), 'fakultas') ? strtoupper($kp->mahasiswa->prodi->fakultas->nama) : 'FAKULTAS ' . strtoupper($kp->mahasiswa->prodi->fakultas->nama ?? 'TEKNIK') }}</h2>
+                <h4>UNIVERSITAS MUHAMMADIYAH PAREPARE</h4>
+            </div>
+            <div class="header-address">
+                Kampus II: Gedung F Lt. 1 Jl. Jend. A. Yani<br>
+                KM. 6 Kelurahan Bukit Harapan<br>
+                Kecamatan Soreang Kota Parepare<br>
+                Kode Pos 91131 Provinsi Sulawesi Selatan<br>
+                Telp: (0421) 22757 Fax. (0421) 25524<br>
+                Email: fakultasteknikumpar@gmail.com<br>
+                Instagram: teknikumpar.official<br>
+                http://upar.ac.id/faktek
             </div>
         </div>
 
-        <!-- Nomor & Sifat Surat -->
         @php
+            $mahasiswa = $kp->mahasiswa;
+            $tglSurat = now();
             $namaBulan = [
                 1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
                 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
                 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
             ];
-            $tgl = now();
+            
+            $tglMulai = \Carbon\Carbon::parse($kp->tanggal_mulai);
+            $tglSelesai = \Carbon\Carbon::parse($kp->tanggal_selesai);
+            
+            $ketuaProdi = $mahasiswa->prodi->nama_ketua_prodi ?? '.......................';
+            $nidnKetuaProdi = $mahasiswa->prodi->nidn_ketua_prodi ?? '.......................';
         @endphp
-        <div class="surat-number">
-            <p>Nomor&nbsp;&nbsp;: ..../UN.X/KP/{{ $tgl->year }}</p>
-            <p>Lampiran: -</p>
-            <p>Perihal&nbsp;&nbsp;: <strong>Permohonan Kerja Praktek</strong></p>
+
+        <!-- Nomor Surat -->
+        <table class="meta-surat">
+            <tr>
+                <td style="width: 55px;">Nomor</td>
+                <td style="width: 15px;">:</td>
+                <td>{{ $kp->nomor_surat ?? ('127/II.3.AU/' . strtoupper(substr($mahasiswa->prodi->nama ?? 'TI', 0, 2)) . '//' . $tglSurat->year) }}</td>
+            </tr>
+            <tr>
+                <td>Lamp</td>
+                <td>:</td>
+                <td>-</td>
+            </tr>
+            <tr>
+                <td>Perihal</td>
+                <td>:</td>
+                <td><strong><u>Pengantar Permohonan Praktek Kerja</u></strong></td>
+            </tr>
+        </table>
+
+        <!-- Tujuan -->
+        <div class="recipient-block">
+            Dengan Hormat,<br>
+            Kepada Yth,<br>
+            <div style="padding-left: 35px; font-weight: bold; text-transform: uppercase;">
+                PIMPINAN {{ $kp->nama_perusahaan }}
+            </div>
+            di-<br>
+            <div style="padding-left: 35px; font-weight: bold;">
+                Tempat
+            </div>
         </div>
 
-        <!-- Penerima Surat -->
-        <div class="penerima">
-            <p>Kepada Yth.</p>
-            <p>Pimpinan / HRD</p>
-            <p><strong>{{ $kp->nama_perusahaan }}</strong></p>
-            <p>{{ $kp->alamat_perusahaan }}</p>
+        <!-- Isi Surat -->
+        <div class="isi-surat">
+            Dengan Hormat,
+        </div>
+        
+        <div class="isi-surat">
+            Sehubungan dengan kewajiban mahasiswa Program Studi {{ $mahasiswa->prodi->nama ?? 'Teknik Informatika' }} untuk melulusi Mata Kuliah Praktek Kerja yang pelaksanaannya dilakukan di luar ruang kuliah selama 1 (Satu) Bulan.
+        </div>
+        
+        <div class="isi-surat">
+            Sehubungan dengan hal tersebut, kami mohon bantuannya untuk memberikan izin kepada mahasiswa kami untuk melaksanakan Magang/Praktek Kerja pada perusahaan yang bapak/ibu pimpin.
+            Pelaksanaan Magang/Praktek Kerja direncanakan akan dilaksanakan pada:
         </div>
 
-        <!-- Salam Pembuka -->
-        <div class="isi">
-            <p class="indent">Dengan hormat,</p>
-            <p class="indent">
-                Sehubungan dengan kurikulum Program Studi <strong>{{ $kp->mahasiswa->prodi->nama ?? '-' }}</strong>, Universitas Contoh Indonesia, yang mewajibkan mahasiswa untuk melaksanakan Kerja Praktek (KP), kami mengajukan permohonan kepada Bapak/Ibu untuk dapat menerima mahasiswa berikut:
-            </p>
+        <table style="margin-left: 80px; margin-bottom: 15px; line-height: 1.45; font-size: 11pt;">
+            <tr>
+                <td style="width: 100px;">Tanggal</td>
+                <td style="width: 15px;">:</td>
+                <td>{{ $tglMulai->day }} {{ $namaBulan[$tglMulai->month] }} {{ $tglMulai->year }} s.d {{ $tglSelesai->day }} {{ $namaBulan[$tglSelesai->month] }} {{ $tglSelesai->year }}</td>
+            </tr>
+            <tr>
+                <td>Prodi</td>
+                <td>:</td>
+                <td>{{ $mahasiswa->prodi->nama ?? 'Teknik Informatika' }}</td>
+            </tr>
+        </table>
 
-            <table class="data-table">
+        <div class="isi-surat">
+            Adapun mahasiswa yang akan melaksanakan Praktek Kerja adalah:
+        </div>
+
+        <table class="tabel-mhs">
+            @foreach($groupMembers as $index => $member)
+            <tr>
+                <td style="width: 30px; font-weight: bold;">{{ $index + 1 }}.</td>
+                <td style="width: 280px; font-weight: bold; text-transform: uppercase;">{{ $member->mahasiswa->user->name }}</td>
+                <td>NIM : <span style="font-weight: bold;">{{ $member->mahasiswa->nim }}</span></td>
+            </tr>
+            @endforeach
+        </table>
+
+        <div class="isi-surat">
+            Demikian permohonan kami, atas perhatian and kerja samanya, kami haturkan terima kasih.
+        </div>
+
+        <!-- Date & Signature -->
+        <div class="signature-container">
+            <div class="signature-box">
+                <p>Parepare, {{ $tglSurat->day }} {{ $namaBulan[$tglSurat->month] }} {{ $tglSurat->year }}</p>
+                <p>Plt. Ketua Program Studi</p>
+                <p>{{ $mahasiswa->prodi->nama ?? 'Teknik Informatika' }}</p>
+                <div style="height: 65px;"></div>
+                <p><strong><u>{{ $ketuaProdi }}</u></strong></p>
+                <p>NBM. {{ $nidnKetuaProdi }}</p>
+            </div>
+            <div class="clear"></div>
+        </div>
+
+        <!-- Tembusan -->
+        <div class="tembusan">
+            <strong>Tembusan kepada Yth:</strong>
+            <table>
                 <tr>
-                    <td class="label">Nama Mahasiswa</td>
-                    <td class="separator">:</td>
-                    <td><strong>{{ $kp->mahasiswa->user->name }}</strong></td>
+                    <td style="width: 25px; vertical-align: top;">1.)</td>
+                    <td>Mahasiswa yang bersangkutan</td>
                 </tr>
                 <tr>
-                    <td class="label">NIM</td>
-                    <td class="separator">:</td>
-                    <td>{{ $kp->mahasiswa->nim }}</td>
-                </tr>
-                <tr>
-                    <td class="label">Program Studi</td>
-                    <td class="separator">:</td>
-                    <td>{{ $kp->mahasiswa->prodi->nama ?? '-' }}</td>
-                </tr>
-                <tr>
-                    <td class="label">No. HP Mahasiswa</td>
-                    <td class="separator">:</td>
-                    <td>{{ $kp->no_hp_mahasiswa ?? '-' }}</td>
-                </tr>
-                <tr>
-                    <td class="label">Bidang yang Diminati</td>
-                    <td class="separator">:</td>
-                    <td>{{ $kp->bidang_usaha ?? '-' }}</td>
-                </tr>
-                <tr>
-                    <td class="label">Periode KP</td>
-                    <td class="separator">:</td>
-                    <td>
-                        {{ $kp->tanggal_mulai ? $kp->tanggal_mulai->format('d') . ' ' . $namaBulan[$kp->tanggal_mulai->month] . ' ' . $kp->tanggal_mulai->year : '-' }}
-                        s/d
-                        {{ $kp->tanggal_selesai ? $kp->tanggal_selesai->format('d') . ' ' . $namaBulan[$kp->tanggal_selesai->month] . ' ' . $kp->tanggal_selesai->year : '-' }}
-                    </td>
-                </tr>
-                <tr>
-                    <td class="label">Pembimbing Kampus</td>
-                    <td class="separator">:</td>
-                    <td>{{ $kp->pembimbing?->user?->name ?? 'Akan ditentukan' }}</td>
+                    <td style="vertical-align: top;">2.)</td>
+                    <td>Arsip</td>
                 </tr>
             </table>
-
-            <p class="indent">
-                Atas kesediaan Bapak/Ibu menerima mahasiswa kami untuk melaksanakan Kerja Praktek, kami ucapkan terima kasih. Besar harapan kami agar mahasiswa tersebut dapat memperoleh pengalaman dan pengetahuan yang berharga selama pelaksanaan Kerja Praktek.
-            </p>
-        </div>
-
-        <!-- Tanda Tangan -->
-        @php $tglCetak = now(); @endphp
-        <div class="signature-area">
-            <p>{{ $kp->mahasiswa->prodi->fakultas->nama ?? 'Kampus' }}, {{ $tglCetak->day }} {{ $namaBulan[$tglCetak->month] }} {{ $tglCetak->year }}</p>
-            <p>Ketua Program Studi</p>
-            <p>{{ $kp->mahasiswa->prodi->nama ?? '-' }},</p>
-            <div class="signature-space"></div>
-            <p><strong>{{ $kp->mahasiswa->prodi->nama_ketua_prodi ?? '........................................' }}</strong></p>
-            <p>NIDN. {{ $kp->mahasiswa->prodi->nidn_ketua_prodi ?? '....................' }}</p>
-        </div>
-        <div class="clear"></div>
-
-        <div style="margin-top: 10px; font-size: 8pt; text-align: right; color: #555;">
-            Dicetak melalui Sistem Informasi Akademik pada: {{ now()->format('d/m/Y H:i:s') }}
         </div>
     </div>
 
-    <div class="no-print" style="position: fixed; bottom: 20px; right: 20px; background: white; padding: 10px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-        <button onclick="window.print()" style="padding: 8px 16px; background: #2563eb; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Cetak Sekarang</button>
+    <div class="no-print" style="position: fixed; bottom: 20px; right: 20px; background: white; padding: 10px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); z-index: 9999;">
+        <button onclick="window.print()" style="padding: 8px 16px; background: #2563eb; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Cetak Surat</button>
         <button onclick="window.close()" style="padding: 8px 16px; background: #64748b; color: #fff; border: none; border-radius: 6px; cursor: pointer; margin-left: 8px;">Tutup</button>
     </div>
 </body>

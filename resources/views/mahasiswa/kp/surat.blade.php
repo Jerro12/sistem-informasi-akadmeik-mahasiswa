@@ -5,47 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Surat Permohonan KP_{{ $mahasiswa->nim }}</title>
     <style>
-        body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; line-height: 1.4; color: #000; margin: 0; padding: 0; }
-        .container { width: 21cm; min-height: 29.7cm; padding: 2cm 2cm; margin: auto; background: #fff; box-sizing: border-box; }
+        body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; line-height: 1.35; color: #000; margin: 0; padding: 0; }
+        .container { width: 21cm; min-height: 29.7cm; padding: 1.5cm 2cm 2cm 2.5cm; margin: auto; background: #fff; box-sizing: border-box; }
         
-        .header { display: flex; align-items: stretch; border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 20px; }
-        .header-logo { width: 80px; margin-right: 20px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .header-logo img { width: 100%; height: auto; object-fit: contain; }
-        .header-text { flex: 1; }
-        .header-text h3 { font-size: 14pt; margin: 0; font-weight: normal; color: #900; }
-        .header-text h1 { font-size: 16pt; margin: 0; text-transform: uppercase; font-weight: normal; }
-        .header-text h2 { font-size: 14pt; margin: 0; text-transform: uppercase; font-weight: normal; }
-        .header-text h4 { font-size: 10pt; margin: 5px 0 0 0; font-weight: bold; border-top: 1px solid #000; padding-top: 2px; }
+        .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2.5px solid #990000; padding-bottom: 4px; margin-bottom: 18px; }
+        .header-logo { width: 75px; margin-right: 15px; display: flex; align-items: center; justify-content: center; }
+        .header-logo img { width: 100%; height: auto; }
+        .header-text { flex: 1; text-align: left; }
+        .header-text h3 { font-family: 'Arial', sans-serif; font-size: 11.5pt; font-weight: bold; margin: 0; color: #000; line-height: 1.1; }
+        .header-text h1 { font-family: 'Arial', sans-serif; font-size: 19.5pt; font-weight: 900; margin: 0; color: #990000; line-height: 1.1; letter-spacing: 0.5px; }
+        .header-text h2 { font-family: 'Arial', sans-serif; font-size: 17pt; font-weight: 900; margin: 0; color: #990000; line-height: 1.1; letter-spacing: 0.5px; }
+        .header-text h4 { font-family: 'Arial', sans-serif; font-size: 8.5pt; font-weight: bold; margin: 2px 0 0 0; color: #990000; line-height: 1.1; letter-spacing: 0.8px; }
+        .header-address { font-family: 'Arial', sans-serif; font-size: 7.5pt; text-align: right; line-height: 1.15; padding-left: 10px; font-weight: bold; }
         
-        .header-address { width: 250px; font-size: 8pt; text-align: right; line-height: 1.2; padding-top: 5px; }
+        .meta-surat { width: 100%; border-collapse: collapse; margin-bottom: 18px; margin-top: 10px; }
+        .meta-surat td { padding: 1px 0; vertical-align: top; font-size: 11pt; }
         
-        .meta-surat { width: 100%; margin-bottom: 20px; }
-        .meta-surat td { padding: 1px 0; vertical-align: top; }
-        .meta-surat .label { width: 50px; }
-        .meta-surat .separator { width: 15px; text-align: center; }
+        .recipient-block { margin-bottom: 20px; line-height: 1.4; font-size: 11pt; }
+        .isi-surat { text-align: justify; line-height: 1.45; margin-bottom: 12px; font-size: 11pt; }
         
-        .tujuan { margin-bottom: 25px; line-height: 1.5; }
-        .isi-surat { text-align: justify; line-height: 1.5; margin-bottom: 15px; text-indent: 0; }
+        .tabel-mhs { width: 100%; margin-left: 20px; margin-top: 8px; margin-bottom: 15px; border-collapse: collapse; }
+        .tabel-mhs td { padding: 4px 0; vertical-align: top; font-size: 11pt; }
         
-        .tabel-mhs { width: 85%; margin: 20px auto; border-collapse: collapse; font-weight: bold; }
-        .tabel-mhs td { padding: 5px; }
-        .tabel-mhs .no { width: 30px; text-align: right; padding-right: 15px; }
-        
-        .signature-container { width: 100%; margin-top: 40px; }
-        .signature-box { width: 40%; float: right; text-align: left; line-height: 1.3; }
+        .signature-container { width: 100%; margin-top: 35px; }
+        .signature-box { width: 280px; float: right; text-align: left; font-size: 11pt; line-height: 1.35; }
         .signature-box p { margin: 2px 0; }
-        .signature-space { height: 70px; }
         .clear { clear: both; }
         
-        .tembusan { margin-top: 40px; font-size: 10pt; }
-        .tembusan p { margin: 2px 0; }
-        .tembusan ol { margin-top: 2px; padding-left: 20px; margin-bottom: 0; }
+        .tembusan { margin-top: 30px; font-size: 10pt; line-height: 1.35; }
+        .tembusan table { margin-top: 2px; font-size: 10pt; }
+        .tembusan td { padding: 1px 0; }
         
         @media print {
             body { background: none; }
             .container { width: 100%; padding: 0; margin: 0; }
             .no-print { display: none; }
-            @page { margin: 2cm; size: A4 portrait; }
+            @page { margin: 1.5cm 1.5cm 1.5cm 2cm; size: A4 portrait; }
         }
     </style>
 </head>
@@ -55,12 +50,12 @@
         <div class="header">
             <div class="header-logo">
                 <img src="{{ asset('images/logo-umpar.png') }}" alt="Logo UMPAR" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                <div style="display:none; width:80px;height:80px;background:#ccc;border-radius:50%;"></div>
+                <div style="display:none; width:75px;height:75px;background:#ccc;border-radius:50%;"></div>
             </div>
             <div class="header-text">
                 <h3>PROGRAM STUDI</h3>
                 <h1>{{ strtoupper($mahasiswa->prodi->nama ?? 'TEKNIK INFORMATIKA') }}</h1>
-                <h2>FAKULTAS {{ strtoupper($mahasiswa->prodi->fakultas->nama ?? 'TEKNIK') }}</h2>
+                <h2>{{ str_starts_with(strtolower($mahasiswa->prodi->fakultas->nama ?? ''), 'fakultas') ? strtoupper($mahasiswa->prodi->fakultas->nama) : 'FAKULTAS ' . strtoupper($mahasiswa->prodi->fakultas->nama ?? 'TEKNIK') }}</h2>
                 <h4>UNIVERSITAS MUHAMMADIYAH PAREPARE</h4>
             </div>
             <div class="header-address">
@@ -71,7 +66,7 @@
                 Telp: (0421) 22757 Fax. (0421) 25524<br>
                 Email: fakultasteknikumpar@gmail.com<br>
                 Instagram: teknikumpar.official<br>
-                http://umpar.ac.id/faktek
+                http://upar.ac.id/faktek
             </div>
         </div>
 
@@ -90,31 +85,31 @@
         <!-- Nomor Surat -->
         <table class="meta-surat">
             <tr>
-                <td class="label">Nomor</td>
-                <td class="separator">:</td>
-                <td>......../II.3.AU/{{ strtoupper(substr($mahasiswa->prodi->nama ?? 'TI', 0, 2)) }}/{{ $tglSurat->year }}</td>
+                <td style="width: 55px;">Nomor</td>
+                <td style="width: 15px;">:</td>
+                <td>{{ $kp->nomor_surat ?? ('127/II.3.AU/' . strtoupper(substr($mahasiswa->prodi->nama ?? 'TI', 0, 2)) . '//' . $tglSurat->year) }}</td>
             </tr>
             <tr>
-                <td class="label">Lamp</td>
-                <td class="separator">:</td>
+                <td>Lamp</td>
+                <td>:</td>
                 <td>-</td>
             </tr>
             <tr>
-                <td class="label">Perihal</td>
-                <td class="separator">:</td>
+                <td>Perihal</td>
+                <td>:</td>
                 <td><strong><u>Pengantar Permohonan Praktek Kerja</u></strong></td>
             </tr>
         </table>
 
         <!-- Tujuan -->
-        <div class="tujuan">
+        <div class="recipient-block">
             Dengan Hormat,<br>
             Kepada Yth,<br>
-            <div style="padding-left: 20px; font-weight: bold; text-transform: uppercase;">
+            <div style="padding-left: 35px; font-weight: bold; text-transform: uppercase;">
                 PIMPINAN {{ $kp->nama_perusahaan }}
             </div>
             di-<br>
-            <div style="padding-left: 20px;">
+            <div style="padding-left: 35px; font-weight: bold;">
                 Tempat
             </div>
         </div>
@@ -122,22 +117,27 @@
         <!-- Isi Surat -->
         <div class="isi-surat">
             Dengan Hormat,
-            <br><br>
+        </div>
+        
+        <div class="isi-surat">
             Sehubungan dengan kewajiban mahasiswa Program Studi {{ $mahasiswa->prodi->nama ?? 'Teknik Informatika' }} untuk melulusi Mata Kuliah Praktek Kerja yang pelaksanaannya dilakukan di luar ruang kuliah selama 1 (Satu) Bulan.
-            <br><br>
+        </div>
+        
+        <div class="isi-surat">
             Sehubungan dengan hal tersebut, kami mohon bantuannya untuk memberikan izin kepada mahasiswa kami untuk melaksanakan Magang/Praktek Kerja pada perusahaan yang bapak/ibu pimpin.
-            <br>
             Pelaksanaan Magang/Praktek Kerja direncanakan akan dilaksanakan pada:
         </div>
 
-        <table style="margin-left: 40px; margin-bottom: 20px; line-height: 1.5;">
+        <table style="margin-left: 80px; margin-bottom: 15px; line-height: 1.45; font-size: 11pt;">
             <tr>
-                <td style="width: 80px;">Tanggal</td>
-                <td>: {{ $tglMulai->day }} {{ $namaBulan[$tglMulai->month] }} {{ $tglMulai->year }} s.d {{ $tglSelesai->day }} {{ $namaBulan[$tglSelesai->month] }} {{ $tglSelesai->year }}</td>
+                <td style="width: 100px;">Tanggal</td>
+                <td style="width: 15px;">:</td>
+                <td>{{ $tglMulai->day }} {{ $namaBulan[$tglMulai->month] }} {{ $tglMulai->year }} s.d {{ $tglSelesai->day }} {{ $namaBulan[$tglSelesai->month] }} {{ $tglSelesai->year }}</td>
             </tr>
             <tr>
                 <td>Prodi</td>
-                <td>: {{ $mahasiswa->prodi->nama ?? 'Teknik Informatika' }}</td>
+                <td>:</td>
+                <td>{{ $mahasiswa->prodi->nama ?? 'Teknik Informatika' }}</td>
             </tr>
         </table>
 
@@ -146,11 +146,13 @@
         </div>
 
         <table class="tabel-mhs">
+            @foreach($groupMembers as $index => $member)
             <tr>
-                <td class="no">1.</td>
-                <td>{{ strtoupper($mahasiswa->user->name) }}</td>
-                <td>NIM : {{ $mahasiswa->nim }}</td>
+                <td style="width: 30px; font-weight: bold;">{{ $index + 1 }}.</td>
+                <td style="width: 280px; font-weight: bold; text-transform: uppercase;">{{ $member->mahasiswa->user->name }}</td>
+                <td>NIM : <span style="font-weight: bold;">{{ $member->mahasiswa->nim }}</span></td>
             </tr>
+            @endforeach
         </table>
 
         <div class="isi-surat">
@@ -161,10 +163,10 @@
         <div class="signature-container">
             <div class="signature-box">
                 <p>Parepare, {{ $tglSurat->day }} {{ $namaBulan[$tglSurat->month] }} {{ $tglSurat->year }}</p>
-                <p>Ketua Program Studi</p>
+                <p>Plt. Ketua Program Studi</p>
                 <p>{{ $mahasiswa->prodi->nama ?? 'Teknik Informatika' }}</p>
-                <div class="signature-space"></div>
-                <p><span style="text-decoration: underline; font-weight: bold;">{{ $ketuaProdi }}</span></p>
+                <div style="height: 65px;"></div>
+                <p><strong><u>{{ $ketuaProdi }}</u></strong></p>
                 <p>NBM. {{ $nidnKetuaProdi }}</p>
             </div>
             <div class="clear"></div>
@@ -172,15 +174,21 @@
 
         <!-- Tembusan -->
         <div class="tembusan">
-            Tembusan kepada Yth:<br>
-            <ol>
-                <li>Mahasiswa yang bersangkutan</li>
-                <li>Arsip</li>
-            </ol>
+            <strong>Tembusan kepada Yth:</strong>
+            <table>
+                <tr>
+                    <td style="width: 25px; vertical-align: top;">1.)</td>
+                    <td>Mahasiswa yang bersangkutan</td>
+                </tr>
+                <tr>
+                    <td style="vertical-align: top;">2.)</td>
+                    <td>Arsip</td>
+                </tr>
+            </table>
         </div>
     </div>
 
-    <div class="no-print" style="position: fixed; bottom: 20px; right: 20px; background: white; padding: 10px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+    <div class="no-print" style="position: fixed; bottom: 20px; right: 20px; background: white; padding: 10px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); z-index: 9999;">
         <button onclick="window.print()" style="padding: 8px 16px; background: #2563eb; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Cetak Surat</button>
         <button onclick="window.close()" style="padding: 8px 16px; background: #64748b; color: #fff; border: none; border-radius: 6px; cursor: pointer; margin-left: 8px;">Tutup</button>
     </div>

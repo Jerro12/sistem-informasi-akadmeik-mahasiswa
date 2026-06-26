@@ -67,7 +67,7 @@
                 <img src="{{ asset('images/logo-umpar.png') }}" alt="Logo UMPAR" onerror="this.outerHTML='<div style=\'width:60px;height:60px;background:#ccc;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;\'>LOGO</div>'">
             </div>
             <div class="header-text">
-                <h1>FAKULTAS {{ strtoupper($mahasiswa->prodi->fakultas->nama ?? 'TEKNIK') }}</h1>
+                <h1>{{ str_starts_with(strtolower($mahasiswa->prodi->fakultas->nama ?? ''), 'fakultas') ? strtoupper($mahasiswa->prodi->fakultas->nama) : 'FAKULTAS ' . strtoupper($mahasiswa->prodi->fakultas->nama ?? 'TEKNIK') }}</h1>
                 <h2>UNIVERSITAS MUHAMMADIYAH PAREPARE</h2>
             </div>
         </div>
@@ -103,7 +103,7 @@
             @endphp
             
             <tbody>
-            @forelse($groupedKelas as $semester => $kelasGroup)
+            @forelse($groupedMataKuliah as $semester => $mkGroup)
                 @php $semesterSks = 0; @endphp
                 <tr>
                     <th style="width: 10%;">SMT {{ $romanNumerals[$semester] ?? $semester }}</th>
@@ -112,23 +112,28 @@
                     <th style="width: 20%;">DOSEN</th>
                     <th style="width: 5%; text-align: center;">SKS</th>
                 </tr>
-                @foreach($kelasGroup as $index => $kelas)
+                @foreach($mkGroup as $index => $mk)
                     @php 
-                        $isTaken = in_array($kelas->id, $takenKelasIds);
+                        // Cek apakah mata kuliah ini diambil oleh mahasiswa di KRS ini
+                        $takenDetail = $krs->krsDetail->first(fn($d) => $d->kelas && $d->kelas->mata_kuliah_id === $mk->id);
+                        $isTaken = !empty($takenDetail);
                         if ($isTaken) {
-                            $semesterSks += $kelas->mataKuliah->sks;
-                            $grandTotalSks += $kelas->mataKuliah->sks;
+                            $semesterSks += $mk->sks;
+                            $grandTotalSks += $mk->sks;
                         }
+                        
+                        // Tentukan nama dosen (kosong karena diambil langsung dari data matkul)
+                        $dosenName = '';
                     @endphp
                     <tr>
                         <td>
                             <span style="display:inline-block; width: 15px;">{{ $index + 1 }}</span>
                             <div class="oval {{ $isTaken ? 'filled' : '' }}"></div>
                         </td>
-                        <td>{{ $kelas->mataKuliah->kode_mk }}</td>
-                        <td>{{ $kelas->mataKuliah->nama_mk }}</td>
-                        <td></td>
-                        <td class="center">{{ $kelas->mataKuliah->sks }}</td>
+                        <td>{{ $mk->kode_mk }}</td>
+                        <td>{{ $mk->nama_mk }}</td>
+                        <td>{{ $dosenName }}</td>
+                        <td class="center">{{ $mk->sks }}</td>
                     </tr>
                 @endforeach
                 <tr class="total-row">

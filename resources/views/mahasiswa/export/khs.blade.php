@@ -43,7 +43,7 @@
 
     <div class="header">
         <h1>KULIM UNIVERSITY</h1>
-        <h2>{{ $mahasiswa->prodi->fakultas->nama_fakultas ?? 'FAKULTAS' }}</h2>
+        <h2>{{ str_starts_with(strtolower($mahasiswa->prodi->fakultas->nama ?? ''), 'fakultas') ? strtoupper($mahasiswa->prodi->fakultas->nama) : 'FAKULTAS ' . strtoupper($mahasiswa->prodi->fakultas->nama ?? 'TEKNIK') }}</h2>
         <p>Jl. Bukit Barisan No. 01 | Telp: 08123456789</p>
     </div>
 
@@ -57,7 +57,7 @@
             <td><strong>{{ $mahasiswa->user->name }}</strong></td>
             <td class="label">Program Studi</td>
             <td class="separator">:</td>
-            <td>{{ $mahasiswa->prodi->nama_prodi ?? '-' }}</td>
+            <td>{{ $mahasiswa->prodi->nama ?? '-' }}</td>
         </tr>
         <tr>
             <td class="label">NIM</td>
@@ -65,7 +65,7 @@
             <td><strong>{{ $mahasiswa->nim }}</strong></td>
             <td class="label">Fakultas</td>
             <td class="separator">:</td>
-            <td>{{ $mahasiswa->prodi->fakultas->nama_fakultas ?? '-' }}</td>
+            <td>{{ $mahasiswa->prodi->fakultas->nama ?? '-' }}</td>
         </tr>
         <tr>
             <td class="label">Tanggal Cetak</td>

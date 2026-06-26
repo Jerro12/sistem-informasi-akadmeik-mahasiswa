@@ -120,11 +120,13 @@ class KpController extends Controller
     {
         $validated = $request->validate([
             'status' => 'required|in:' . implode(',', array_keys(KerjaPraktek::getStatusList())),
+            'nomor_surat' => 'nullable|string',
             'catatan' => 'nullable|string',
         ]);
 
         $kp->update([
             'status' => $validated['status'],
+            'nomor_surat' => $validated['nomor_surat'],
             'catatan' => $validated['catatan'] ?? $kp->catatan,
         ]);
 
@@ -156,6 +158,14 @@ class KpController extends Controller
     {
         $kp->load(['mahasiswa.user', 'mahasiswa.prodi.fakultas', 'pembimbing.user']);
 
-        return view('admin.kp.surat-permohonan', compact('kp'));
+        // Fetch other students who are also approved in the same company and same dates (group application)
+        $groupMembers = KerjaPraktek::where('nama_perusahaan', $kp->nama_perusahaan)
+            ->where('tanggal_mulai', $kp->tanggal_mulai)
+            ->where('tanggal_selesai', $kp->tanggal_selesai)
+            ->whereIn('status', [KerjaPraktek::STATUS_DISETUJUI, KerjaPraktek::STATUS_SELESAI])
+            ->with('mahasiswa.user')
+            ->get();
+
+        return view('admin.kp.surat-permohonan', compact('kp', 'groupMembers'));
     }
 }

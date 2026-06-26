@@ -20,7 +20,7 @@
                 @foreach($fakultasList as $fak)
                 <div class="card-saas overflow-hidden">
                     <div class="px-6 py-4 border-b border-siakad-light bg-siakad-light/30">
-                        <h3 class="font-semibold text-siakad-dark">Fakultas {{ $fak->nama }}</h3>
+                        <h3 class="font-semibold text-siakad-dark">{{ str_starts_with(strtolower($fak->nama ?? ''), 'fakultas') ? $fak->nama : 'Fakultas ' . $fak->nama }}</h3>
                     </div>
                     <form action="{{ route('admin.pejabat.update-fakultas', $fak) }}" method="POST" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                         @csrf @method('PUT')
