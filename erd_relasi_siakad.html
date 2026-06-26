@@ -1,0 +1,501 @@
+<style>
+  #erd svg {
+    max-width: 100%;
+  }
+
+  #erd {
+    padding: 8px 0;
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    margin: 10px 0 4px;
+    font-size: 11px;
+    color: var(--color-text-secondary);
+  }
+
+  .ld {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+</style>
+
+<div class="legend">
+  <span><span class="ld" style="background:#534AB7"></span>Auth & pengguna</span>
+  <span><span class="ld" style="background:#0F6E56"></span>Organisasi</span>
+  <span><span class="ld" style="background:#185FA5"></span>Akademik inti</span>
+  <span><span class="ld" style="background:#993556"></span>KRS & nilai</span>
+  <span><span class="ld" style="background:#854F0B"></span>Tugas akhir & KP</span>
+  <span><span class="ld" style="background:#5F5E5A"></span>Sistem & log</span>
+</div>
+
+<div id="erd"></div>
+
+<script type="module">
+  import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
+  const isLaravelDark = document.documentElement.classList.contains('dark') || document.body.classList.contains('dark');
+  const isSystemDark = matchMedia('(prefers-color-scheme: dark)').matches;
+  const isForcedLight = document.documentElement.classList.contains('light') || document.body.classList.contains('light');
+  const dark = (isLaravelDark || isSystemDark) && !isForcedLight;
+  await document.fonts.ready;
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'base',
+    fontFamily: '"Anthropic Sans", sans-serif',
+    themeVariables: {
+      darkMode: dark,
+      fontSize: '12px',
+      fontFamily: '"Anthropic Sans", sans-serif',
+      lineColor: dark ? '#9c9a92' : '#73726c',
+      textColor: dark ? '#c2c0b6' : '#3d3d3a',
+    },
+  });
+
+  const diagram = `erDiagram
+  users {
+    bigint id PK
+    string name
+    string email
+    string role
+    bigint fakultas_id FK
+    bigint prodi_id FK
+  }
+  mahasiswa {
+    bigint id PK
+    bigint user_id FK
+    bigint prodi_id FK
+    bigint kurikulum_id FK
+    bigint dosen_pa_id FK
+    string nim
+    string status
+  }
+  dosen {
+    bigint id PK
+    bigint user_id FK
+    bigint prodi_id FK
+    bigint fakultas_id FK
+    string nidn
+  }
+  fakultas {
+    bigint id PK
+    string nama
+  }
+  prodi {
+    bigint id PK
+    bigint fakultas_id FK
+    string nama
+    string jenjang
+  }
+  konsentrasi {
+    bigint id PK
+    bigint prodi_id FK
+    string nama_konsentrasi
+  }
+  kurikulum {
+    bigint id PK
+    bigint prodi_id FK
+    string nama
+    int tahun_mulai
+  }
+  mata_kuliah {
+    bigint id PK
+    bigint kurikulum_id FK
+    bigint prodi_id FK
+    bigint konsentrasi_id FK
+    string kode
+    string nama
+    int sks
+  }
+  tahun_akademik {
+    bigint id PK
+    string tahun
+    string semester
+    boolean is_active
+  }
+  kelas {
+    bigint id PK
+    bigint mata_kuliah_id FK
+    bigint dosen_id FK
+    bigint tahun_akademik_id FK
+    string nama_kelas
+    int kapasitas
+  }
+  jadwal_kuliah {
+    bigint id PK
+    bigint kelas_id FK
+    string hari
+    time jam_mulai
+    time jam_selesai
+    string ruangan
+  }
+  pertemuan {
+    bigint id PK
+    bigint jadwal_kuliah_id FK
+    int pertemuan_ke
+    date tanggal
+    string status
+  }
+  materi {
+    bigint id PK
+    bigint pertemuan_id FK
+    string judul
+    string file_path
+  }
+  presensi {
+    bigint id PK
+    bigint pertemuan_id FK
+    bigint mahasiswa_id FK
+    string status
+  }
+  tugas {
+    bigint id PK
+    bigint kelas_id FK
+    string judul
+    datetime deadline
+  }
+  tugas_submission {
+    bigint id PK
+    bigint tugas_id FK
+    bigint mahasiswa_id FK
+    bigint graded_by FK
+    string file_path
+    float nilai
+  }
+  krs {
+    bigint id PK
+    bigint mahasiswa_id FK
+    bigint tahun_akademik_id FK
+    bigint konsentrasi_id FK
+    string status
+  }
+  krs_detail {
+    bigint id PK
+    bigint krs_id FK
+    bigint kelas_id FK
+  }
+  nilai {
+    bigint id PK
+    bigint mahasiswa_id FK
+    bigint kelas_id FK
+    float nilai_angka
+    string nilai_huruf
+  }
+  pembayaran {
+    bigint id PK
+    bigint mahasiswa_id FK
+    bigint tahun_akademik_id FK
+    string status
+    decimal amount
+  }
+  biaya_kuliah {
+    bigint id PK
+    bigint tahun_akademik_id FK
+    bigint prodi_id FK
+    decimal nominal
+  }
+  skripsi {
+    bigint id PK
+    bigint mahasiswa_id FK
+    bigint pembimbing1_id FK
+    bigint pembimbing2_id FK
+    string judul
+    string status
+  }
+  bimbingan_skripsi {
+    bigint id PK
+    bigint skripsi_id FK
+    bigint dosen_id FK
+    date tanggal_bimbingan
+    string status
+  }
+  pendaftaran_ujian {
+    bigint id PK
+    bigint mahasiswa_id FK
+    bigint skripsi_id FK
+    bigint penguji1_id FK
+    bigint penguji2_id FK
+    string jenis_ujian
+    string status
+  }
+  syarat_ujian_upload {
+    bigint id PK
+    bigint pendaftaran_ujian_id FK
+    string file_path
+  }
+  kerja_praktek {
+    bigint id PK
+    bigint mahasiswa_id FK
+    bigint pembimbing_id FK
+    string nama_perusahaan
+    string status
+  }
+  logbook_kp {
+    bigint id PK
+    bigint kerja_praktek_id FK
+    date tanggal
+    string status
+  }
+  kehadiran_dosen {
+    bigint id PK
+    bigint dosen_id FK
+    bigint jadwal_kuliah_id FK
+    bigint pertemuan_id FK
+    string status
+  }
+  notifications {
+    bigint id PK
+    bigint user_id FK
+    string type
+    string title
+  }
+  activity_log {
+    bigint id PK
+    bigint user_id FK
+    string action
+    string model_type
+  }
+  ai_conversation_logs {
+    bigint id PK
+    bigint user_id FK
+    bigint mahasiswa_id FK
+    string question
+    string answer
+  }
+  ruangan {
+    bigint id PK
+    bigint fakultas_id FK
+    string nama
+  }
+
+  fakultas ||--o{ prodi : "hasMany"
+  fakultas ||--o{ ruangan : "hasMany"
+  fakultas ||--o{ dosen : "hasMany"
+  prodi ||--o{ konsentrasi : "hasMany"
+  prodi ||--o{ kurikulum : "hasMany"
+  prodi ||--o{ mahasiswa : "hasMany"
+  prodi ||--o{ dosen : "hasMany"
+  prodi ||--o{ mata_kuliah : "hasMany"
+  prodi ||--o{ biaya_kuliah : "hasMany"
+  kurikulum ||--o{ mata_kuliah : "hasMany"
+  kurikulum ||--o{ mahasiswa : "hasMany"
+  konsentrasi ||--o{ mata_kuliah : "hasMany"
+  konsentrasi ||--o{ krs : "hasMany"
+  users ||--o| mahasiswa : "hasOne"
+  users ||--o| dosen : "hasOne"
+  users ||--o{ notifications : "hasMany"
+  users ||--o{ activity_log : "hasMany"
+  users ||--o{ ai_conversation_logs : "hasMany"
+  dosen ||--o{ mahasiswa : "dosen_pa"
+  dosen ||--o{ kelas : "mengajar"
+  dosen ||--o{ bimbingan_skripsi : "hasMany"
+  dosen ||--o{ kehadiran_dosen : "hasMany"
+  mata_kuliah ||--o{ kelas : "hasMany"
+  tahun_akademik ||--o{ kelas : "hasMany"
+  tahun_akademik ||--o{ krs : "hasMany"
+  tahun_akademik ||--o{ pembayaran : "hasMany"
+  tahun_akademik ||--o{ biaya_kuliah : "hasMany"
+  kelas ||--o{ jadwal_kuliah : "hasMany"
+  kelas ||--o{ krs_detail : "hasMany"
+  kelas ||--o{ nilai : "hasMany"
+  kelas ||--o{ tugas : "hasMany"
+  jadwal_kuliah ||--o{ pertemuan : "hasMany"
+  jadwal_kuliah ||--o{ kehadiran_dosen : "hasMany"
+  pertemuan ||--o{ materi : "hasMany"
+  pertemuan ||--o{ presensi : "hasMany"
+  tugas ||--o{ tugas_submission : "hasMany"
+  mahasiswa ||--o{ krs : "hasMany"
+  mahasiswa ||--o{ nilai : "hasMany"
+  mahasiswa ||--o{ presensi : "hasMany"
+  mahasiswa ||--o{ tugas_submission : "hasMany"
+  mahasiswa ||--o{ pembayaran : "hasMany"
+  mahasiswa ||--o{ skripsi : "hasMany"
+  mahasiswa ||--o{ kerja_praktek : "hasMany"
+  mahasiswa ||--o{ pendaftaran_ujian : "hasMany"
+  mahasiswa ||--o{ ai_conversation_logs : "hasMany"
+  krs ||--o{ krs_detail : "hasMany"
+  skripsi ||--o{ bimbingan_skripsi : "hasMany"
+  skripsi ||--o{ pendaftaran_ujian : "hasMany"
+  pendaftaran_ujian ||--o{ syarat_ujian_upload : "hasMany"
+  kerja_praktek ||--o{ logbook_kp : "hasMany"
+`;
+
+  const { svg } = await mermaid.render('erd-svg', diagram);
+  document.getElementById('erd').innerHTML = svg;
+
+  const colorMap = {
+    users: '#534AB7', mahasiswa: '#534AB7', dosen: '#534AB7',
+    fakultas: '#0F6E56', prodi: '#0F6E56', konsentrasi: '#0F6E56', ruangan: '#0F6E56',
+    kurikulum: '#185FA5', mata_kuliah: '#185FA5', tahun_akademik: '#185FA5',
+    kelas: '#185FA5', jadwal_kuliah: '#185FA5', pertemuan: '#185FA5', materi: '#185FA5',
+    presensi: '#185FA5', tugas: '#185FA5', tugas_submission: '#185FA5', kehadiran_dosen: '#185FA5',
+    krs: '#993556', krs_detail: '#993556', nilai: '#993556',
+    pembayaran: '#993556', biaya_kuliah: '#993556',
+    skripsi: '#854F0B', bimbingan_skripsi: '#854F0B', pendaftaran_ujian: '#854F0B',
+    syarat_ujian_upload: '#854F0B', kerja_praktek: '#854F0B', logbook_kp: '#854F0B',
+    notifications: '#5F5E5A', activity_log: '#5F5E5A', ai_conversation_logs: '#5F5E5A',
+  };
+
+  try {
+    // Set the background of the #erd container to match the detected mode
+    const erdEl = document.getElementById('erd');
+    if (erdEl) {
+      erdEl.style.setProperty('background-color', dark ? '#0f172a' : '#ffffff', 'important');
+      erdEl.style.setProperty('padding', '20px', 'important');
+      erdEl.style.setProperty('border-radius', '12px', 'important');
+    }
+
+    document.querySelectorAll('#erd svg .node').forEach(node => {
+      // 1. Extract entity name from node ID (e.g. "erd-svg-entity-users-0" -> "users")
+      const idMatch = node.id?.match(/entity-([a-zA-Z0-9_]+)/);
+      const entityName = idMatch ? idMatch[1].toLowerCase() : '';
+      const groupColor = colorMap[entityName];
+
+      // Find header text element
+      const nameGroup = node.querySelector('.label.name') || node.querySelector('[class*="label name"]');
+      let headerTextEl = nameGroup ? nameGroup.querySelector('text') : null;
+      if (!headerTextEl) {
+        node.querySelectorAll('text').forEach(t => {
+          if (t.textContent?.trim().toLowerCase().replace(/ /g, '_') === entityName) {
+            headerTextEl = t;
+          }
+        });
+      }
+
+      // 2. Convert outer shape to rounded rect
+      const outerPathGroup = node.querySelector('.outer-path');
+      if (outerPathGroup) {
+        const firstPath = outerPathGroup.querySelector('path[d]');
+        if (firstPath) {
+          const d = firstPath.getAttribute('d');
+          const nums = d.match(/-?[\d.]+/g)?.map(Number);
+          if (nums && nums.length >= 8) {
+            const xs = [nums[0], nums[2], nums[4], nums[6]];
+            const ys = [nums[1], nums[3], nums[5], nums[7]];
+            const x = Math.min(...xs), y = Math.min(...ys);
+            const w = Math.max(...xs) - x, h = Math.max(...ys) - y;
+            const outerRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            outerRect.setAttribute('x', x); outerRect.setAttribute('y', y);
+            outerRect.setAttribute('width', w); outerRect.setAttribute('height', h);
+            outerRect.setAttribute('rx', '8');
+
+            if (firstPath.hasAttribute('class')) {
+              outerRect.setAttribute('class', firstPath.getAttribute('class'));
+            }
+            firstPath.replaceWith(outerRect);
+          }
+        }
+
+        // Color all paths/rects inside outer-path group with groupColor (border and header background)
+        if (groupColor) {
+          outerPathGroup.querySelectorAll('path, rect, polygon').forEach(el => {
+            el.style.setProperty('fill', groupColor, 'important');
+            el.style.setProperty('stroke', groupColor, 'important');
+            el.style.setProperty('stroke-width', '1.5px', 'important');
+          });
+        }
+      }
+
+      // 3. Style elements inside this table card
+      if (groupColor) {
+        // Style header text
+        if (headerTextEl) {
+          headerTextEl.setAttribute('fill', '#ffffff');
+          headerTextEl.style.setProperty('fill', '#ffffff', 'important');
+          headerTextEl.setAttribute('font-weight', '700');
+          headerTextEl.style.setProperty('font-weight', '700', 'important');
+
+          // Also style all tspans inside the header text to be white
+          headerTextEl.querySelectorAll('tspan').forEach(span => {
+            span.setAttribute('fill', '#ffffff');
+            span.style.setProperty('fill', '#ffffff', 'important');
+            span.setAttribute('font-weight', '700');
+            span.style.setProperty('font-weight', '700', 'important');
+          });
+        }
+
+        // Style attribute texts (fields, types, keys)
+        const attrTextFill = dark ? '#e2e8f0' : '#2d3748';
+        node.querySelectorAll('text').forEach(t => {
+          if (t !== headerTextEl) {
+            t.setAttribute('fill', attrTextFill);
+            t.style.setProperty('fill', attrTextFill, 'important');
+            t.setAttribute('font-weight', '500');
+            t.style.setProperty('font-weight', '500', 'important');
+
+            t.querySelectorAll('tspan').forEach(span => {
+              span.setAttribute('fill', attrTextFill);
+              span.style.setProperty('fill', attrTextFill, 'important');
+              span.setAttribute('font-weight', '500');
+              span.style.setProperty('font-weight', '500', 'important');
+            });
+          }
+        });
+
+        // Style backgrounds of cells (inside label groups) to be transparent
+        node.querySelectorAll('.label, .label *').forEach(bg => {
+          if (bg.tagName === 'rect' || bg.tagName === 'path' || bg.tagName === 'polygon') {
+            bg.style.setProperty('fill', 'transparent', 'important');
+            bg.style.setProperty('stroke', 'none', 'important');
+          }
+        });
+
+        // Style alternating attribute row backgrounds
+        const oddFill = dark ? '#1e1e24' : '#ffffff';
+        const evenFill = dark ? '#252529' : '#f8f9fa';
+
+        node.querySelectorAll('.row-rect-odd, .row-rect-odd *').forEach(p => {
+          if (p.tagName === 'rect' || p.tagName === 'path' || p.tagName === 'polygon') {
+            p.setAttribute('fill', oddFill);
+            p.style.setProperty('fill', oddFill, 'important');
+            p.setAttribute('stroke', 'none');
+            p.style.setProperty('stroke', 'none', 'important');
+          }
+        });
+        node.querySelectorAll('.row-rect-even, .row-rect-even *').forEach(p => {
+          if (p.tagName === 'rect' || p.tagName === 'path' || p.tagName === 'polygon') {
+            p.setAttribute('fill', evenFill);
+            p.style.setProperty('fill', evenFill, 'important');
+            p.setAttribute('stroke', 'none');
+            p.style.setProperty('stroke', 'none', 'important');
+          }
+        });
+      }
+    });
+
+    // 4. Style relationship labels (texts on lines like "hasMany", "hasOne", etc.) to be black
+    document.querySelectorAll('#erd svg text').forEach(t => {
+      if (!t.closest('.node')) {
+        t.setAttribute('fill', '#000000');
+        t.style.setProperty('fill', '#000000', 'important');
+        t.setAttribute('font-weight', '600');
+        t.style.setProperty('font-weight', '600', 'important');
+
+        t.querySelectorAll('tspan').forEach(span => {
+          span.setAttribute('fill', '#000000');
+          span.style.setProperty('fill', '#000000', 'important');
+          span.setAttribute('font-weight', '600');
+          span.style.setProperty('font-weight', '600', 'important');
+        });
+      }
+    });
+
+    // 5. Style the background boxes of relationship labels to be white
+    document.querySelectorAll('#erd svg rect, #erd svg path').forEach(el => {
+      if (!el.closest('.node')) {
+        if (el.classList.contains('relationshipLabelBox') || (el.classList.contains('er') && el.tagName === 'rect')) {
+          el.style.setProperty('fill', '#ffffff', 'important');
+          el.style.setProperty('stroke', '#cbd5e1', 'important');
+        }
+      }
+    });
+
+  } catch (e) {
+    console.error("ERD Styling Error:", e);
+  }
+</script>

@@ -149,6 +149,7 @@
                                     'nama_kelas' => $k->nama_kelas,
                                     'mata_kuliah_id' => $k->mata_kuliah_id,
                                     'dosen_id' => $k->dosen_id,
+                                    'dosen_name' => $k->dosen?->user?->name ?? 'Tanpa Nama',
                                     'kapasitas' => $k->kapasitas,
                                     'hari' => $jadwal?->hari,
                                     'jam_mulai' => $jadwal ? \Carbon\Carbon::parse($jadwal->jam_mulai)->format('H:i') : null,
@@ -240,6 +241,7 @@
                     'nama_kelas' => $k->nama_kelas,
                     'mata_kuliah_id' => $k->mata_kuliah_id,
                     'dosen_id' => $k->dosen_id,
+                    'dosen_name' => $k->dosen?->user?->name ?? 'Tanpa Nama',
                     'kapasitas' => $k->kapasitas,
                     'hari' => $jadwal?->hari,
                     'jam_mulai' => $jadwal ? \Carbon\Carbon::parse($jadwal->jam_mulai)->format('H:i') : null,
@@ -619,10 +621,10 @@
             
             // Add Dosen to TomSelect if it's not present (so we can select it dynamically)
             const dosenSelectEl = document.getElementById('editDosen');
-            if (dosenSelectEl.tomselect) {
+            if (dosenSelectEl.tomselect && data.dosen_id) {
                 const ts = dosenSelectEl.tomselect;
-                ts.addOption({id: data.dosen.id, name: data.dosen.user.name});
-                ts.setValue(data.dosen.id);
+                ts.addOption({id: data.dosen_id, name: data.dosen_name || 'Tanpa Nama'});
+                ts.setValue(data.dosen_id);
             }
             
             // Run filter so options are filtered correctly but keep current selection

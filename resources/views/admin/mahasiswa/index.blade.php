@@ -203,7 +203,7 @@
                                 <a href="{{ route('admin.mahasiswa.show', $m) }}" class="p-2 text-siakad-secondary hover:text-siakad-primary hover:bg-siakad-primary/10 rounded-lg transition" title="Detail">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                 </a>
-                                <button onclick="openEditModal({{ json_encode(['id'=>$m->id,'name'=>$m->user->name,'nim'=>$m->nim,'prodi_id'=>$m->prodi_id,'angkatan'=>$m->angkatan,'semester_sekarang'=>$m->semester_sekarang,'dosen_pa_id'=>$m->dosen_pa_id,'status'=>$m->status,'kurikulum_id'=>$m->kurikulum_id]) }})" class="p-2 text-blue-600 hover:bg-blue-100 rounded-lg" title="Edit">
+                                <button onclick="openEditModal({{ json_encode(['id'=>$m->id,'name'=>$m->user->name,'nim'=>$m->nim,'prodi_id'=>$m->prodi_id,'angkatan'=>$m->angkatan,'semester_sekarang'=>$m->semester_sekarang,'dosen_pa_id'=>$m->dosen_pa_id,'dosen_pa_name'=>$m->dosenPa?->user?->name,'status'=>$m->status,'kurikulum_id'=>$m->kurikulum_id]) }})" class="p-2 text-blue-600 hover:bg-blue-100 rounded-lg" title="Edit">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                 </button>
                                 <form action="{{ route('admin.mahasiswa.destroy', $m) }}" method="POST" class="inline" onsubmit="return confirm('Yakin?')">@csrf @method('DELETE')
@@ -371,6 +371,14 @@
                 createForm.reset();
             }
             filterKurikulumKonsentrasiCreate();
+            
+            const dosenPaEl = document.querySelector('#createForm .select-dosen-ajax');
+            if (dosenPaEl && dosenPaEl.tomselect) {
+                dosenPaEl.tomselect.clear(true);
+                dosenPaEl.tomselect.clearOptions();
+                dosenPaEl.tomselect.load('');
+            }
+            
             openModal('createModal');
         }
 
@@ -454,21 +462,20 @@
             document.getElementById('editKurikulumId').value = m.kurikulum_id || '';
 
             const dosenPaEl = document.getElementById('editDosenPaId');
-            if (dosenPaEl.tomselect && m.dosen_pa_id) {
-                // If we had the actual name we could add it, but since we don't in the openEditModal payload
-                // we'll just try to set it. Alternatively, since openEditModal json_encode only has id,
-                // we'll fetch or the user will just search again if needed.
-                // Or better, let's just do:
-                dosenPaEl.tomselect.addOption({id: m.dosen_pa_id, name: 'Dosen ID: ' + m.dosen_pa_id});
-                dosenPaEl.tomselect.setValue(m.dosen_pa_id);
-            } else if (dosenPaEl.tomselect) {
-                dosenPaEl.tomselect.clear();
+            if (dosenPaEl && dosenPaEl.tomselect) {
+                const ts = dosenPaEl.tomselect;
+                ts.clear(true);
+                ts.clearOptions();
+                if (m.dosen_pa_id) {
+                    ts.addOption({id: m.dosen_pa_id, name: m.dosen_pa_name || ('Dosen ID: ' + m.dosen_pa_id)});
+                    ts.setValue(m.dosen_pa_id);
+                }
+                ts.load('');
             }
             document.getElementById('editStatus').value = m.status || 'aktif';
             openModal('editModal');
         }
     </script>
-</x-app-layout>
 
 @push('scripts')
 <script>
@@ -480,8 +487,8 @@
                 labelField: 'name',
                 searchField: 'name',
                 placeholder: 'Ketik nama dosen...',
+                preload: true,
                 load: function(query, callback) {
-                    if (!query.length) return callback();
                     fetch(`{{ route('admin.dosen.search') }}?q=${encodeURIComponent(query)}`)
                         .then(response => response.json())
                         .then(json => {
@@ -508,4 +515,4 @@
     });
 </script>
 @endpush
-
+</x-app-layout>

@@ -214,7 +214,6 @@
             </div>
         </div>
     </div>
-</x-app-layout>
 
 @push('scripts')
 <script>
@@ -226,8 +225,8 @@
                 labelField: 'name',
                 searchField: 'name',
                 placeholder: 'Ketik nama dosen...',
+                preload: true,
                 load: function(query, callback) {
-                    if (!query.length) return callback();
                     fetch(`{{ route('admin.dosen.search') }}?q=${encodeURIComponent(query)}`)
                         .then(response => response.json())
                         .then(json => {
@@ -254,3 +253,4 @@
     });
 </script>
 @endpush
+</x-app-layout>

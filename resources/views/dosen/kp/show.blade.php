@@ -60,8 +60,9 @@
                             Tolak
                         </button>
                     </div>
-                    <div id="modal-reject-kp" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-                        <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md mx-4">
+                    <div id="modal-reject-kp" class="hidden fixed inset-0 z-50 bg-black/40">
+                        <div class="w-full h-full flex items-center justify-center">
+                            <div class="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md mx-4">
                             <h4 class="font-bold text-siakad-dark mb-2">Tolak Penugasan Pembimbingan KP</h4>
                             <p class="text-sm text-siakad-secondary mb-4">Berikan alasan penolakan. Admin akan diberitahu.</p>
                             <form action="{{ route('dosen.kp.reject', $kp) }}" method="POST">
@@ -74,6 +75,7 @@
                                     <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition">Konfirmasi Tolak</button>
                                 </div>
                             </form>
+                        </div>
                         </div>
                     </div>
                 @endif
