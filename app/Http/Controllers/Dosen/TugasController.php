@@ -52,7 +52,7 @@ class TugasController extends Controller
         if ($request->hasFile('file_tugas')) {
             $file = $request->file('file_tugas');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $tugas->file_tugas = $file->storeAs("tugas/kelas_{$kelasId}", $filename);
+            $tugas->file_tugas = $file->storeAs("tugas/kelas_{$kelasId}", $filename, 'public');
         }
 
         $tugas->save();

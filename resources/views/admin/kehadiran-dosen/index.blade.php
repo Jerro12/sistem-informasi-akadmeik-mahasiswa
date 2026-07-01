@@ -14,9 +14,9 @@
     <!-- Filter -->
     <div class="card-saas p-4 mb-6 dark:bg-gray-800">
         <form method="GET" class="flex flex-col md:flex-row items-end gap-4">
-            <div class="w-full md:w-48">
+            <div class="w-full md:flex-1">
                 <label class="block text-xs font-medium text-siakad-dark dark:text-gray-300 mb-1">Dosen</label>
-                <select name="dosen_id" class="input-saas w-full text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                <select name="dosen_id" id="dosen-select" class="input-saas w-full text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
                     <option value="">Semua Dosen</option>
                     @foreach($dosenList as $d)
                     <option value="{{ $d->id }}" {{ $dosenId == $d->id ? 'selected' : '' }}>{{ $d->user->name }}</option>
@@ -167,4 +167,20 @@
         </div>
         @if($kehadiranList->hasPages())<div class="px-5 py-4 border-t border-siakad-light dark:border-gray-700">{{ $kehadiranList->links() }}</div>@endif
     </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            if (typeof TomSelect !== 'undefined') {
+                new TomSelect("#dosen-select", {
+                    create: false,
+                    sortField: {
+                        field: "text",
+                        direction: "asc"
+                    },
+                    placeholder: "Cari nama dosen..."
+                });
+            }
+        });
+    </script>
 </x-app-layout>

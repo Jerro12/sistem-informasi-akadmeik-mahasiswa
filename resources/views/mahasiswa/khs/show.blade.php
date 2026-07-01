@@ -31,7 +31,7 @@
                     </div>
                     <div>
                         <p class="text-[10px] md:text-xs opacity-60 uppercase tracking-wide">Program Studi</p>
-                        <p class="font-semibold text-sm md:text-base">{{ $mahasiswa->prodi->nama_prodi ?? '-' }}</p>
+                        <p class="font-semibold text-sm md:text-base">{{ $mahasiswa->prodi?->nama ?? '-' }}</p>
                     </div>
                 </div>
             </div>
@@ -140,7 +140,7 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     <p class="font-medium text-siakad-dark">{{ $mk->nama_mk }}</p>
-                                    <p class="text-xs text-siakad-secondary">{{ $nilai->kelas->dosen->user->name ?? '-' }}</p>
+                                    <p class="text-xs text-siakad-secondary">{{ $nilai->kelas?->dosen?->user?->name ?? '-' }}</p>
                                 </td>
                                 <td class="px-6 py-4 text-center text-siakad-secondary">{{ $mk->sks }}</td>
                                 <td class="px-6 py-4 text-center">

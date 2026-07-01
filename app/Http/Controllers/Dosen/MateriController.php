@@ -68,7 +68,7 @@ class MateriController extends Controller
         if ($request->hasFile('file')) {
             $file = $request->file('file');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $path = $file->storeAs("materi/kelas_{$kelasId}", $filename);
+            $path = $file->storeAs("materi/kelas_{$kelasId}", $filename, 'public');
 
             $materi->file_path = $path;
             $materi->file_name = $file->getClientOriginalName();
@@ -115,7 +115,7 @@ class MateriController extends Controller
 
             $file = $request->file('file');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $path = $file->storeAs("materi/kelas_{$kelasId}", $filename);
+            $path = $file->storeAs("materi/kelas_{$kelasId}", $filename, 'public');
 
             $materi->file_path = $path;
             $materi->file_name = $file->getClientOriginalName();

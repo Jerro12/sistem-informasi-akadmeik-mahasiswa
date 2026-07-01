@@ -10,7 +10,7 @@
             <div class="card-saas p-6">
                 <div class="text-center mb-6">
                     @if($mahasiswa->foto)
-                        <img src="{{ asset('storage/' . $mahasiswa->foto) }}" class="w-24 h-24 mx-auto rounded-xl object-cover mb-4 shadow-lg border-2 border-siakad-primary/20">
+                        <img src="{{ Storage::url($mahasiswa->foto) }}" class="w-24 h-24 mx-auto rounded-xl object-cover mb-4 shadow-lg border-2 border-siakad-primary/20" alt="Foto Profil">
                     @else
                         <div class="w-24 h-24 mx-auto rounded-xl bg-siakad-primary flex items-center justify-center text-white text-4xl font-bold mb-4 shadow-lg">
                             {{ strtoupper(substr($user->name, 0, 1)) }}
@@ -137,19 +137,19 @@
                                 <input type="text" name="provinsi" value="{{ old('provinsi', $mahasiswa->provinsi) }}" placeholder="Contoh: Jawa Barat" class="input-saas w-full px-4 py-2.5 text-sm" style="background-color: var(--bg-card);">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-siakad-dark mb-2">Kecamatan</label>
-                                <input type="text" name="kecamatan" value="{{ old('kecamatan', $mahasiswa->kecamatan) }}" placeholder="Contoh: Sumur Bandung" class="input-saas w-full px-4 py-2.5 text-sm" style="background-color: var(--bg-card);">
+                                <label class="block text-sm font-medium text-siakad-dark mb-2">Kabupaten / Kota</label>
+                                <input type="text" name="kabupaten" value="{{ old('kabupaten', $mahasiswa->kabupaten) }}" placeholder="Contoh: Bandung" class="input-saas w-full px-4 py-2.5 text-sm" style="background-color: var(--bg-card);">
                             </div>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-siakad-dark mb-2">Kelurahan</label>
-                                <input type="text" name="kelurahan" value="{{ old('kelurahan', $mahasiswa->kelurahan) }}" placeholder="Contoh: Babakan Ciamis" class="input-saas w-full px-4 py-2.5 text-sm" style="background-color: var(--bg-card);">
+                                <label class="block text-sm font-medium text-siakad-dark mb-2">Kecamatan</label>
+                                <input type="text" name="kecamatan" value="{{ old('kecamatan', $mahasiswa->kecamatan) }}" placeholder="Contoh: Sumur Bandung" class="input-saas w-full px-4 py-2.5 text-sm" style="background-color: var(--bg-card);">
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-siakad-dark mb-2">Desa</label>
-                                <input type="text" name="desa" value="{{ old('desa', $mahasiswa->desa) }}" placeholder="Contoh: Babakan" class="input-saas w-full px-4 py-2.5 text-sm" style="background-color: var(--bg-card);">
+                                <label class="block text-sm font-medium text-siakad-dark mb-2">Kelurahan / Desa</label>
+                                <input type="text" name="kelurahan" value="{{ old('kelurahan', $mahasiswa->kelurahan) }}" placeholder="Contoh: Babakan Ciamis" class="input-saas w-full px-4 py-2.5 text-sm" style="background-color: var(--bg-card);">
                             </div>
                         </div>
 

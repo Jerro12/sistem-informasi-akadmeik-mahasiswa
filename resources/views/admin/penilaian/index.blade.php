@@ -11,15 +11,31 @@
             </p>
         </div>
         <form method="GET" action="{{ route('admin.penilaian.index') }}" class="flex items-center gap-2">
+            <select name="tahun_akademik_id" class="input-saas px-3 py-2 text-sm max-w-[150px]">
+                <option value="">Semua Tahun</option>
+                @foreach($tahunAkademiks as $ta)
+                <option value="{{ $ta->id }}" {{ request('tahun_akademik_id') == $ta->id ? 'selected' : '' }}>{{ $ta->tahun }} {{ ucfirst($ta->semester) }}</option>
+                @endforeach
+            </select>
+            
+            @if(Auth::user()->role !== 'admin_prodi')
+            <select name="prodi_id" class="input-saas px-3 py-2 text-sm max-w-[180px]">
+                <option value="">Semua Prodi</option>
+                @foreach($prodis as $p)
+                <option value="{{ $p->id }}" {{ request('prodi_id') == $p->id ? 'selected' : '' }}>{{ $p->nama }}</option>
+                @endforeach
+            </select>
+            @endif
+
             <input
                 type="text" name="search" value="{{ request('search') }}"
                 placeholder="Cari kelas / mata kuliah..."
-                class="input-saas px-3 py-2 text-sm w-56"
+                class="input-saas px-3 py-2 text-sm w-48"
             />
             <button type="submit" class="px-4 py-2 bg-siakad-primary text-white rounded-lg text-sm font-medium hover:bg-siakad-primary/90 transition">
                 Cari
             </button>
-            @if(request('search'))
+            @if(request('search') || request('tahun_akademik_id') || request('prodi_id'))
             <a href="{{ route('admin.penilaian.index') }}" class="px-3 py-2 text-sm text-siakad-secondary dark:text-gray-400 hover:text-siakad-dark dark:hover:text-white transition">
                 Reset
             </a>

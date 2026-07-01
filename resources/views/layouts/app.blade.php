@@ -610,6 +610,8 @@
                         <span class="sidebar-text">Pengaturan Biaya</span>
                     </a>
 
+                    @endif <!-- Close isSuperAdmin -->
+
                     <div class="pt-4 pb-1">
                         <p class="px-3 text-[10px] font-semibold text-siakad-secondary/60 uppercase tracking-widest sidebar-section-title">Sistem</p>
                     </div>
@@ -617,8 +619,8 @@
                         <svg class="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         <span class="sidebar-text">System Logs</span>
                     </a>
-                    @endif
-                    @endif
+                    
+                    @endif <!-- Close in_array admin -->
 
                     @if(Auth::user()->role === 'mahasiswa')
                     <a href="{{ url('mahasiswa/dashboard') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-siakad-secondary text-sm font-medium {{ request()->is('mahasiswa/dashboard') ? 'active' : '' }}">

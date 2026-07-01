@@ -38,11 +38,36 @@ class PenilaianController extends Controller
             $query->whereHas('dosen.prodi', fn($q) => $q->where('fakultas_id', $fakultasId));
         }
 
+        // Filter by prodi
+        if ($prodiId = $request->get('prodi_id')) {
+            $query->whereHas('mataKuliah', fn($q) => $q->where('prodi_id', $prodiId));
+        }
+
+        // Filter by tahun_akademik_id
+        if ($taId = $request->get('tahun_akademik_id')) {
+            $query->where('tahun_akademik_id', $taId);
+        }
+
+        $tahunAkademiks = \App\Models\TahunAkademik::orderBy('tahun', 'desc')->orderBy('semester', 'desc')->get();
+        $prodis = \App\Models\Prodi::query();
+        if ($request->get('fakultas_scoped') && $request->get('fakultas_scope')) {
+            $prodis->where('fakultas_id', $request->get('fakultas_scope'));
+        }
+        
+        // Scope for admin_prodi
+        $user = auth()->user();
+        if ($user && $user->role === 'admin_prodi' && $user->prodi_id) {
+            $query->whereHas('mataKuliah', fn($q) => $q->where('prodi_id', $user->prodi_id));
+            $prodis->where('id', $user->prodi_id);
+        }
+        
+        $prodis = $prodis->get();
+
         $kelas = $query->orderBy('nama_kelas', 'asc')
             ->paginate(config('siakad.pagination', 15))
             ->withQueryString();
 
-        return view('admin.penilaian.index', compact('kelas'));
+        return view('admin.penilaian.index', compact('kelas', 'tahunAkademiks', 'prodis'));
     }
 
     /**

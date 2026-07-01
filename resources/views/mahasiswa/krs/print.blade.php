@@ -67,7 +67,7 @@
                 <img src="{{ asset('images/logo-umpar.png') }}" alt="Logo UMPAR" onerror="this.outerHTML='<div style=\'width:60px;height:60px;background:#ccc;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;\'>LOGO</div>'">
             </div>
             <div class="header-text">
-                <h1>{{ str_starts_with(strtolower($mahasiswa->prodi->fakultas->nama ?? ''), 'fakultas') ? strtoupper($mahasiswa->prodi->fakultas->nama) : 'FAKULTAS ' . strtoupper($mahasiswa->prodi->fakultas->nama ?? 'TEKNIK') }}</h1>
+                <h1>{{ str_starts_with(strtolower($mahasiswa->prodi?->fakultas?->nama ?? ''), 'fakultas') ? strtoupper($mahasiswa->prodi?->fakultas?->nama) : 'FAKULTAS ' . strtoupper($mahasiswa->prodi?->fakultas?->nama ?? 'TEKNIK') }}</h1>
                 <h2>UNIVERSITAS MUHAMMADIYAH PAREPARE</h2>
             </div>
         </div>
@@ -78,7 +78,7 @@
         <div class="info-container">
             <div class="info-col">
                 <table class="info-table">
-                    <tr><td class="label">PROGRAM STUDI</td><td class="separator">:</td><td>{{ strtoupper($mahasiswa->prodi->nama ?? '-') }}</td></tr>
+                    <tr><td class="label">PROGRAM STUDI</td><td class="separator">:</td><td>{{ strtoupper($mahasiswa->prodi?->nama ?? '-') }}</td></tr>
                     <tr><td class="label">JENJANG PROGRAM</td><td class="separator">:</td><td>STRATA SATU (S1)</td></tr>
                     <tr><td class="label">TAHUN AKADEMIK</td><td class="separator">:</td><td>{{ $krs->tahunAkademik->tahun }}</td></tr>
                     <tr><td class="label">SEMESTER</td><td class="separator">:</td><td>{{ strtoupper($krs->tahunAkademik->semester) }}</td></tr>
@@ -174,16 +174,16 @@
                 <div class="signature-box">
                     <p>Ketua Program Studi</p>
                     <div class="signature-space"></div>
-                    <p style="text-decoration: underline; font-weight: bold;">{{ $mahasiswa->prodi->nama_ketua_prodi ?? '........................................' }}</p>
-                    <p>NBM : {{ $mahasiswa->prodi->nidn_ketua_prodi ?? '....................' }}</p>
+                    <p style="text-decoration: underline; font-weight: bold;">{{ $mahasiswa->prodi?->nama_ketua_prodi ?? '........................................' }}</p>
+                    <p>NBM : {{ $mahasiswa->prodi?->nidn_ketua_prodi ?? '....................' }}</p>
                 </div>
 
                 <!-- Dosen PA -->
                 <div class="signature-box">
                     <p>Penasehat Akademik</p>
                     <div class="signature-space"></div>
-                    <p style="text-decoration: underline; font-weight: bold;">{{ $mahasiswa->dosenPa->user->name ?? '........................................' }}</p>
-                    <p>NBM : {{ $mahasiswa->dosenPa->nidn ?? '....................' }}</p>
+                    <p style="text-decoration: underline; font-weight: bold;">{{ $mahasiswa->dosenPa?->user?->name ?? '........................................' }}</p>
+                    <p>NBM : {{ $mahasiswa->dosenPa?->nidn ?? '....................' }}</p>
                 </div>
 
                 <!-- Mahasiswa -->

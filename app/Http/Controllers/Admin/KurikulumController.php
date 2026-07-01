@@ -13,15 +13,16 @@ class KurikulumController extends Controller
     {
         $user = auth()->user();
         $isSuperAdmin = $user->isSuperAdmin();
-        $fakultasId = $user->fakultas_id;
-
         $query = Kurikulum::with('prodi');
-
-        // Admin fakultas hanya bisa melihat kurikulum di prodinya
-        if (!$isSuperAdmin && $fakultasId) {
-            $query->whereHas('prodi', function ($q) use ($fakultasId) {
-                $q->where('fakultas_id', $fakultasId);
-            });
+        // Admin fakultas melihat se-fakultas, admin prodi hanya prodi miliknya
+        if (!$isSuperAdmin) {
+            if ($user->role === 'admin_prodi' && $user->prodi_id) {
+                $query->where('prodi_id', $user->prodi_id);
+            } elseif ($user->fakultas_id) {
+                $query->whereHas('prodi', function ($q) use ($user) {
+                    $q->where('fakultas_id', $user->fakultas_id);
+                });
+            }
         }
 
         if ($search = $request->get('search')) {
@@ -31,8 +32,12 @@ class KurikulumController extends Controller
         $kurikulum = $query->paginate(config('siakad.pagination', 15));
         
         $prodiQuery = Prodi::query();
-        if (!$isSuperAdmin && $fakultasId) {
-            $prodiQuery->where('fakultas_id', $fakultasId);
+        if (!$isSuperAdmin) {
+            if ($user->role === 'admin_prodi' && $user->prodi_id) {
+                $prodiQuery->where('id', $user->prodi_id);
+            } elseif ($user->fakultas_id) {
+                $prodiQuery->where('fakultas_id', $user->fakultas_id);
+            }
         }
         $prodis = $prodiQuery->get();
 
@@ -51,9 +56,13 @@ class KurikulumController extends Controller
         // Security check
         $user = auth()->user();
         if (!$user->isSuperAdmin()) {
-            $prodi = Prodi::findOrFail($request->prodi_id);
-            if ($prodi->fakultas_id !== $user->fakultas_id) {
-                abort(403, 'Unauthorized action.');
+            if ($user->role === 'admin_prodi') {
+                if ($request->prodi_id != $user->prodi_id) abort(403, 'Unauthorized action.');
+            } else {
+                $prodi = Prodi::findOrFail($request->prodi_id);
+                if ($prodi->fakultas_id !== $user->fakultas_id) {
+                    abort(403, 'Unauthorized action.');
+                }
             }
         }
 
@@ -79,9 +88,13 @@ class KurikulumController extends Controller
         // Security check
         $user = auth()->user();
         if (!$user->isSuperAdmin()) {
-            $prodi = Prodi::findOrFail($request->prodi_id);
-            if ($prodi->fakultas_id !== $user->fakultas_id) {
-                abort(403, 'Unauthorized action.');
+            if ($user->role === 'admin_prodi') {
+                if ($request->prodi_id != $user->prodi_id) abort(403, 'Unauthorized action.');
+            } else {
+                $prodi = Prodi::findOrFail($request->prodi_id);
+                if ($prodi->fakultas_id !== $user->fakultas_id) {
+                    abort(403, 'Unauthorized action.');
+                }
             }
         }
 
@@ -100,8 +113,12 @@ class KurikulumController extends Controller
         // Security check
         $user = auth()->user();
         if (!$user->isSuperAdmin()) {
-            if ($kurikulum->prodi->fakultas_id !== $user->fakultas_id) {
-                abort(403, 'Unauthorized action.');
+            if ($user->role === 'admin_prodi') {
+                if ($kurikulum->prodi_id !== $user->prodi_id) abort(403, 'Unauthorized action.');
+            } else {
+                if ($kurikulum->prodi->fakultas_id !== $user->fakultas_id) {
+                    abort(403, 'Unauthorized action.');
+                }
             }
         }
 

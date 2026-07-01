@@ -321,30 +321,32 @@
         </div>
         
         <!-- Desktop Table -->
-        <table class="hidden md:table w-full table-saas">
-            <thead>
-                <tr class="bg-siakad-light/30 dark:bg-gray-900">
-                    <th class="text-left py-3 px-5 text-xs font-semibold text-siakad-secondary uppercase">Tanggal</th>
-                    <th class="text-left py-3 px-5 text-xs font-semibold text-siakad-secondary uppercase">Mata Kuliah</th>
-                    <th class="text-center py-3 px-5 text-xs font-semibold text-siakad-secondary uppercase">Jam Masuk</th>
-                    <th class="text-center py-3 px-5 text-xs font-semibold text-siakad-secondary uppercase">Jam Keluar</th>
-                    <th class="text-center py-3 px-5 text-xs font-semibold text-siakad-secondary uppercase">Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($riwayat as $index => $r)
-                <tr class="{{ $index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-siakad-light/10 dark:bg-gray-700/30' }} border-b border-siakad-light/30 dark:border-gray-700 hover:bg-siakad-light/30 dark:hover:bg-gray-700 transition">
-                    <td class="py-4 px-5 text-sm text-siakad-dark dark:text-white font-medium">{{ $r->tanggal->locale('id')->isoFormat('D MMM YYYY') }}</td>
-                    <td class="py-4 px-5 text-sm text-siakad-dark dark:text-white">{{ $r->jadwalKuliah?->kelas?->mataKuliah?->nama_mk ?? '-' }}</td>
-                    <td class="py-4 px-5 text-center text-sm text-siakad-secondary dark:text-gray-400">{{ $r->jam_masuk ? substr($r->jam_masuk, 0, 5) : '-' }}</td>
-                    <td class="py-4 px-5 text-center text-sm text-siakad-secondary dark:text-gray-400">{{ $r->jam_keluar ? substr($r->jam_keluar, 0, 5) : '-' }}</td>
-                    <td class="py-4 px-5 text-center"><span class="px-2.5 py-1 text-xs font-medium rounded-full bg-{{ $r->status_color }}-100 text-{{ $r->status_color }}-700 dark:bg-gray-800 dark:text-{{ $r->status_color }}-400 border dark:border-{{ $r->status_color }}-400/20">{{ $r->status_label }}</span></td>
-                </tr>
-                @empty
-                <tr><td colspan="5" class="py-10 text-center text-siakad-secondary">Belum ada data kehadiran</td></tr>
-                @endforelse
-            </tbody>
-        </table>
+        <div class="hidden md:block overflow-x-auto">
+            <table class="w-full table-saas">
+                <thead>
+                    <tr class="bg-siakad-light/30 dark:bg-gray-900">
+                        <th class="text-left py-3 px-5 text-xs font-semibold text-siakad-secondary uppercase">Tanggal</th>
+                        <th class="text-left py-3 px-5 text-xs font-semibold text-siakad-secondary uppercase">Mata Kuliah</th>
+                        <th class="text-center py-3 px-5 text-xs font-semibold text-siakad-secondary uppercase">Jam Masuk</th>
+                        <th class="text-center py-3 px-5 text-xs font-semibold text-siakad-secondary uppercase">Jam Keluar</th>
+                        <th class="text-center py-3 px-5 text-xs font-semibold text-siakad-secondary uppercase">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($riwayat as $index => $r)
+                    <tr class="{{ $index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-siakad-light/10 dark:bg-gray-700/30' }} border-b border-siakad-light/30 dark:border-gray-700 hover:bg-siakad-light/30 dark:hover:bg-gray-700 transition">
+                        <td class="py-4 px-5 text-sm text-siakad-dark dark:text-white font-medium whitespace-nowrap">{{ $r->tanggal->locale('id')->isoFormat('D MMM YYYY') }}</td>
+                        <td class="py-4 px-5 text-sm text-siakad-dark dark:text-white min-w-[200px]">{{ $r->jadwalKuliah?->kelas?->mataKuliah?->nama_mk ?? '-' }}</td>
+                        <td class="py-4 px-5 text-center text-sm text-siakad-secondary dark:text-gray-400 whitespace-nowrap">{{ $r->jam_masuk ? substr($r->jam_masuk, 0, 5) : '-' }}</td>
+                        <td class="py-4 px-5 text-center text-sm text-siakad-secondary dark:text-gray-400 whitespace-nowrap">{{ $r->jam_keluar ? substr($r->jam_keluar, 0, 5) : '-' }}</td>
+                        <td class="py-4 px-5 text-center whitespace-nowrap"><span class="px-2.5 py-1 text-xs font-medium rounded-full bg-{{ $r->status_color }}-100 text-{{ $r->status_color }}-700 dark:bg-gray-800 dark:text-{{ $r->status_color }}-400 border dark:border-{{ $r->status_color }}-400/20">{{ $r->status_label }}</span></td>
+                    </tr>
+                    @empty
+                    <tr><td colspan="5" class="py-10 text-center text-siakad-secondary">Belum ada data kehadiran</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
 
         <!-- Mobile Card View -->
         <div class="md:hidden divide-y divide-siakad-light dark:divide-gray-700">

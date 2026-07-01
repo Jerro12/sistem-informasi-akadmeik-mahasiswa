@@ -63,15 +63,9 @@ class KrsController extends Controller
                     $q->whereRaw('semester % 2 = 0');
                 }
 
-                // Tampilkan matkul semester target (Wajib tampil)
-                // ATAU matkul semester bawah (<) yang BELUM PERNAH diambil di KRS sebelumnya
-                $q->where(function($query) use ($mahasiswa, $takenMkIds, $targetSemester) {
-                    $query->where('semester', $targetSemester)
-                          ->orWhere(function($q2) use ($mahasiswa, $takenMkIds, $targetSemester) {
-                              $q2->where('semester', '<', $targetSemester)
-                                 ->whereNotIn('mata_kuliah.id', $takenMkIds);
-                          });
-                })
+                // Tampilkan semua mata kuliah sesuai paritas semester (Ganjil/Genap)
+                // Hapus matkul yang sudah pernah diambil di KRS sebelumnya
+                $q->whereNotIn('mata_kuliah.id', $takenMkIds)
                 ->where(function($query) use ($mahasiswa) {
                     $query->where('prodi_id', $mahasiswa->prodi_id)
                           ->orWhereNull('prodi_id');
@@ -124,15 +118,9 @@ class KrsController extends Controller
                     }
                 }
 
-                // Tampilkan matkul semester target (Wajib tampil)
-                // ATAU matkul semester bawah (<) yang BELUM PERNAH diambil di KRS sebelumnya
-                $q->where(function($query) use ($mahasiswa, $takenMkIds, $targetSemester) {
-                    $query->where('semester', $targetSemester)
-                          ->orWhere(function($q2) use ($mahasiswa, $takenMkIds, $targetSemester) {
-                              $q2->where('semester', '<', $targetSemester)
-                                 ->whereNotIn('mata_kuliah.id', $takenMkIds);
-                          });
-                })
+                // Tampilkan semua mata kuliah sesuai paritas semester (Ganjil/Genap)
+                // Hapus matkul yang sudah pernah diambil di KRS sebelumnya
+                $q->whereNotIn('mata_kuliah.id', $takenMkIds)
                 ->where(function($query) use ($mahasiswa) {
                     $query->where('prodi_id', $mahasiswa->prodi_id)
                           ->orWhereNull('prodi_id');

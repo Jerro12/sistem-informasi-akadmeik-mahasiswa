@@ -60,7 +60,7 @@
                 <img src="{{ asset('images/logo-umpar.png') }}" alt="Logo UMPAR" onerror="this.outerHTML='<div style=\'width:60px;height:60px;background:#ccc;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;\'>LOGO</div>'">
             </div>
             <div class="header-text">
-                <h1>{{ str_starts_with(strtolower($mahasiswa->prodi->fakultas->nama ?? ''), 'fakultas') ? strtoupper($mahasiswa->prodi->fakultas->nama) : 'FAKULTAS ' . strtoupper($mahasiswa->prodi->fakultas->nama ?? 'TEKNIK') }}</h1>
+                <h1>{{ str_starts_with(strtolower($mahasiswa->prodi?->fakultas?->nama ?? ''), 'fakultas') ? strtoupper($mahasiswa->prodi?->fakultas?->nama) : 'FAKULTAS ' . strtoupper($mahasiswa->prodi?->fakultas?->nama ?? 'TEKNIK') }}</h1>
                 <h2>UNIVERSITAS MUHAMMADIYAH PAREPARE</h2>
             </div>
         </div>
@@ -73,8 +73,8 @@
                 <table class="info-table">
                     <tr><td class="label">Nama Mahasiswa</td><td class="separator">:</td><td>{{ $mahasiswa->user->name }}</td></tr>
                     <tr><td class="label">NIM</td><td class="separator">:</td><td>{{ $mahasiswa->nim }}</td></tr>
-                    <tr><td class="label">Program Studi</td><td class="separator">:</td><td>{{ $mahasiswa->prodi->nama ?? '-' }}</td></tr>
-                    <tr><td class="label">Penasehat Akademik</td><td class="separator">:</td><td>{{ $mahasiswa->dosenPa->user->name ?? '-' }}</td></tr>
+                    <tr><td class="label">Program Studi</td><td class="separator">:</td><td>{{ $mahasiswa->prodi?->nama ?? '-' }}</td></tr>
+                    <tr><td class="label">Penasehat Akademik</td><td class="separator">:</td><td>{{ $mahasiswa->dosenPa?->user?->name ?? '-' }}</td></tr>
                 </table>
             </div>
             <div class="info-col">
@@ -170,8 +170,8 @@
                 <p>a.n. DEKAN</p>
                 <p>WAKIL DEKAN I</p>
                 <div class="signature-space"></div>
-                <p style="text-decoration: underline; font-weight: bold;">{{ $mahasiswa->prodi->fakultas->nama_wakil_dekan1 ?? '........................................' }}</p>
-                <p>NBM. &nbsp; {{ $mahasiswa->prodi->fakultas->nidn_wakil_dekan1 ?? '....................' }}</p>
+                <p style="text-decoration: underline; font-weight: bold;">{{ $mahasiswa->prodi?->fakultas?->nama_wakil_dekan1 ?? '........................................' }}</p>
+                <p>NBM. &nbsp; {{ $mahasiswa->prodi?->fakultas?->nidn_wakil_dekan1 ?? '....................' }}</p>
             </div>
         </div>
 
