@@ -118,15 +118,18 @@
 
         <style>
             :root {
-                --siakad-dark: {{ $themeColors['dark'] ?? '#1B3C53' }};
-                --siakad-primary: {{ $themeColors['primary'] ?? '#234C6A' }};
-                --siakad-secondary: {{ $themeColors['secondary'] ?? '#456882' }};
-                --siakad-light: {{ $themeColors['light'] ?? '#E3E3E3' }};
+                /* Default UMPAR Blue Theme */
+                --siakad-dark: {{ $themeColors['dark'] ?? '#06284B' }};
+                --siakad-primary: {{ $themeColors['primary'] ?? '#0055A5' }};
+                --siakad-secondary: {{ $themeColors['secondary'] ?? '#2D75B4' }};
+                --siakad-light: {{ $themeColors['light'] ?? '#E6F0F9' }};
+                
                 --bg-body: #FAFBFC;
                 --bg-card: #FFFFFF;
                 --bg-sidebar: #FFFFFF;
-                --text-primary: {{ $themeColors['dark'] ?? '#1B3C53' }};
-                --text-secondary: {{ $themeColors['secondary'] ?? '#456882' }};
+                
+                --text-primary: {{ $themeColors['dark'] ?? '#06284B' }};
+                --text-secondary: {{ $themeColors['secondary'] ?? '#2D75B4' }};
                 --border-color: #E3E3E3;
             }
             
@@ -464,9 +467,8 @@
                 <!-- Logo -->
                 <div class="h-16 flex items-center justify-between px-4 logo-section" style="border-bottom: 1px solid var(--border-color);">
                     <div class="flex items-center gap-3 overflow-hidden">
-                        <button @click="if(!sidebarOpen) sidebarOpen = true" :class="!sidebarOpen ? 'cursor-pointer hover:bg-siakad-primary/80' : 'cursor-default'" class="w-9 h-9 rounded-lg bg-siakad-primary flex items-center justify-center flex-shrink-0 transition">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        <button @click="if(!sidebarOpen) sidebarOpen = true" :class="!sidebarOpen ? 'cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700' : 'cursor-default'" class="w-9 h-9 flex items-center justify-center flex-shrink-0 transition rounded-lg overflow-hidden">
+                            <img src="{{ asset('images/logo-umpar.png') }}" alt="Logo UMPAR" class="h-full w-auto object-contain">
                         </button>
                         <div class="sidebar-logo-text">
                             <h1 class="text-base font-semibold" style="color: var(--text-primary);">{{ config('app.name') }}</h1>

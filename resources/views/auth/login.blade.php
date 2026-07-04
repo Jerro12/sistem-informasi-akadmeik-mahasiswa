@@ -1,5 +1,6 @@
 <x-guest-layout>
-    <div class="mb-10">
+    <div class="mb-10 flex flex-col items-center lg:items-start">
+        <img src="{{ asset('images/logo-umpar.png') }}" alt="Logo UMPAR" class="h-20 w-auto mb-6">
         <h2 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Selamat Datang</h2>
         <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Silakan masukkan data Anda untuk masuk ke sistem.</p>
     </div>

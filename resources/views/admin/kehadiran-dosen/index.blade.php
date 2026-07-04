@@ -169,18 +169,22 @@
     </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            if (typeof TomSelect !== 'undefined') {
-                new TomSelect("#dosen-select", {
-                    create: false,
-                    sortField: {
-                        field: "text",
-                        direction: "asc"
-                    },
-                    placeholder: "Cari nama dosen..."
-                });
-            }
+        $(document).ready(function() {
+            $('#dosen-select').select2({
+                placeholder: "Cari nama dosen...",
+                allowClear: true,
+                width: '100%'
+            });
+            
+            // Auto-submit form when filters change
+            $('select[name="month"], select[name="year"], select[name="dosen_id"]').on('change', function() {
+                $(this).closest('form').submit();
+            });
         });
     </script>
 </x-app-layout>

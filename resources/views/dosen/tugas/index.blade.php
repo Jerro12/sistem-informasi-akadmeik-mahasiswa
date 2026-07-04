@@ -15,7 +15,7 @@
                     <p class="text-sm text-siakad-secondary dark:text-gray-400">{{ $kelas->mataKuliah->kode_mk }} • {{ $kelas->mataKuliah->sks }} SKS</p>
                 </div>
             </div>
-            <button onclick="document.getElementById('createModal').classList.remove('hidden')" class="btn-primary-saas px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+            <button onclick="toggleCreateModal()" class="btn-primary-saas px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 Buat Tugas
             </button>
@@ -79,19 +79,36 @@
         <div class="card-saas p-8 text-center dark:bg-gray-800">
             <svg class="w-12 h-12 mx-auto mb-3 text-siakad-secondary/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
             <p class="text-siakad-secondary dark:text-gray-400">Belum ada tugas untuk kelas ini.</p>
-            <button onclick="document.getElementById('createModal').classList.remove('hidden')" class="mt-3 text-sm text-siakad-primary hover:underline">+ Buat tugas pertama</button>
+            <button onclick="toggleCreateModal()" class="mt-3 text-sm text-siakad-primary hover:underline">+ Buat tugas pertama</button>
         </div>
         @endforelse
     </div>
 
     <!-- Create Modal -->
-    <div id="createModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+    <div id="createModal" class="hidden fixed inset-0 bg-black/40 z-50 items-center justify-center p-4">
         <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-lg animate-fade-in">
             <div class="px-6 py-4 border-b border-siakad-light dark:border-gray-700">
                 <h3 class="text-lg font-semibold text-siakad-dark dark:text-white">Buat Tugas Baru</h3>
             </div>
             <form action="{{ route('dosen.tugas.store', $kelas->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
+                
+                @if($errors->any())
+                <div class="px-6 py-2 bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500">
+                    <ul class="text-sm text-red-600 dark:text-red-400">
+                        @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
+                
+                @if(session('error'))
+                <div class="px-6 py-2 bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500">
+                    <p class="text-sm text-red-600 dark:text-red-400">{{ session('error') }}</p>
+                </div>
+                @endif
+
                 <div class="p-6 space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Judul Tugas</label>
@@ -116,10 +133,28 @@
                     </div>
                 </div>
                 <div class="px-6 py-4 border-t border-siakad-light dark:border-gray-700 flex items-center justify-end gap-3">
-                    <button type="button" onclick="document.getElementById('createModal').classList.add('hidden')" class="btn-ghost-saas px-4 py-2 rounded-lg text-sm font-medium dark:text-white">Batal</button>
+                    <button type="button" onclick="closeCreateModal()" class="btn-ghost-saas px-4 py-2 rounded-lg text-sm font-medium dark:text-white">Batal</button>
                     <button type="submit" class="btn-primary-saas px-4 py-2 rounded-lg text-sm font-medium">Simpan</button>
                 </div>
             </form>
         </div>
     </div>
+    <script>
+        function toggleCreateModal() {
+            const modal = document.getElementById('createModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+        
+        function closeCreateModal() {
+            const modal = document.getElementById('createModal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }
+
+        // Auto open modal if there are validation errors
+        @if($errors->any() || session('error'))
+            toggleCreateModal();
+        @endif
+    </script>
 </x-app-layout>

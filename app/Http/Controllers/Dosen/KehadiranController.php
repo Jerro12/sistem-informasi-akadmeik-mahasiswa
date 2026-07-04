@@ -43,8 +43,16 @@ class KehadiranController extends Controller
             ->toArray();
 
         // Riwayat
+        $search = $request->get('search');
+        
         $riwayat = KehadiranDosen::where('dosen_id', $dosen->id)
             ->byMonth($year, $month)
+            ->when($search, function($query) use ($search) {
+                $query->whereHas('jadwalKuliah.kelas.mataKuliah', function($q) use ($search) {
+                    $q->where('nama_mk', 'like', "%{$search}%")
+                      ->orWhere('kode_mk', 'like', "%{$search}%");
+                });
+            })
             ->with('jadwalKuliah.kelas.mataKuliah')
             ->orderBy('tanggal', 'desc')
             ->get();

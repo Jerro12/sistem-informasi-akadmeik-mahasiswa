@@ -41,23 +41,27 @@ class TugasController extends Controller
             'allowed_extensions' => 'nullable|string|max:255',
         ]);
 
-        $tugas = new Tugas([
-            'kelas_id' => $kelas->id,
-            'judul' => $validated['judul'],
-            'deskripsi' => $validated['deskripsi'] ?? null,
-            'deadline' => $validated['deadline'],
-            'allowed_extensions' => $validated['allowed_extensions'] ?? 'pdf,doc,docx,zip,rar',
-        ]);
+        try {
+            $tugas = new Tugas([
+                'kelas_id' => $kelas->id,
+                'judul' => $validated['judul'],
+                'deskripsi' => $validated['deskripsi'] ?? null,
+                'deadline' => $validated['deadline'],
+                'allowed_extensions' => $validated['allowed_extensions'] ?? 'pdf,doc,docx,zip,rar',
+            ]);
 
-        if ($request->hasFile('file_tugas')) {
-            $file = $request->file('file_tugas');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $tugas->file_tugas = $file->storeAs("tugas/kelas_{$kelasId}", $filename, 'public');
+            if ($request->hasFile('file_tugas')) {
+                $file = $request->file('file_tugas');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $tugas->file_tugas = $file->storeAs("tugas/kelas_{$kelasId}", $filename, 'public');
+            }
+
+            $tugas->save();
+
+            return back()->with('success', 'Tugas berhasil dibuat.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan saat menyimpan tugas: ' . $e->getMessage())->withInput();
         }
-
-        $tugas->save();
-
-        return back()->with('success', 'Tugas berhasil dibuat.');
     }
 
     /**

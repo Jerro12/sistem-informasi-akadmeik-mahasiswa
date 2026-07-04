@@ -11,10 +11,19 @@ class KrsPrintController extends Controller
     public function print()
     {
         $mahasiswa = Auth::user()->mahasiswa;
+        
         $krs = Krs::where('mahasiswa_id', $mahasiswa->id)
             ->latest()
             ->with(['tahunAkademik', 'krsDetail.kelas.mataKuliah', 'krsDetail.kelas.dosen.user', 'mahasiswa.prodi.fakultas', 'mahasiswa.dosenPa.user'])
-            ->firstOrFail();
+            ->first();
+
+        if (!$krs) {
+            return redirect()->back()->with('error', 'Data KRS tidak ditemukan. Silakan lakukan pengisian KRS terlebih dahulu.');
+        }
+
+        if (!$krs->tahunAkademik) {
+            return redirect()->back()->with('error', 'Tahun Akademik pada KRS ini tidak valid atau telah dihapus.');
+        }
 
         // Get array of taken mata kuliah IDs and kelas IDs
         $takenMkIds = $krs->krsDetail->pluck('kelas.mata_kuliah_id')->filter()->toArray();

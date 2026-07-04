@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KRS_{{ $mahasiswa->nim }}_{{ $krs->tahunAkademik->tahun }}</title>
+    <title>KRS_{{ $mahasiswa->nim }}_{{ $krs->tahunAkademik?->tahun ?? 'Tahun_Invalid' }}</title>
     <style>
         body { font-family: 'Arial', sans-serif; font-size: 9pt; color: #000; margin: 0; padding: 0; }
         .container { width: 21cm; min-height: 29.7cm; padding: 0.5cm 1cm; margin: auto; background: #fff; box-sizing: border-box; }
@@ -80,8 +80,8 @@
                 <table class="info-table">
                     <tr><td class="label">PROGRAM STUDI</td><td class="separator">:</td><td>{{ strtoupper($mahasiswa->prodi?->nama ?? '-') }}</td></tr>
                     <tr><td class="label">JENJANG PROGRAM</td><td class="separator">:</td><td>STRATA SATU (S1)</td></tr>
-                    <tr><td class="label">TAHUN AKADEMIK</td><td class="separator">:</td><td>{{ $krs->tahunAkademik->tahun }}</td></tr>
-                    <tr><td class="label">SEMESTER</td><td class="separator">:</td><td>{{ strtoupper($krs->tahunAkademik->semester) }}</td></tr>
+                    <tr><td class="label">TAHUN AKADEMIK</td><td class="separator">:</td><td>{{ $krs->tahunAkademik?->tahun ?? '-' }}</td></tr>
+                    <tr><td class="label">SEMESTER</td><td class="separator">:</td><td>{{ strtoupper($krs->tahunAkademik?->semester ?? '-') }}</td></tr>
                 </table>
             </div>
             <div class="info-col">

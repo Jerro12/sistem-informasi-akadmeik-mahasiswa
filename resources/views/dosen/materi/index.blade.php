@@ -105,7 +105,7 @@
     </div>
 
     <!-- Upload Modal -->
-    <div id="uploadModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+    <div id="uploadModal" class="hidden fixed inset-0 bg-black/40 z-50 items-center justify-center p-4">
         <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md animate-fade-in">
             <div class="px-6 py-4 border-b border-siakad-light dark:border-gray-700">
                 <h3 class="text-lg font-semibold text-siakad-dark dark:text-white">Tambah Materi</h3>
@@ -113,6 +113,23 @@
             <form action="{{ route('dosen.materi.store', $kelas->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="pertemuan_id" id="uploadPertemuanId">
+                
+                @if($errors->any())
+                <div class="px-6 py-2 bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500">
+                    <ul class="text-sm text-red-600 dark:text-red-400">
+                        @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
+                
+                @if(session('error'))
+                <div class="px-6 py-2 bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500">
+                    <p class="text-sm text-red-600 dark:text-red-400">{{ session('error') }}</p>
+                </div>
+                @endif
+
                 <div class="p-6 space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Judul Materi</label>
@@ -151,11 +168,22 @@
     <script>
         function toggleUploadModal(pertemuanId) {
             document.getElementById('uploadPertemuanId').value = pertemuanId;
-            document.getElementById('uploadModal').classList.remove('hidden');
+            const modal = document.getElementById('uploadModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
         }
         
         function closeUploadModal() {
-            document.getElementById('uploadModal').classList.add('hidden');
+            const modal = document.getElementById('uploadModal');
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
         }
+
+        // Auto open modal if there are validation errors
+        @if($errors->any() || session('error'))
+            const modal = document.getElementById('uploadModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        @endif
     </script>
 </x-app-layout>

@@ -51,34 +51,38 @@ class MateriController extends Controller
             'link_external' => 'nullable|url|max:500',
         ]);
 
-        // Verify pertemuan belongs to this kelas
-        $pertemuan = Pertemuan::where('id', $validated['pertemuan_id'])
-            ->whereHas('jadwalKuliah', fn($q) => $q->where('kelas_id', $kelasId))
-            ->firstOrFail();
+        try {
+            // Verify pertemuan belongs to this kelas
+            $pertemuan = Pertemuan::where('id', $validated['pertemuan_id'])
+                ->whereHas('jadwalKuliah', fn($q) => $q->where('kelas_id', $kelasId))
+                ->firstOrFail();
 
-        $materi = new Materi([
-            'pertemuan_id' => $pertemuan->id,
-            'judul' => $validated['judul'],
-            'deskripsi' => $validated['deskripsi'] ?? null,
-            'link_external' => $validated['link_external'] ?? null,
-            'urutan' => $pertemuan->materiList()->count() + 1,
-        ]);
+            $materi = new Materi([
+                'pertemuan_id' => $pertemuan->id,
+                'judul' => $validated['judul'],
+                'deskripsi' => $validated['deskripsi'] ?? null,
+                'link_external' => $validated['link_external'] ?? null,
+                'urutan' => $pertemuan->materiList()->count() + 1,
+            ]);
 
-        // Handle file upload
-        if ($request->hasFile('file')) {
-            $file = $request->file('file');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $path = $file->storeAs("materi/kelas_{$kelasId}", $filename, 'public');
+            // Handle file upload
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $path = $file->storeAs("materi/kelas_{$kelasId}", $filename, 'public');
 
-            $materi->file_path = $path;
-            $materi->file_name = $file->getClientOriginalName();
-            $materi->file_size = $file->getSize();
-            $materi->file_type = $file->getMimeType();
+                $materi->file_path = $path;
+                $materi->file_name = $file->getClientOriginalName();
+                $materi->file_size = $file->getSize();
+                $materi->file_type = $file->getMimeType();
+            }
+
+            $materi->save();
+
+            return back()->with('success', 'Materi berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan saat mengupload materi: ' . $e->getMessage())->withInput();
         }
-
-        $materi->save();
-
-        return back()->with('success', 'Materi berhasil ditambahkan.');
     }
 
     /**
