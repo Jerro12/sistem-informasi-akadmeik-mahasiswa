@@ -16,3 +16,4 @@ require __DIR__.'/skripsi.php';
 require __DIR__.'/user.php';
 require __DIR__.'/penilaian.php';
 require __DIR__.'/pejabat.php';
+require __DIR__.'/syarat-ujian.php';

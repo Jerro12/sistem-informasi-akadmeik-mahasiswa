@@ -55,11 +55,11 @@ class BiodataController extends Controller
 
         // Update mahasiswa
         $mahasiswaData = [
-            'no_hp' => $validated['no_hp'],
-            'jenis_kelamin' => $validated['jenis_kelamin'],
-            'tempat_lahir' => $validated['tempat_lahir'],
-            'tanggal_lahir' => $validated['tanggal_lahir'],
-            'alamat' => $validated['alamat'],
+            'no_hp' => $validated['no_hp'] ?? null,
+            'jenis_kelamin' => $validated['jenis_kelamin'] ?? null,
+            'tempat_lahir' => $validated['tempat_lahir'] ?? null,
+            'tanggal_lahir' => $validated['tanggal_lahir'] ?? null,
+            'alamat' => $validated['alamat'] ?? null,
             'provinsi' => $validated['provinsi'] ?? null,
             'kabupaten' => $validated['kabupaten'] ?? null,
             'kecamatan' => $validated['kecamatan'] ?? null,

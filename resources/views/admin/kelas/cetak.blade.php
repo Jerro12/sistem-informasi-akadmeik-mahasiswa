@@ -103,9 +103,19 @@
     <button class="no-print" onclick="window.print()">Cetak Halaman Ini</button>
 
     <div class="header">
-        <h1>JADWAL PERKULIAHAN SEMESTER {{ strtoupper($semesterType) }}</h1>
-        <h2>TAHUN AKADEMIK {{ $activeYear?->tahun }}</h2>
-        <p>PROGRAM STUDI {{ strtoupper($prodi->nama) }} - {{ strtoupper($prodi->fakultas->nama) }}</p>
+        <table style="width: 100%; border: none; margin-top: 0; margin-bottom: 0;">
+            <tr>
+                <td style="width: 15%; border: none; text-align: center; padding: 0;">
+                    <img src="{{ asset('images/logo-umpar.png') }}" style="max-height: 80px;" alt="Logo">
+                </td>
+                <td style="width: 70%; border: none; text-align: center; padding: 0;">
+                    <h1 style="margin: 0; font-size: 16pt; text-transform: uppercase;">JADWAL PERKULIAHAN SEMESTER {{ strtoupper($semesterType) }}</h1>
+                    <h2 style="margin: 5px 0; font-size: 14pt; text-transform: uppercase;">TAHUN AKADEMIK {{ $activeYear?->tahun }}</h2>
+                    <p style="margin: 0; font-size: 10pt;">PROGRAM STUDI {{ strtoupper($prodi->nama) }} - {{ strtoupper($prodi->fakultas->nama) }}</p>
+                </td>
+                <td style="width: 15%; border: none; padding: 0;"></td>
+            </tr>
+        </table>
     </div>
 
     <table>

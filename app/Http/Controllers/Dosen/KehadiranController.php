@@ -20,11 +20,9 @@ class KehadiranController extends Controller
         // Get jadwal for today
         $today = now();
         $dayName = $today->locale('id')->dayName;
-        $dayMap = ['Minggu' => 0, 'Senin' => 1, 'Selasa' => 2, 'Rabu' => 3, 'Kamis' => 4, 'Jumat' => 5, 'Sabtu' => 6];
-        $todayIndex = $dayMap[$dayName] ?? $today->dayOfWeek;
 
         $jadwalHariIni = JadwalKuliah::whereHas('kelas', fn($q) => $q->where('dosen_id', $dosen->id))
-            ->where('hari', $todayIndex)
+            ->where('hari', $dayName)
             ->with('kelas.mataKuliah')
             ->get();
 

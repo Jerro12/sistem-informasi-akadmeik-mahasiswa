@@ -45,6 +45,7 @@ class KerjaPraktek extends Model
         'nilai_pembimbing' => 'decimal:2',
         'nilai_seminar' => 'decimal:2',
         'nilai_akhir' => 'decimal:2',
+        'pembimbing_approved' => 'boolean',
     ];
 
     const STATUS_PENGAJUAN = 'pengajuan';

@@ -72,10 +72,10 @@ class MateriController extends Controller
             abort(403);
         }
 
-        if (!$materi->file_path || !Storage::exists($materi->file_path)) {
+        if (!$materi->file_path || !Storage::disk('public')->exists($materi->file_path)) {
             abort(404, 'File tidak ditemukan');
         }
 
-        return Storage::download($materi->file_path, $materi->file_name);
+        return Storage::disk('public')->download($materi->file_path, $materi->file_name);
     }
 }

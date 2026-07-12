@@ -114,7 +114,7 @@ class MateriController extends Controller
         if ($request->hasFile('file')) {
             // Delete old file
             if ($materi->file_path) {
-                Storage::delete($materi->file_path);
+                Storage::disk('public')->delete($materi->file_path);
             }
 
             $file = $request->file('file');
@@ -148,7 +148,7 @@ class MateriController extends Controller
 
         // Delete file if exists
         if ($materi->file_path) {
-            Storage::delete($materi->file_path);
+            Storage::disk('public')->delete($materi->file_path);
         }
 
         $materi->delete();
@@ -170,10 +170,10 @@ class MateriController extends Controller
             abort(403);
         }
 
-        if (!$materi->file_path || !Storage::exists($materi->file_path)) {
+        if (!$materi->file_path || !Storage::disk('public')->exists($materi->file_path)) {
             abort(404, 'File tidak ditemukan');
         }
 
-        return Storage::download($materi->file_path, $materi->file_name);
+        return Storage::disk('public')->download($materi->file_path, $materi->file_name);
     }
 }

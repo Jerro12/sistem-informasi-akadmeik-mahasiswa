@@ -52,7 +52,7 @@
         .footer-lines { margin-top: 15px; border: 1px solid #000; padding: 3px 8px; font-size: 7pt; display: flex; justify-content: space-between; }
         
         @media print {
-            body { background: none; }
+            body { background: none; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .container { width: 100%; padding: 0; margin: 0; border: none; }
             .no-print { display: none; }
             @page { margin: 0.5cm; }

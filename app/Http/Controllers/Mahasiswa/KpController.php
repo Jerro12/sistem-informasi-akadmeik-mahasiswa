@@ -84,7 +84,7 @@ class KpController extends Controller
     {
         $mahasiswa = Auth::user()->mahasiswa;
         $kp = KerjaPraktek::where('mahasiswa_id', $mahasiswa->id)
-            ->whereIn('status', [KerjaPraktek::STATUS_DISETUJUI, KerjaPraktek::STATUS_SELESAI])
+            ->whereNotIn('status', [KerjaPraktek::STATUS_PENGAJUAN, KerjaPraktek::STATUS_DITOLAK])
             ->firstOrFail();
 
         // Get Ketua Prodi
@@ -96,7 +96,7 @@ class KpController extends Controller
         $groupMembers = KerjaPraktek::where('nama_perusahaan', $kp->nama_perusahaan)
             ->where('tanggal_mulai', $kp->tanggal_mulai)
             ->where('tanggal_selesai', $kp->tanggal_selesai)
-            ->whereIn('status', [KerjaPraktek::STATUS_DISETUJUI, KerjaPraktek::STATUS_SELESAI])
+            ->whereNotIn('status', [KerjaPraktek::STATUS_PENGAJUAN, KerjaPraktek::STATUS_DITOLAK])
             ->with('mahasiswa.user')
             ->get();
 

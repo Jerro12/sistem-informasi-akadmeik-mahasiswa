@@ -153,10 +153,10 @@ class TugasController extends Controller
             abort(403);
         }
 
-        if (!$tugas->file_tugas || !Storage::exists($tugas->file_tugas)) {
+        if (!$tugas->file_tugas || !Storage::disk('public')->exists($tugas->file_tugas)) {
             abort(404, 'File tidak ditemukan');
         }
 
-        return Storage::download($tugas->file_tugas);
+        return Storage::disk('public')->download($tugas->file_tugas);
     }
 }

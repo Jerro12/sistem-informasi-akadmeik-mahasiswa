@@ -391,7 +391,7 @@
 
     <script>
         function editRuangan(data) {
-            document.getElementById('editForm').action = `/admin/ruangan/${data.id}`;
+            document.getElementById('editForm').action = `{{ url('admin/ruangan') }}/${data.id}`;
             document.getElementById('editKode').value = data.kode_ruangan;
             document.getElementById('editNama').value = data.nama_ruangan;
             document.getElementById('editKapasitas').value = data.kapasitas;

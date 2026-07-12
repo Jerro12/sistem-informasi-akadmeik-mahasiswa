@@ -42,6 +42,8 @@ class Skripsi extends Model
         'tanggal_sidang' => 'date',
         'tanggal_selesai' => 'date',
         'nilai_akhir' => 'decimal:2',
+        'pembimbing1_approved' => 'boolean',
+        'pembimbing2_approved' => 'boolean',
     ];
 
     // Status constants

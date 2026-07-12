@@ -173,6 +173,45 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+    <style>
+        /* Fix Select2 in dark mode & general styling */
+        .select2-container .select2-selection--single {
+            height: 42px !important;
+            border: 1px solid #d1d5db !important;
+            border-radius: 0.5rem !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 40px !important;
+        }
+        .dark .select2-container .select2-selection--single {
+            background-color: #111827 !important;
+            border-color: #374151 !important;
+        }
+        .dark .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #f3f4f6 !important;
+        }
+        .dark .select2-dropdown {
+            background-color: #1f2937 !important;
+            border-color: #374151 !important;
+        }
+        .dark .select2-search input {
+            background-color: #374151 !important;
+            color: #f3f4f6 !important;
+            border-color: #4b5563 !important;
+        }
+        .dark .select2-results__option {
+            color: #d1d5db !important;
+        }
+        .dark .select2-results__option[aria-selected="true"] {
+            background-color: #374151 !important;
+        }
+        .dark .select2-results__option--highlighted[aria-selected] {
+            background-color: #3b82f6 !important;
+            color: white !important;
+        }
+    </style>
     <script>
         $(document).ready(function() {
             $('#dosen-select').select2({
@@ -182,7 +221,10 @@
             });
             
             // Auto-submit form when filters change
-            $('select[name="month"], select[name="year"], select[name="dosen_id"]').on('change', function() {
+            $('select[name="month"], select[name="year"]').on('change', function() {
+                $(this).closest('form').submit();
+            });
+            $('#dosen-select').on('change', function() {
                 $(this).closest('form').submit();
             });
         });

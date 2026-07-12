@@ -143,15 +143,15 @@
                     <div class="space-y-3">
                         <div class="p-3 bg-siakad-light/20 dark:bg-gray-900 rounded-lg">
                             <p class="text-xs text-siakad-secondary dark:text-gray-400 font-semibold uppercase">Nama Bank</p>
-                            <p class="font-bold text-siakad-dark dark:text-white text-base">BANK MANDIRI</p>
+                            <p class="font-bold text-siakad-dark dark:text-white text-base">{{ env('BANK_NAME', 'BANK MANDIRI') }}</p>
                         </div>
                         <div class="p-3 bg-siakad-light/20 dark:bg-gray-900 rounded-lg">
                             <p class="text-xs text-siakad-secondary dark:text-gray-400 font-semibold uppercase">Nomor Rekening</p>
-                            <p class="font-mono font-bold text-siakad-primary dark:text-blue-400 text-lg">123-456-789-0</p>
+                            <p class="font-mono font-bold text-siakad-primary dark:text-blue-400 text-lg">{{ env('BANK_ACCOUNT', '123-456-789-0') }}</p>
                         </div>
                         <div class="p-3 bg-siakad-light/20 dark:bg-gray-900 rounded-lg">
                             <p class="text-xs text-siakad-secondary dark:text-gray-400 font-semibold uppercase">Atas Nama</p>
-                            <p class="font-bold text-siakad-dark dark:text-white text-sm">UNIVERSITAS SIAKAD MAHASISWA</p>
+                            <p class="font-bold text-siakad-dark dark:text-white text-sm">{{ env('BANK_HOLDER', 'UNIVERSITAS SIAKAD MAHASISWA') }}</p>
                         </div>
                     </div>
                 </div>
