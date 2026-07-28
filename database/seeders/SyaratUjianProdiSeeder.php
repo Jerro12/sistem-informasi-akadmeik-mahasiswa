@@ -4,6 +4,9 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Prodi;
+use App\Models\SyaratUjianProdi;
+use Illuminate\Support\Str;
 
 class SyaratUjianProdiSeeder extends Seeder
 {
@@ -12,61 +15,73 @@ class SyaratUjianProdiSeeder extends Seeder
      */
     public function run(): void
     {
-        $prodis = \App\Models\Prodi::all();
+        $prodis = Prodi::all();
+
+        $syaratProposal = [
+            'Transkrip Nilai (Telah Melulusi Minimal 110 SKS)',
+            'SK Pembimbing',
+            'Bukti Pembayaran (Screenshot E-Cash Telah Bayar)',
+            'Sertifikat Lab TI',
+            'Persetujuan Pembimbing',
+            'Surat Berhak Mengikuti Ujian (Fakultas)',
+            'Krs Semester Berjalan',
+            'Kartu Monitoring Bimbingan',
+        ];
+
+        $syaratHasil = [
+            'Semua Berkas Pendaftaran Ujian Proposal',
+            'Keterangan Uji Plagiasi/Turnitin',
+        ];
+
+        $syaratSidang = [
+            'Transkrip Nilai (Telah Melulusi 140 SKS)',
+            'Foto Copy SK Pembimbing Skripsi',
+            'Foto Copy Persetujuan Pembimbing',
+            'Foto Copy Pelunasan Pembayaran (Biro Keuangan)',
+            'Foto Copy Sertifikat UKOM AIK',
+            'Lulus Plagiasi (<25%)',
+            'KRS Berjalan',
+            'Foto Copy Kartu Monitoring',
+        ];
+
         foreach ($prodis as $prodi) {
+            // Delete old seed data if needed to avoid conflicts
             // Proposal
-            \App\Models\SyaratUjianProdi::firstOrCreate([
-                'prodi_id' => $prodi->id,
-                'jenis_ujian' => 'proposal',
-                'nama_persyaratan' => 'KRS Aktif',
-                'file_name_key' => 'file_krs',
-            ]);
-            \App\Models\SyaratUjianProdi::firstOrCreate([
-                'prodi_id' => $prodi->id,
-                'jenis_ujian' => 'proposal',
-                'nama_persyaratan' => 'Transkrip Nilai Sementara',
-                'file_name_key' => 'file_transkrip',
-            ]);
-            \App\Models\SyaratUjianProdi::firstOrCreate([
-                'prodi_id' => $prodi->id,
-                'jenis_ujian' => 'proposal',
-                'nama_persyaratan' => 'Draf Proposal Skripsi',
-                'file_name_key' => 'file_draft_proposal',
-            ]);
+            foreach ($syaratProposal as $nama) {
+                SyaratUjianProdi::firstOrCreate([
+                    'prodi_id' => $prodi->id,
+                    'jenis_ujian' => 'proposal',
+                    'nama_persyaratan' => $nama,
+                ], [
+                    'file_name_key' => 'prop_' . Str::slug($nama, '_'),
+                    'is_required' => true,
+                ]);
+            }
 
             // Hasil
-            \App\Models\SyaratUjianProdi::firstOrCreate([
-                'prodi_id' => $prodi->id,
-                'jenis_ujian' => 'hasil',
-                'nama_persyaratan' => 'Naskah Hasil Penelitian',
-                'file_name_key' => 'file_naskah_hasil',
-            ]);
-            \App\Models\SyaratUjianProdi::firstOrCreate([
-                'prodi_id' => $prodi->id,
-                'jenis_ujian' => 'hasil',
-                'nama_persyaratan' => 'Logbook Bimbingan',
-                'file_name_key' => 'file_logbook',
-            ]);
+            foreach ($syaratHasil as $nama) {
+                SyaratUjianProdi::firstOrCreate([
+                    'prodi_id' => $prodi->id,
+                    'jenis_ujian' => 'hasil',
+                    'nama_persyaratan' => $nama,
+                ], [
+                    'file_name_key' => 'hasil_' . Str::slug($nama, '_'),
+                    'is_required' => true,
+                ]);
+            }
 
-            // Sidang
-            \App\Models\SyaratUjianProdi::firstOrCreate([
-                'prodi_id' => $prodi->id,
-                'jenis_ujian' => 'sidang',
-                'nama_persyaratan' => 'Naskah Skripsi Lengkap',
-                'file_name_key' => 'file_naskah_lengkap',
-            ]);
-            \App\Models\SyaratUjianProdi::firstOrCreate([
-                'prodi_id' => $prodi->id,
-                'jenis_ujian' => 'sidang',
-                'nama_persyaratan' => 'Surat Bebas Pustaka',
-                'file_name_key' => 'file_bebas_pustaka',
-            ]);
-            \App\Models\SyaratUjianProdi::firstOrCreate([
-                'prodi_id' => $prodi->id,
-                'jenis_ujian' => 'sidang',
-                'nama_persyaratan' => 'Bukti Pembayaran / Bebas Tunggakan',
-                'file_name_key' => 'file_bukti_bebas_tunggakan',
-            ]);
+            // Sidang / Ujian Tutup
+            foreach ($syaratSidang as $nama) {
+                SyaratUjianProdi::firstOrCreate([
+                    'prodi_id' => $prodi->id,
+                    'jenis_ujian' => 'sidang',
+                    'nama_persyaratan' => $nama,
+                ], [
+                    'file_name_key' => 'sidang_' . Str::slug($nama, '_'),
+                    'is_required' => true,
+                ]);
+            }
         }
     }
 }
+

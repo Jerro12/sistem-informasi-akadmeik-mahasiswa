@@ -93,11 +93,15 @@
                                     <span class="w-2.5 h-2.5 rounded-full bg-{{ $syarat->status === 'approved' ? 'green' : ($syarat->status === 'rejected' ? 'red' : 'amber') }}-500"></span>
                                     <h4 class="font-semibold text-siakad-dark dark:text-white text-sm">{{ $syarat->nama_persyaratan }}</h4>
                                 </div>
-                                <div class="mt-2 flex items-center gap-3">
+                                <div class="mt-2 flex items-center gap-2 flex-wrap">
                                     @if($syarat->file_path)
-                                        <a href="{{ asset('storage/' . $syarat->file_path) }}" target="_blank" class="inline-flex items-center gap-1.5 text-xs text-siakad-primary dark:text-blue-400 hover:underline font-bold">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                            Lihat Berkas Pendukung
+                                        <button type="button" onclick="openPreviewModal('{{ asset('storage/' . $syarat->file_path) }}', '{{ addslashes($syarat->nama_persyaratan) }}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-siakad-primary/10 hover:bg-siakad-primary/20 text-siakad-primary dark:bg-blue-900/30 dark:text-blue-400 text-xs font-bold rounded-lg transition border border-siakad-primary/20">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                            👁️ Pratinjau Berkas
+                                        </button>
+                                        <a href="{{ asset('storage/' . $syarat->file_path) }}" target="_blank" class="inline-flex items-center gap-1 text-xs text-siakad-secondary dark:text-gray-400 hover:underline">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                            Tab Baru
                                         </a>
                                     @else
                                         <span class="text-xs text-red-500 italic">File tidak ditemukan/belum diunggah</span>
@@ -114,10 +118,10 @@
                                         @csrf
                                         <input type="text" name="catatan" value="{{ $syarat->catatan }}" placeholder="Catatan/Alasan..." class="input-saas px-3 py-1.5 text-xs w-48 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                                         
-                                        <button type="submit" name="status" value="approved" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded transition flex items-center gap-1">
+                                        <button type="submit" name="status" value="approved" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded transition flex items-center gap-1 shadow">
                                             ✓ ACC
                                         </button>
-                                        <button type="submit" name="status" value="rejected" class="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white font-bold text-xs rounded transition flex items-center gap-1">
+                                        <button type="submit" name="status" value="rejected" class="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white font-bold text-xs rounded transition flex items-center gap-1 shadow">
                                             ✗ REVISI
                                         </button>
                                     </form>
@@ -215,8 +219,60 @@
         </div>
     </div>
 
+    <!-- Modal Pratinjau Berkas -->
+    <div id="modal-preview-berkas" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-sm">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col h-[85vh]">
+                <!-- Header Modal -->
+                <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-900">
+                    <div class="flex items-center gap-3">
+                        <span class="p-2 bg-siakad-primary/10 dark:bg-blue-500/10 text-siakad-primary dark:text-blue-400 rounded-lg">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        </span>
+                        <div>
+                            <h3 id="preview-title" class="text-base font-bold text-gray-900 dark:text-white">Pratinjau Dokumen</h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Pastikan kelengkapan & keabsahan berkas mahasiswa.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <a id="preview-download-link" href="#" target="_blank" class="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 text-xs font-semibold rounded-lg transition flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                            Buka Tab Baru
+                        </a>
+                        <button type="button" onclick="closePreviewModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-white transition p-1">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Viewer Frame -->
+                <div class="flex-1 bg-gray-100 dark:bg-gray-900 p-2 overflow-hidden flex justify-center items-center">
+                    <iframe id="preview-iframe" class="w-full h-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white" src=""></iframe>
+                </div>
+                
+                <!-- Footer Modal -->
+                <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 flex justify-between items-center">
+                    <span class="text-xs text-gray-500 dark:text-gray-400">💡 Periksa secara teliti seluruh halaman berkas sebelum verifikasi.</span>
+                    <button type="button" onclick="closePreviewModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 text-xs font-bold rounded-lg transition">Tutup Pratinjau</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @push('scripts')
 <script>
+    function openPreviewModal(fileUrl, title) {
+        document.getElementById('preview-title').textContent = 'Pratinjau: ' + title;
+        document.getElementById('preview-download-link').href = fileUrl;
+        document.getElementById('preview-iframe').src = fileUrl;
+        document.getElementById('modal-preview-berkas').classList.remove('hidden');
+    }
+
+    function closePreviewModal() {
+        document.getElementById('modal-preview-berkas').classList.add('hidden');
+        document.getElementById('preview-iframe').src = '';
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         const selects = document.querySelectorAll('.select-dosen-ajax');
         selects.forEach(select => {
@@ -254,3 +310,4 @@
 </script>
 @endpush
 </x-app-layout>
+
