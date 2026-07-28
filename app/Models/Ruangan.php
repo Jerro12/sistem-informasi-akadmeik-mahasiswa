@@ -38,7 +38,7 @@ class Ruangan extends Model
      */
     public function jadwalKuliah()
     {
-        return $this->hasMany(JadwalKuliah::class, 'ruangan_id');
+        return $this->hasMany(JadwalKuliah::class, 'ruangan', 'kode_ruangan');
     }
 
     /**

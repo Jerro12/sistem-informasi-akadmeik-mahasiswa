@@ -14,12 +14,16 @@
     <!-- Filter -->
     <div class="card-saas p-4 mb-6 dark:bg-gray-800">
         <form method="GET" class="flex flex-col md:flex-row items-end gap-4">
+            <div class="w-full md:w-64">
+                <label class="block text-xs font-medium text-siakad-dark dark:text-gray-300 mb-1">Cari Dosen (Nama/NIDN)</label>
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Ketik nama atau NIDN..." class="input-saas w-full text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+            </div>
             <div class="w-full md:flex-1">
-                <label class="block text-xs font-medium text-siakad-dark dark:text-gray-300 mb-1">Dosen</label>
+                <label class="block text-xs font-medium text-siakad-dark dark:text-gray-300 mb-1">Pilih Dosen</label>
                 <select name="dosen_id" id="dosen-select" class="input-saas w-full text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
                     <option value="">Semua Dosen</option>
                     @foreach($dosenList as $d)
-                    <option value="{{ $d->id }}" {{ $dosenId == $d->id ? 'selected' : '' }}>{{ $d->user->name }}</option>
+                    <option value="{{ $d->id }}" {{ $dosenId == $d->id ? 'selected' : '' }}>{{ $d->user->name }} ({{ $d->nidn }})</option>
                     @endforeach
                 </select>
             </div>
@@ -39,7 +43,12 @@
                     @endfor
                 </select>
             </div>
-            <button type="submit" class="w-full md:w-auto btn-primary-saas px-4 py-2.5 rounded-lg text-sm font-medium">Filter</button>
+            <div class="flex items-center gap-2 w-full md:w-auto">
+                <button type="submit" class="w-full md:w-auto btn-primary-saas px-4 py-2.5 rounded-lg text-sm font-medium">Filter</button>
+                @if(request()->anyFilled(['search', 'dosen_id']))
+                <a href="{{ route('admin.kehadiran-dosen.index') }}" class="btn-ghost-saas px-3 py-2.5 rounded-lg text-xs font-medium text-center">Reset</a>
+                @endif
+            </div>
         </form>
     </div>
 

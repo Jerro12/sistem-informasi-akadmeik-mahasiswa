@@ -139,19 +139,11 @@
             <div class="space-y-6">
                 <!-- Bank Transfer Account Info -->
                 <div class="card-saas p-6 dark:bg-gray-800 border-l-4 border-siakad-primary">
-                    <h3 class="font-bold text-siakad-dark dark:text-white mb-4">Rekening Tujuan</h3>
+                    <h3 class="font-bold text-siakad-dark dark:text-white mb-4">Informasi Bank</h3>
                     <div class="space-y-3">
                         <div class="p-3 bg-siakad-light/20 dark:bg-gray-900 rounded-lg">
                             <p class="text-xs text-siakad-secondary dark:text-gray-400 font-semibold uppercase">Nama Bank</p>
                             <p class="font-bold text-siakad-dark dark:text-white text-base">{{ env('BANK_NAME', 'BANK MANDIRI') }}</p>
-                        </div>
-                        <div class="p-3 bg-siakad-light/20 dark:bg-gray-900 rounded-lg">
-                            <p class="text-xs text-siakad-secondary dark:text-gray-400 font-semibold uppercase">Nomor Rekening</p>
-                            <p class="font-mono font-bold text-siakad-primary dark:text-blue-400 text-lg">{{ env('BANK_ACCOUNT', '123-456-789-0') }}</p>
-                        </div>
-                        <div class="p-3 bg-siakad-light/20 dark:bg-gray-900 rounded-lg">
-                            <p class="text-xs text-siakad-secondary dark:text-gray-400 font-semibold uppercase">Atas Nama</p>
-                            <p class="font-bold text-siakad-dark dark:text-white text-sm">{{ env('BANK_HOLDER', 'UNIVERSITAS SIAKAD MAHASISWA') }}</p>
                         </div>
                     </div>
                 </div>
@@ -161,7 +153,7 @@
                     <div class="space-y-4">
                         <div class="flex gap-3">
                             <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">1</div>
-                            <p class="text-sm">Lakukan transfer ke rekening tujuan di atas</p>
+                            <p class="text-sm">Lakukan transfer pembayaran ke bank tujuan</p>
                         </div>
                         <div class="flex gap-3">
                             <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold">2</div>

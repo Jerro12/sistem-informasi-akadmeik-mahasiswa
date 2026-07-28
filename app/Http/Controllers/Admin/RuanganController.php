@@ -114,7 +114,11 @@ class RuanganController extends Controller
     public function destroy(Ruangan $ruangan)
     {
         // Check if ruangan is used in jadwal
-        if ($ruangan->jadwalKuliah()->exists()) {
+        $isUsedInJadwal = \App\Models\JadwalKuliah::where('ruangan', $ruangan->kode_ruangan)
+            ->orWhere('ruangan', $ruangan->nama_ruangan)
+            ->exists();
+
+        if ($isUsedInJadwal) {
             return redirect()->back()->withErrors(['error' => 'Tidak dapat menghapus ruangan yang digunakan dalam jadwal.']);
         }
         

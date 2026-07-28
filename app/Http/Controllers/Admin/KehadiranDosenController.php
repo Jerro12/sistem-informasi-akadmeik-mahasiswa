@@ -15,6 +15,7 @@ class KehadiranDosenController extends Controller
         $month = $request->get('month', now()->month);
         $year = $request->get('year', now()->year);
         $dosenId = $request->get('dosen_id');
+        $search = $request->get('search');
 
         $query = KehadiranDosen::with(['dosen.user', 'dosen.prodi', 'jadwalKuliah.kelas.mataKuliah'])
             ->whereYear('tanggal', $year)
@@ -24,17 +25,30 @@ class KehadiranDosenController extends Controller
             $query->where('dosen_id', $dosenId);
         }
 
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->whereHas('dosen.user', fn($sq) => $sq->where('name', 'like', "%{$search}%"))
+                  ->orWhereHas('dosen', fn($sq) => $sq->where('nidn', 'like', "%{$search}%"));
+            });
+        }
+
         // Faculty scoping for admin_fakultas
         if ($request->get('fakultas_scoped') && $request->get('fakultas_scope')) {
             $fakultasId = $request->get('fakultas_scope');
             $query->whereHas('dosen.prodi', fn($q) => $q->where('fakultas_id', $fakultasId));
         }
 
-        $kehadiranList = $query->orderBy('tanggal', 'desc')->paginate(50);
+        $kehadiranList = $query->orderBy('tanggal', 'desc')->paginate(50)->withQueryString();
 
         // Stats - also scoped
         $statsQuery = KehadiranDosen::whereYear('tanggal', $year)->whereMonth('tanggal', $month);
         if ($dosenId) $statsQuery->where('dosen_id', $dosenId);
+        if ($search) {
+            $statsQuery->where(function($q) use ($search) {
+                $q->whereHas('dosen.user', fn($sq) => $sq->where('name', 'like', "%{$search}%"))
+                  ->orWhereHas('dosen', fn($sq) => $sq->where('nidn', 'like', "%{$search}%"));
+            });
+        }
         if ($request->get('fakultas_scoped') && $request->get('fakultas_scope')) {
             $statsQuery->whereHas('dosen.prodi', fn($q) => $q->where('fakultas_id', $request->get('fakultas_scope')));
         }
@@ -44,8 +58,17 @@ class KehadiranDosenController extends Controller
             ->pluck('count', 'status')
             ->toArray();
 
-        // Scope dosen list for dropdown
+        // Scope dosen list for dropdown & rekap
         $dosenQuery = Dosen::with('user');
+        if ($dosenId) {
+            $dosenQuery->where('id', $dosenId);
+        }
+        if ($search) {
+            $dosenQuery->where(function($q) use ($search) {
+                $q->whereHas('user', fn($sq) => $sq->where('name', 'like', "%{$search}%"))
+                  ->orWhere('nidn', 'like', "%{$search}%");
+            });
+        }
         if ($request->get('fakultas_scoped') && $request->get('fakultas_scope')) {
             $dosenQuery->whereHas('prodi', fn($q) => $q->where('fakultas_id', $request->get('fakultas_scope')));
         }
@@ -54,6 +77,13 @@ class KehadiranDosenController extends Controller
         // Rekap per dosen - also scoped
         $rekapQuery = KehadiranDosen::whereYear('tanggal', $year)
             ->whereMonth('tanggal', $month);
+        if ($dosenId) $rekapQuery->where('dosen_id', $dosenId);
+        if ($search) {
+            $rekapQuery->where(function($q) use ($search) {
+                $q->whereHas('dosen.user', fn($sq) => $sq->where('name', 'like', "%{$search}%"))
+                  ->orWhereHas('dosen', fn($sq) => $sq->where('nidn', 'like', "%{$search}%"));
+            });
+        }
         if ($request->get('fakultas_scoped') && $request->get('fakultas_scope')) {
             $rekapQuery->whereHas('dosen.prodi', fn($q) => $q->where('fakultas_id', $request->get('fakultas_scope')));
         }
@@ -62,7 +92,7 @@ class KehadiranDosenController extends Controller
             ->get()
             ->groupBy('dosen_id');
 
-        return view('admin.kehadiran-dosen.index', compact('kehadiranList', 'stats', 'dosenList', 'rekapDosen', 'month', 'year', 'dosenId'));
+        return view('admin.kehadiran-dosen.index', compact('kehadiranList', 'stats', 'dosenList', 'rekapDosen', 'month', 'year', 'dosenId', 'search'));
     }
 
 

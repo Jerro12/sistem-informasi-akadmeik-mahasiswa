@@ -173,7 +173,7 @@
                         </td>
                         <td class="py-4 px-5 text-right">
                             <div class="flex items-center justify-end gap-2">
-                                <button onclick="editRuangan({{ json_encode($ruangan) }})" class="p-2 text-siakad-secondary hover:text-siakad-primary hover:bg-siakad-primary/10 rounded-lg transition" title="Edit">
+                                <button onclick="editRuangan(this)" data-ruangan="{{ json_encode($ruangan) }}" class="p-2 text-siakad-secondary hover:text-siakad-primary hover:bg-siakad-primary/10 rounded-lg transition" title="Edit">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                 </button>
                                 <form action="{{ route('admin.ruangan.destroy', $ruangan) }}" method="POST" onsubmit="return confirm('Hapus ruangan ini?')">
@@ -239,7 +239,7 @@
             </div>
 
             <div class="flex items-center gap-2 pt-3 border-t border-siakad-light dark:border-gray-700">
-                <button onclick="editRuangan({{ json_encode($ruangan) }})" class="flex-1 py-2 text-sm font-medium text-siakad-secondary bg-siakad-light/50 dark:bg-gray-700 dark:text-gray-300 rounded-lg hover:bg-siakad-light hover:text-siakad-primary dark:hover:bg-gray-600 transition text-center">
+                <button onclick="editRuangan(this)" data-ruangan="{{ json_encode($ruangan) }}" class="flex-1 py-2 text-sm font-medium text-siakad-secondary bg-siakad-light/50 dark:bg-gray-700 dark:text-gray-300 rounded-lg hover:bg-siakad-light hover:text-siakad-primary dark:hover:bg-gray-600 transition text-center">
                     Edit
                 </button>
                 <form action="{{ route('admin.ruangan.destroy', $ruangan) }}" method="POST" onsubmit="return confirm('Hapus ruangan ini?')" class="flex-1">
@@ -390,7 +390,8 @@
     </div>
 
     <script>
-        function editRuangan(data) {
+        function editRuangan(elem) {
+            let data = (typeof elem === 'object' && elem.dataset && elem.dataset.ruangan) ? JSON.parse(elem.dataset.ruangan) : elem;
             document.getElementById('editForm').action = `{{ url('admin/ruangan') }}/${data.id}`;
             document.getElementById('editKode').value = data.kode_ruangan;
             document.getElementById('editNama').value = data.nama_ruangan;
@@ -398,7 +399,7 @@
             document.getElementById('editGedung').value = data.gedung || '';
             document.getElementById('editLantai').value = data.lantai || '';
             document.getElementById('editFasilitas').value = data.fasilitas || '';
-            document.getElementById('editIsActive').checked = data.is_active;
+            document.getElementById('editIsActive').checked = Boolean(data.is_active);
             
             if (document.getElementById('editFakultas')) {
                 document.getElementById('editFakultas').value = data.fakultas_id || '';
