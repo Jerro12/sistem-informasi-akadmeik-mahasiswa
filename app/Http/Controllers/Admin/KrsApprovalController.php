@@ -82,6 +82,10 @@ class KrsApprovalController extends Controller
 
     public function approve(Request $request, Krs $krs)
     {
+        if (auth()->user()->role === 'admin_fakultas') {
+            return redirect()->back()->with('error', 'Admin Fakultas hanya memiliki akses monitoring KRS.');
+        }
+
         if ($krs->status !== 'pending') {
             return redirect()->back()->with('error', 'KRS tidak dalam status pending');
         }
@@ -94,6 +98,10 @@ class KrsApprovalController extends Controller
 
     public function reject(Request $request, Krs $krs)
     {
+        if (auth()->user()->role === 'admin_fakultas') {
+            return redirect()->back()->with('error', 'Admin Fakultas hanya memiliki akses monitoring KRS.');
+        }
+
         if ($krs->status !== 'pending') {
             return redirect()->back()->with('error', 'KRS tidak dalam status pending');
         }
@@ -106,6 +114,9 @@ class KrsApprovalController extends Controller
 
     public function bulkApprove(Request $request)
     {
+        if (auth()->user()->role === 'admin_fakultas') {
+            return redirect()->back()->with('error', 'Admin Fakultas hanya memiliki akses monitoring KRS.');
+        }
         // Validate input
         $validated = $request->validate([
             'krs_ids' => 'required|array|min:1',

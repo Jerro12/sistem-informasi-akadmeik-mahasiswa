@@ -107,74 +107,6 @@ class MataKuliahController extends Controller
         return view('admin.mata-kuliah.index', compact('mataKuliah', 'prodiList', 'fakultasList', 'isSuperAdmin', 'kurikulumList', 'konsentrasiList'));
     }
 
-    public function export(Request $request)
-    {
-        $query = MataKuliah::query();
-
-        if ($request->filled('jenis')) {
-            $query->where('jenis', $request->jenis);
-        }
-
-        if ($request->filled('prodi')) {
-            $query->where('prodi_id', $request->prodi);
-        }
-
-        if ($request->filled('kosentrasi')) {
-            $query->where('konsentrasi_id', $request->kosentrasi);
-        }
-
-        if ($request->filled('kurikulum')) {
-            $query->where('kurikulum_id', $request->kurikulum);
-        }
-
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('nama_mk', 'like', "%{$search}%")
-                  ->orWhere('kode_mk', 'like', "%{$search}%");
-            });
-        }
-
-        // Faculty scoping for export
-        if ($request->get('fakultas_scoped') && $request->get('fakultas_scope')) {
-            $fakultasId = $request->get('fakultas_scope');
-            $query->where(function($q) use ($fakultasId) {
-                $q->whereHas('prodi', fn($q2) => $q2->where('fakultas_id', $fakultasId))
-                  ->orWhereNull('prodi_id');
-            });
-        }
-
-        $sortColumn = $request->get('sort', 'kode_mk');
-        $sortDirection = $request->get('order', 'asc');
-        $allowedSorts = ['kode_mk', 'nama_mk', 'sks', 'semester', 'created_at'];
-        
-        if (in_array($sortColumn, $allowedSorts)) {
-            $query->orderBy($sortColumn, $sortDirection);
-        }
-
-        return response()->streamDownload(function() use ($query) {
-            $handle = fopen('php://output', 'w');
-            
-            fputs($handle, "\xEF\xBB\xBF");
-            fputcsv($handle, ['Kode MK', 'Nama Mata Kuliah', 'SKS', 'Semester', 'Prodi', 'Dibuat Pada']);
-
-            $query->with('prodi')->chunk(500, function($rows) use ($handle) {
-                foreach ($rows as $row) {
-                    fputcsv($handle, [
-                        $row->kode_mk,
-                        $row->nama_mk,
-                        $row->sks,
-                        $row->semester,
-                        $row->prodi?->nama ?? '-',
-                        $row->created_at,
-                    ]);
-                }
-            });
-
-            fclose($handle);
-        }, 'data-mata-kuliah-' . date('Y-m-d-H-i') . '.csv');
-    }
-
     public function store(Request $request)
     {
         $isAllFaculty = $request->prodi_id === 'all_faculty';
@@ -315,6 +247,104 @@ class MataKuliahController extends Controller
         }
         
         return redirect()->back()->with('success', 'Mata Kuliah berhasil dihapus beserta kelas terkait.');
+    }
+
+    public function export(Request $request)
+    {
+        $query = MataKuliah::with('prodi.fakultas');
+
+        if ($request->filled('jenis')) {
+            $query->where('jenis', $request->jenis);
+        }
+        if ($request->filled('prodi')) {
+            $query->where('prodi_id', $request->prodi);
+        }
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nama_mk', 'like', "%{$search}%")
+                  ->orWhere('kode_mk', 'like', "%{$search}%");
+            });
+        }
+        if ($request->get('fakultas_scoped') && $request->get('fakultas_scope')) {
+            $fakultasId = $request->get('fakultas_scope');
+            $query->where(function($q) use ($fakultasId) {
+                $q->whereHas('prodi', fn($q2) => $q2->where('fakultas_id', $fakultasId))
+                  ->orWhereNull('prodi_id');
+            });
+        }
+
+        $list = $query->orderBy('kode_mk')->get();
+
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        $sheet->fromArray([
+            ['No', 'Kode MK', 'Nama Mata Kuliah', 'SKS', 'Semester', 'Jenis', 'Prodi', 'Fakultas']
+        ], null, 'A1');
+
+        $rowNum = 2;
+        foreach ($list as $idx => $mk) {
+            $sheet->fromArray([
+                $idx + 1,
+                $mk->kode_mk,
+                $mk->nama_mk,
+                $mk->sks,
+                $mk->semester,
+                ucfirst($mk->jenis),
+                $mk->prodi->nama ?? 'Mata Kuliah Umum',
+                $mk->prodi->fakultas->nama ?? '-',
+            ], null, 'A' . $rowNum);
+            $rowNum++;
+        }
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $fileName = 'mata_kuliah_export_' . date('Y-m-d') . '.xlsx';
+
+        return response()->streamDownload(function() use ($writer) {
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:5120',
+        ]);
+
+        $file = $request->file('file');
+        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file->getRealPath());
+        $sheetData = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
+
+        $imported = 0;
+        foreach ($sheetData as $rowIdx => $row) {
+            if ($rowIdx === 1) continue; // Skip header
+
+            $kode = trim($row['A'] ?? '');
+            $nama = trim($row['B'] ?? '');
+            $sks = (int) ($row['C'] ?? 2);
+            $semester = (int) ($row['D'] ?? 1);
+            $jenis = strtolower(trim($row['E'] ?? 'wajib'));
+            if (!in_array($jenis, ['wajib', 'pilihan'])) $jenis = 'wajib';
+
+            if (empty($kode) || empty($nama)) continue;
+
+            MataKuliah::updateOrCreate(
+                ['kode_mk' => $kode],
+                [
+                    'nama_mk' => $nama,
+                    'sks' => $sks > 0 ? $sks : 2,
+                    'semester' => $semester > 0 ? $semester : 1,
+                    'jenis' => $jenis,
+                    'prodi_id' => auth()->user()->prodi_id ?? (auth()->user()->fakultas_id ? Prodi::where('fakultas_id', auth()->user()->fakultas_id)->first()?->id : null),
+                ]
+            );
+            $imported++;
+        }
+
+        return redirect()->back()->with('success', "{$imported} data Mata Kuliah berhasil diimpor.");
     }
 }
 

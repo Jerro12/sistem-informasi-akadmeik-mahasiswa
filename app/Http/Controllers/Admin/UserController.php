@@ -74,7 +74,7 @@ class UserController extends Controller
             'name'     => 'required|string|max:255',
             'email'    => 'required|string|email|max:255|unique:users',
             'password' => ['required', 'string', Password::min(8)],
-            'role'     => 'required|in:superadmin,admin_fakultas,admin_prodi,dosen,mahasiswa',
+            'role'     => 'required|in:superadmin,admin_fakultas,admin_prodi',
             'fakultas_id' => 'nullable|exists:fakultas,id',
             // Polymorphic validation
             'nim'      => 'required_if:role,mahasiswa|nullable|unique:mahasiswa,nim',
@@ -107,7 +107,7 @@ class UserController extends Controller
             'name'     => 'required|string|max:255',
             'email'    => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'password' => ['nullable', 'string', Password::min(8)],
-            'role'     => 'required|in:superadmin,admin_fakultas,admin_prodi,dosen,mahasiswa',
+            'role'     => 'required|in:superadmin,admin_fakultas,admin_prodi',
             'fakultas_id' => 'nullable|exists:fakultas,id',
             'prodi_id' => 'required_if:role,mahasiswa,dosen,admin_prodi|nullable|exists:prodi,id',
         ]);

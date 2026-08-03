@@ -15,8 +15,6 @@
                     <option value="superadmin" {{ request('role') == 'superadmin' ? 'selected' : '' }}>Superadmin</option>
                     <option value="admin_fakultas" {{ request('role') == 'admin_fakultas' ? 'selected' : '' }}>Admin Fakultas</option>
                     <option value="admin_prodi" {{ request('role') == 'admin_prodi' ? 'selected' : '' }}>Admin Prodi</option>
-                    <option value="dosen" {{ request('role') == 'dosen' ? 'selected' : '' }}>Dosen</option>
-                    <option value="mahasiswa" {{ request('role') == 'mahasiswa' ? 'selected' : '' }}>Mahasiswa</option>
                 </select>
                 <button type="submit" class="btn-primary-saas px-4 py-2 rounded-lg text-sm font-medium">Filter</button>
             </form>
@@ -96,8 +94,6 @@
                             <option value="superadmin">Superadmin</option>
                             <option value="admin_fakultas">Admin Fakultas</option>
                             <option value="admin_prodi">Admin Prodi</option>
-                            <option value="dosen">Dosen</option>
-                            <option value="mahasiswa">Mahasiswa</option>
                         </select>
                     </div>
                     <div id="createFakultasField" class="hidden"><label class="block text-sm font-medium text-siakad-secondary mb-1">Fakultas</label>
@@ -127,8 +123,6 @@
                             <option value="superadmin">Superadmin</option>
                             <option value="admin_fakultas">Admin Fakultas</option>
                             <option value="admin_prodi">Admin Prodi</option>
-                            <option value="dosen">Dosen</option>
-                            <option value="mahasiswa">Mahasiswa</option>
                         </select>
                     </div>
                     <div id="editFakultasField" class="hidden"><label class="block text-sm font-medium text-siakad-secondary mb-1">Fakultas</label>

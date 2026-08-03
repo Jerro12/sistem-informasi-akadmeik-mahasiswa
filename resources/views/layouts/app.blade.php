@@ -505,7 +505,7 @@
                     </a>
                     <a href="{{ url('admin/tahun-akademik') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-siakad-secondary text-sm font-medium {{ request()->is('admin/tahun-akademik*') ? 'active' : '' }}">
                         <svg class="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                        <span class="sidebar-text">Tahun Akademik</span>
+                        <span class="sidebar-text">Kalender Akademik</span>
                     </a>
                     <a href="{{ url('admin/users') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-siakad-secondary text-sm font-medium {{ request()->is('admin/users*') ? 'active' : '' }}">
                         <svg class="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
@@ -567,10 +567,12 @@
                         <span class="ml-auto px-2 py-0.5 text-[10px] font-semibold bg-amber-100 text-amber-700 rounded-full">{{ $pendingCount }}</span>
                         @endif
                     </a>
+                    @if(in_array(Auth::user()->role, ['admin_fakultas', 'admin_prodi']))
                     <a href="{{ url('admin/penilaian') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-siakad-secondary text-sm font-medium {{ request()->is('admin/penilaian*') ? 'active' : '' }}">
                         <svg class="w-[18px] h-[18px] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        <span class="sidebar-text">Input Nilai</span>
+                        <span class="sidebar-text">{{ Auth::user()->role === 'admin_fakultas' ? 'Monitoring Nilai' : 'Input Nilai' }}</span>
                     </a>
+                    @endif
                     @endif
                     @if(Auth::user()->role === 'admin_prodi')
                     <a href="{{ url('admin/skripsi') }}" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-siakad-secondary text-sm font-medium {{ request()->is('admin/skripsi*') ? 'active' : '' }}">

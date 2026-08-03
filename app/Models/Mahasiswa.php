@@ -87,6 +87,12 @@ class Mahasiswa extends Model
     {
         return $this->hasMany(Pembayaran::class);
     }
+
+    public function getIpkAttribute()
+    {
+        $calc = app(\App\Services\AkademikCalculationService::class)->calculateIPK($this);
+        return $calc['ipk'];
+    }
 }
 
 

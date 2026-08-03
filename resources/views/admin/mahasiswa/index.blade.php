@@ -43,9 +43,13 @@
             </select>
 
             <button type="submit" class="btn-primary-saas px-4 py-2 rounded-lg text-sm font-medium w-full sm:w-auto">Filter</button>
+            <button type="button" onclick="document.getElementById('importMahasiswaModal').classList.remove('hidden')" class="btn-ghost-saas px-4 py-2 dark:text-white rounded-lg text-sm font-medium w-full sm:w-auto text-center border border-siakad-light dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-center gap-2">
+                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                Import Excel
+            </button>
             <a href="{{ route('admin.mahasiswa.export', request()->all()) }}" target="_blank" class="btn-ghost-saas px-4 py-2 dark:text-white rounded-lg text-sm font-medium w-full sm:w-auto text-center border border-siakad-light dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-center gap-2">
                 <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                Export
+                Export Excel (.xlsx)
             </a>
             @if(request()->anyFilled(['search', 'fakultas_id', 'prodi_id', 'angkatan']))
             <a href="{{ route('admin.mahasiswa.index') }}" class="btn-ghost-saas px-4 py-2 rounded-lg text-sm font-medium w-full sm:w-auto text-center">Reset</a>
@@ -515,4 +519,26 @@
     });
 </script>
 @endpush
+    <!-- Import Mahasiswa Modal -->
+    <div id="importMahasiswaModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md animate-fade-in overflow-hidden">
+            <div class="px-6 py-4 border-b border-siakad-light dark:border-gray-700">
+                <h3 class="text-lg font-semibold text-siakad-dark dark:text-white">Import Data Mahasiswa</h3>
+            </div>
+            <form action="{{ route('admin.mahasiswa.import') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="p-6 space-y-4">
+                    <p class="text-sm text-siakad-secondary dark:text-gray-400">Pilih berkas Excel (.xlsx / .xls / .csv) dengan format kolom: <strong>NIM, Nama, Password, Prodi (ID/Nama), Angkatan, Semester</strong>.</p>
+                    <div>
+                        <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Berkas Excel / CSV</label>
+                        <input type="file" name="file" accept=".xlsx,.xls,.csv" required class="input-saas w-full px-4 py-2 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                    </div>
+                </div>
+                <div class="px-6 py-4 border-t border-siakad-light dark:border-gray-700 flex items-center justify-end gap-3">
+                    <button type="button" onclick="document.getElementById('importMahasiswaModal').classList.add('hidden')" class="btn-ghost-saas px-4 py-2 rounded-lg text-sm font-medium dark:text-white">Batal</button>
+                    <button type="submit" class="btn-primary-saas px-4 py-2 rounded-lg text-sm font-medium">Unggah & Import</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </x-app-layout>

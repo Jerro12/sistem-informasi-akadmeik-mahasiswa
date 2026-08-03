@@ -23,12 +23,11 @@ class AkademikCalculationService
 
         $nilaiList = Nilai::where('mahasiswa_id', $mahasiswa->id)
             ->whereHas('kelas', function ($q) use ($tahunAkademikId) {
-                $q->whereHas('krsDetail.krs', function ($q2) use ($tahunAkademikId) {
-                    $q2->where('tahun_akademik_id', $tahunAkademikId);
-                });
+                $q->where('tahun_akademik_id', $tahunAkademikId);
             })
             ->with('kelas.mataKuliah')
             ->get();
+
 
         return $this->calculateIndexFromNilai($nilaiList);
     }
@@ -53,8 +52,7 @@ class AkademikCalculationService
         $nilai = Nilai::where('mahasiswa_id', $mahasiswa->id)->get();
         
         $distribution = [
-            'A' => 0, 'B+' => 0, 'B' => 0, 'C+' => 0, 
-            'C' => 0, 'D' => 0, 'E' => 0
+            'A' => 0, 'B' => 0, 'C' => 0, 'D' => 0, 'E' => 0, 'T' => 0
         ];
 
         foreach ($nilai as $n) {
@@ -110,13 +108,14 @@ class AkademikCalculationService
     public function getTranscript(Mahasiswa $mahasiswa): array
     {
         $nilaiList = Nilai::where('mahasiswa_id', $mahasiswa->id)
-            ->with(['kelas.mataKuliah', 'kelas.krsDetail.krs.tahunAkademik'])
+            ->with(['kelas.mataKuliah', 'kelas.tahunAkademik'])
             ->get();
 
         $grouped = $nilaiList->groupBy(function ($nilai) {
-            $krs = $nilai->kelas->krsDetail->first()?->krs;
-            return $krs ? $krs->tahunAkademik->tahun . ' - ' . $krs->tahunAkademik->semester : 'Unknown';
+            $ta = $nilai->kelas->tahunAkademik;
+            return $ta ? $ta->tahun . ' - ' . $ta->semester : 'Unknown';
         });
+
 
         $transcript = [];
         foreach ($grouped as $semester => $nilaiGroup) {
@@ -164,10 +163,12 @@ class AkademikCalculationService
         $index = $totalSks > 0 ? round($totalBobot / $totalSks, 2) : 0;
 
         return [
+            'ipk' => $index,
             'ips' => $index,
             'total_sks' => $totalSks,
             'total_bobot' => $totalBobot,
         ];
+
     }
 
     /**

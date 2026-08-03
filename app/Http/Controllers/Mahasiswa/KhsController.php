@@ -125,13 +125,7 @@ class KhsController extends Controller
                 ->with('error', 'KRS untuk semester ini belum diapprove');
         }
 
-        $nilaiList = Nilai::where('mahasiswa_id', $mahasiswa->id)
-            ->whereHas('kelas', function ($q) use ($tahunAkademik) {
-                $q->whereHas('krsDetail.krs', fn($q2) => $q2->where('tahun_akademik_id', $tahunAkademik->id));
-            })
-            ->with(['kelas.mataKuliah', 'kelas.dosen.user'])
-            ->get()
-            ->sortBy('kelas.mataKuliah.kode_mk');
+        $krsDetails = $krs->krsDetail()->with(['kelas.mataKuliah', 'kelas.dosen.user'])->get();
 
         $ipsData = $this->calculationService->calculateIPS($mahasiswa, $tahunAkademik->id);
         $ipkData = $this->calculationService->calculateIPK($mahasiswa);
@@ -139,7 +133,7 @@ class KhsController extends Controller
         $mahasiswa->load(['prodi.fakultas', 'dosenPa.user']);
 
         return view('mahasiswa.khs.print', compact(
-            'mahasiswa', 'tahunAkademik', 'nilaiList', 'ipsData', 'ipkData'
+            'mahasiswa', 'tahunAkademik', 'krs', 'krsDetails', 'ipsData', 'ipkData'
         ));
     }
 }

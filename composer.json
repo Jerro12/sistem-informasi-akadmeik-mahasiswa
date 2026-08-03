@@ -11,6 +11,7 @@
         "laravel/tinker": "^2.10.1",
         "midtrans/midtrans-php": "^2.6",
         "opcodesio/log-viewer": "^3.24",
+        "phpoffice/phpspreadsheet": "^5.9",
         "spatie/laravel-permission": "^6.24"
     },
     "require-dev": {

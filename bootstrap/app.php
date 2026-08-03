@@ -40,6 +40,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'log.requests' => \App\Http\Middleware\RequestLoggingMiddleware::class,
             'fakultas.scope' => \App\Http\Middleware\FakultasScopeMiddleware::class,
             'prodi.scope' => \App\Http\Middleware\ProdiScopeMiddleware::class,
+            'check.biodata' => \App\Http\Middleware\CheckBiodataCompleteMiddleware::class,
         ]);
 
         $middleware->validateCsrfTokens(except: [

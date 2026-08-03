@@ -258,31 +258,110 @@ class DosenController extends Controller
 
         $dosenList = $query->orderBy('nidn')->get();
 
-        // Generate HTML table for export
-        $html = '<table border="1" cellpadding="5" cellspacing="0">';
-        $html .= '<thead><tr><th>No</th><th>NIDN</th><th>Nama</th><th>Email</th><th>Prodi</th><th>Fakultas</th><th>Jumlah Kelas</th></tr></thead>';
-        $html .= '<tbody>';
-        
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $sheet->fromArray([
+            ['No', 'NIDN', 'Nama Dosen', 'Email', 'Prodi', 'Fakultas', 'Jumlah Kelas']
+        ], null, 'A1');
+
+        $rowNum = 2;
         foreach ($dosenList as $idx => $dosen) {
             $prodiName = $dosen->prodi ? $dosen->prodi->nama : ($dosen->fakultas ? 'Semua Prodi' : 'Perguruan Tinggi');
             $fakultasName = $dosen->prodi ? ($dosen->prodi->fakultas->nama ?? '-') : ($dosen->fakultas ? $dosen->fakultas->nama : 'Perguruan Tinggi');
-            
-            $html .= '<tr>';
-            $html .= '<td>' . ($idx + 1) . '</td>';
-            $html .= '<td>' . $dosen->nidn . '</td>';
-            $html .= '<td>' . $dosen->user->name . '</td>';
-            $html .= '<td>' . $dosen->user->email . '</td>';
-            $html .= '<td>' . $prodiName . '</td>';
-            $html .= '<td>' . $fakultasName . '</td>';
-            $html .= '<td>' . $dosen->kelas_count . '</td>';
-            $html .= '</tr>';
-        }
-        
-        $html .= '</tbody></table>';
 
-        return response($html)
-            ->header('Content-Type', 'application/vnd.ms-excel')
-            ->header('Content-Disposition', 'attachment; filename="dosen_export_' . date('Y-m-d') . '.xls"');
+            $sheet->fromArray([
+                $idx + 1,
+                $dosen->nidn,
+                $dosen->user->name ?? '-',
+                $dosen->user->email ?? '-',
+                $prodiName,
+                $fakultasName,
+                $dosen->kelas_count ?? 0,
+            ], null, 'A' . $rowNum);
+            $rowNum++;
+        }
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $fileName = 'dosen_export_' . date('Y-m-d') . '.xlsx';
+
+        return response()->streamDownload(function() use ($writer) {
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:5120',
+        ]);
+
+        $file = $request->file('file');
+        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file->getRealPath());
+        $sheetData = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
+
+        $imported = 0;
+        foreach ($sheetData as $rowIdx => $row) {
+            if ($rowIdx === 1) continue; // Skip header
+
+            $nidn = trim($row['A'] ?? '');
+            $name = trim($row['B'] ?? '');
+            $email = trim($row['C'] ?? '');
+            $password = trim($row['D'] ?? 'password123');
+            $prodiNameOrId = trim($row['E'] ?? '');
+
+            if (empty($nidn) || empty($name)) continue;
+
+            if (empty($email)) {
+                $email = $nidn . '@dosen.siakad.com';
+            }
+
+            $prodiId = null;
+            $fakultasId = null;
+
+            if (!empty($prodiNameOrId)) {
+                if (is_numeric($prodiNameOrId)) {
+                    $prodi = Prodi::find($prodiNameOrId);
+                } else {
+                    $prodi = Prodi::where('nama', 'like', "%{$prodiNameOrId}%")->first();
+                }
+                if ($prodi) {
+                    $prodiId = $prodi->id;
+                    $fakultasId = $prodi->fakultas_id;
+                }
+            }
+            if (!$prodiId && auth()->user()->fakultas_id) {
+                $fakultasId = auth()->user()->fakultas_id;
+            }
+
+            DB::transaction(function() use ($nidn, $name, $email, $password, $prodiId, $fakultasId) {
+                $user = User::updateOrCreate(
+                    ['username' => $nidn],
+                    [
+                        'name' => $name,
+                        'email' => $email,
+                        'password' => Hash::make($password),
+                        'password_plain' => $password,
+                        'role' => 'dosen',
+                    ]
+                );
+
+                Dosen::updateOrCreate(
+                    ['nidn' => $nidn],
+                    [
+                        'user_id' => $user->id,
+                        'prodi_id' => $prodiId,
+                        'fakultas_id' => $fakultasId,
+                    ]
+                );
+            });
+
+            $imported++;
+        }
+
+        return redirect()->back()->with('success', "{$imported} data Dosen berhasil diimpor.");
     }
 }
 

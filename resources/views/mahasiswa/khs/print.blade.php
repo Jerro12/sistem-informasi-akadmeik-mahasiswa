@@ -104,32 +104,33 @@
                     $no = 1;
                     $totalSks = 0;
                     $totalMutu = 0;
-                    $bobotMap = ['A' => 4.0, 'B+' => 3.5, 'B' => 3.0, 'C+' => 2.5, 'C' => 2.0, 'D' => 1.0, 'E' => 0];
+                    $bobotMap = ['A' => 4.0, 'B' => 3.0, 'C' => 2.0, 'D' => 1.0, 'E' => 0.0, 'T' => 0.0];
+                    $nilaiListMap = \App\Models\Nilai::where('mahasiswa_id', $mahasiswa->id)->get()->keyBy('kelas_id');
                 @endphp
-                @forelse($nilaiList as $nilai)
+                @forelse($krsDetails as $detail)
                     @php
-                        $mk = $nilai->kelas->mataKuliah;
-                        // For display logic based on standard university
-                        $nilaiHuruf = $nilai->nilai_huruf ?? '-';
-                        $bobot = $bobotMap[$nilaiHuruf] ?? 0;
-                        if ($nilaiHuruf === '-') $bobot = 0;
+                        $mk = $detail->kelas->mataKuliah;
+                        $nilaiObj = $nilaiListMap->get($detail->kelas_id);
+                        $nilaiHuruf = $nilaiObj ? ($nilaiObj->nilai_huruf ?? '-') : '-';
+                        $bobot = isset($bobotMap[$nilaiHuruf]) ? $bobotMap[$nilaiHuruf] : 0;
+                        if ($nilaiHuruf === '-' || $nilaiHuruf === 'T') $bobot = 0;
                         
-                        $mutu = $bobot * $mk->sks;
-                        $totalSks += $mk->sks;
+                        $mutu = $bobot * ($mk->sks ?? 0);
+                        $totalSks += ($mk->sks ?? 0);
                         $totalMutu += $mutu;
                     @endphp
                     <tr>
                         <td class="center">{{ $no++ }}</td>
-                        <td class="center">{{ $mk->kode_mk }}</td>
-                        <td>{{ $mk->nama_mk }}</td>
-                        <td class="center">{{ $mk->sks }}</td>
+                        <td class="center">{{ $mk->kode_mk ?? '-' }}</td>
+                        <td>{{ $mk->nama_mk ?? '-' }}</td>
+                        <td class="center">{{ $mk->sks ?? 0 }}</td>
                         <td class="center">{{ $nilaiHuruf }}</td>
-                        <td class="center">{{ $nilaiHuruf !== '-' ? $bobot : '0' }}</td>
-                        <td class="center">{{ $nilaiHuruf !== '-' ? $mutu : '0' }}</td>
-                        <td></td>
+                        <td class="center">{{ $nilaiHuruf !== '-' ? number_format($bobot, 1) : '0' }}</td>
+                        <td class="center">{{ $nilaiHuruf !== '-' ? number_format($mutu, 1) : '0' }}</td>
+                        <td>{{ $nilaiHuruf === '-' ? 'Belum Ada Nilai' : '' }}</td>
                     </tr>
                 @empty
-                    <tr><td colspan="8" class="center">Belum ada data nilai.</td></tr>
+                    <tr><td colspan="8" class="center">Belum ada mata kuliah yang diprogram.</td></tr>
                 @endforelse
             </tbody>
         </table>
@@ -146,7 +147,7 @@
         @endphp
         <div class="summary-container">
             <table class="summary-table">
-                <tr><td class="label">Jumlah Matakuliah yang diprogram</td><td class="separator">:</td><td>{{ $nilaiList->count() }}</td></tr>
+                <tr><td class="label">Jumlah Matakuliah yang diprogram</td><td class="separator">:</td><td>{{ $krsDetails->count() }}</td></tr>
                 <tr><td class="label">Total Satuan Kredit Semester (SKS)</td><td class="separator">:</td><td>{{ $totalSks }}</td></tr>
                 <tr><td class="label">Total Nilai</td><td class="separator">:</td><td>{{ $totalMutu }}</td></tr>
                 <tr><td class="label">Indeks Prestasi (IP) semester ini</td><td class="separator">:</td><td>{{ number_format($ips, 2, ',', '.') }}</td></tr>

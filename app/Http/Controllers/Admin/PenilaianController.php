@@ -93,6 +93,10 @@ class PenilaianController extends Controller
      */
     public function store(Request $request, $kelasId)
     {
+        if (auth()->user()->role === 'admin_fakultas') {
+            return redirect()->back()->with('error', 'Admin Fakultas hanya memiliki akses monitoring nilai (read-only).');
+        }
+
         $request->validate([
             'nilai'   => 'required|array',
             'nilai.*' => 'nullable|numeric|min:0|max:100',

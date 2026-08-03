@@ -10,6 +10,13 @@
         </div>
         @endif
 
+        {{-- Datalist for Dosen Search --}}
+        <datalist id="dosenListOptions">
+            @foreach($dosenList as $d)
+                <option value="{{ $d->user->name ?? '' }}" data-nidn="{{ $d->nidn }}">{{ $d->user->name ?? '' }} (NIDN: {{ $d->nidn }})</option>
+            @endforeach
+        </datalist>
+
         {{-- Section: Pejabat Fakultas --}}
         <div>
             <h2 class="text-lg font-bold text-siakad-dark mb-4 flex items-center gap-2">
@@ -25,12 +32,12 @@
                     <form action="{{ route('admin.pejabat.update-fakultas', $fak) }}" method="POST" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                         @csrf @method('PUT')
                         <div>
-                            <label class="block text-xs font-medium text-siakad-dark mb-1">Nama Dekan</label>
-                            <input type="text" name="nama_dekan" value="{{ $fak->nama_dekan }}" class="input-saas w-full text-sm" placeholder="Dr. Nama Dekan, M.Sc.">
+                            <label class="block text-xs font-medium text-siakad-dark mb-1">Nama Dekan (Ketik untuk mencari Dosen)</label>
+                            <input type="text" name="nama_dekan" value="{{ $fak->nama_dekan }}" list="dosenListOptions" class="input-saas w-full text-sm" placeholder="Ketik nama Dosen Dekan...">
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-siakad-dark mb-1">Nama Wakil Dekan I</label>
-                            <input type="text" name="nama_wakil_dekan1" value="{{ $fak->nama_wakil_dekan1 }}" class="input-saas w-full text-sm" placeholder="Dr. Nama Wakil Dekan I, M.Pd.">
+                            <label class="block text-xs font-medium text-siakad-dark mb-1">Nama Wakil Dekan I (Ketik untuk mencari Dosen)</label>
+                            <input type="text" name="nama_wakil_dekan1" value="{{ $fak->nama_wakil_dekan1 }}" list="dosenListOptions" class="input-saas w-full text-sm" placeholder="Ketik nama Dosen Wakil Dekan I...">
                         </div>
                         <div class="md:col-span-2 flex justify-end">
                             <button type="submit" class="btn-primary-saas px-5 py-2.5 rounded-lg text-sm font-medium">Simpan Data Fakultas</button>
@@ -57,12 +64,12 @@
                     <form action="{{ route('admin.pejabat.update-prodi', $prodi) }}" method="POST" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                         @csrf @method('PUT')
                         <div>
-                            <label class="block text-xs font-medium text-siakad-dark mb-1">Nama Ketua Program Studi</label>
-                            <input type="text" name="nama_ketua_prodi" value="{{ $prodi->nama_ketua_prodi }}" class="input-saas w-full text-sm" placeholder="Dr. Nama Ketua Prodi, M.T.">
+                            <label class="block text-xs font-medium text-siakad-dark mb-1">Nama Ketua Program Studi (Cari Dosen)</label>
+                            <input type="text" name="nama_ketua_prodi" id="kaprodi_nama_{{ $prodi->id }}" value="{{ $prodi->nama_ketua_prodi }}" list="dosenListOptions" onchange="autoFillNidn('kaprodi_nama_{{ $prodi->id }}', 'kaprodi_nidn_{{ $prodi->id }}')" class="input-saas w-full text-sm" placeholder="Ketik nama Ketua Prodi...">
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-siakad-dark mb-1">NIDN Ketua Program Studi</label>
-                            <input type="text" name="nidn_ketua_prodi" value="{{ $prodi->nidn_ketua_prodi }}" class="input-saas w-full text-sm" placeholder="0000000000">
+                            <input type="text" name="nidn_ketua_prodi" id="kaprodi_nidn_{{ $prodi->id }}" value="{{ $prodi->nidn_ketua_prodi }}" class="input-saas w-full text-sm" placeholder="0000000000">
                         </div>
                         <div class="md:col-span-2 flex justify-end">
                             <button type="submit" class="btn-primary-saas px-5 py-2.5 rounded-lg text-sm font-medium">Simpan Data Prodi</button>
@@ -82,4 +89,22 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function autoFillNidn(namaInputId, nidnInputId) {
+            const namaVal = document.getElementById(namaInputId).value;
+            const datalist = document.getElementById('dosenListOptions');
+            const options = datalist.options;
+            
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].value === namaVal) {
+                    const nidn = options[i].getAttribute('data-nidn');
+                    if (nidn) {
+                        document.getElementById(nidnInputId).value = nidn;
+                    }
+                    break;
+                }
+            }
+        }
+    </script>
 </x-app-layout>

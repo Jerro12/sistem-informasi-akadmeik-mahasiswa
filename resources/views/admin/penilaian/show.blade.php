@@ -74,14 +74,18 @@
                                     min="0" max="100" step="0.1"
                                     class="input-saas w-24 text-center"
                                     placeholder="—"
+                                    {{ Auth::user()->role === 'admin_fakultas' ? 'disabled readonly' : '' }}
                                 />
                             </td>
                             <td class="px-4 py-3 text-center">
                                 <span class="inline-flex items-center justify-center w-9 h-9 rounded-full text-sm font-bold
-                                    {{ in_array($nilaiHuruf, ['A', 'A-']) ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' :
-                                       (in_array($nilaiHuruf, ['B+', 'B', 'B-']) ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300' :
-                                       (in_array($nilaiHuruf, ['C+', 'C']) ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300' :
-                                       ($nilaiHuruf === '-' ? 'bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500' : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'))) }}">
+                                    {{ $nilaiHuruf === 'A' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' :
+                                       ($nilaiHuruf === 'B' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300' :
+                                       ($nilaiHuruf === 'C' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300' :
+                                       ($nilaiHuruf === 'D' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300' :
+                                       ($nilaiHuruf === 'E' ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300' :
+                                       ($nilaiHuruf === 'T' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300' :
+                                       'bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500'))))) }}">
                                     {{ $nilaiHuruf }}
                                 </span>
                             </td>
@@ -100,6 +104,7 @@
 
         @if($kelas->krsDetail->count() > 0)
         <div class="flex justify-end mt-5">
+            @if(Auth::user()->role !== 'admin_fakultas')
             <button type="submit"
                 class="inline-flex items-center gap-2 px-6 py-2.5 bg-siakad-primary text-white rounded-lg text-sm font-semibold hover:bg-siakad-primary/90 transition shadow">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -107,6 +112,11 @@
                 </svg>
                 Simpan Semua Nilai
             </button>
+            @else
+            <div class="px-4 py-2 bg-blue-50 border border-blue-200 text-blue-800 rounded-lg text-xs font-medium">
+                Akses Admin Fakultas (Monitoring Only)
+            </div>
+            @endif
         </div>
         @endif
     </form>

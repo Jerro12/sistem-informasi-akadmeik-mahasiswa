@@ -13,8 +13,9 @@ class PejabatController extends Controller
     {
         $prodis = Prodi::with('fakultas')->orderBy('nama')->get();
         $fakultasList = Fakultas::orderBy('nama')->get();
+        $dosenList = \App\Models\Dosen::with('user')->get();
 
-        return view('admin.pejabat.index', compact('prodis', 'fakultasList'));
+        return view('admin.pejabat.index', compact('prodis', 'fakultasList', 'dosenList'));
     }
 
     public function updateProdi(Request $request, Prodi $prodi)

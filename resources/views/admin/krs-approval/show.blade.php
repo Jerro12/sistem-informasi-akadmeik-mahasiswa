@@ -46,7 +46,7 @@
                     </div>
                 </div>
 
-                @if($krs->status === 'pending')
+                @if($krs->status === 'pending' && Auth::user()->role !== 'admin_fakultas')
                 <div class="mt-6 space-y-2">
                     <form action="{{ route('admin.krs-approval.approve', $krs->id) }}" method="POST">
                         @csrf
@@ -59,6 +59,10 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         Tolak KRS
                     </button>
+                </div>
+                @elseif(Auth::user()->role === 'admin_fakultas')
+                <div class="mt-6 p-3 bg-blue-50 border border-blue-200 text-blue-800 rounded-lg text-xs font-medium text-center">
+                    Akses Admin Fakultas (Monitoring Only)
                 </div>
                 @endif
 

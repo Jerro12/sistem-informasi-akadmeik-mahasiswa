@@ -63,14 +63,12 @@ return [
     */
 
     'nilai_konversi' => [
-        ['min' => 85, 'max' => 100, 'huruf' => 'A',  'bobot' => 4.00],
-        ['min' => 80, 'max' => 84,  'huruf' => 'A-', 'bobot' => 3.75],
-        ['min' => 75, 'max' => 79,  'huruf' => 'B+', 'bobot' => 3.50],
-        ['min' => 70, 'max' => 74,  'huruf' => 'B',  'bobot' => 3.00],
-        ['min' => 65, 'max' => 69,  'huruf' => 'C+', 'bobot' => 2.50],
-        ['min' => 60, 'max' => 64,  'huruf' => 'C',  'bobot' => 2.00],
-        ['min' => 55, 'max' => 59,  'huruf' => 'D',  'bobot' => 1.00],
-        ['min' => 0,  'max' => 54,  'huruf' => 'E',  'bobot' => 0.00],
+        ['min' => 85, 'max' => 100, 'huruf' => 'A', 'bobot' => 4.00],
+        ['min' => 70, 'max' => 84,  'huruf' => 'B', 'bobot' => 3.00],
+        ['min' => 55, 'max' => 69,  'huruf' => 'C', 'bobot' => 2.00],
+        ['min' => 40, 'max' => 54,  'huruf' => 'D', 'bobot' => 1.00],
+        ['min' => 0,  'max' => 39,  'huruf' => 'E', 'bobot' => 0.00],
+        ['min' => -1, 'max' => -1,  'huruf' => 'T', 'bobot' => 0.00],
     ],
 
 

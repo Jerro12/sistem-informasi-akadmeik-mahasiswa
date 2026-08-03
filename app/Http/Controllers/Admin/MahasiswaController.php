@@ -233,27 +233,104 @@ class MahasiswaController extends Controller
             $query->where('angkatan', $angkatan);
         }
 
-        $query->orderBy('nim');
+        $list = $query->orderBy('nim')->get();
 
-        return response()->streamDownload(function() use ($query) {
-            $handle = fopen('php://output', 'w');
-            fputs($handle, "\xEF\xBB\xBF");
-            fputcsv($handle, ['NIM', 'Nama Mahasiswa', 'Prodi', 'Angkatan', 'Status', 'IPK']);
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        $sheet->fromArray([
+            ['No', 'NIM', 'Nama Mahasiswa', 'Prodi', 'Angkatan', 'Status', 'IPK']
+        ], null, 'A1');
 
-            $query->chunk(500, function($rows) use ($handle) {
-                foreach ($rows as $row) {
-                    fputcsv($handle, [
-                        $row->nim,
-                        $row->user->name ?? '-',
-                        $row->prodi->nama ?? '-',
-                        $row->angkatan,
-                        $row->status,
-                        $row->ipk ?? 0,
-                    ]);
+        $rowNum = 2;
+        foreach ($list as $idx => $mhs) {
+            $sheet->fromArray([
+                $idx + 1,
+                $mhs->nim,
+                $mhs->user->name ?? '-',
+                $mhs->prodi->nama ?? '-',
+                $mhs->angkatan,
+                ucfirst($mhs->status),
+                number_format($mhs->ipk, 2),
+            ], null, 'A' . $rowNum);
+            $rowNum++;
+        }
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $fileName = 'data-mahasiswa-' . date('Y-m-d') . '.xlsx';
+
+        return response()->streamDownload(function() use ($writer) {
+            $writer->save('php://output');
+        }, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:5120',
+        ]);
+
+        $file = $request->file('file');
+        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file->getRealPath());
+        $sheetData = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
+
+        $imported = 0;
+        foreach ($sheetData as $rowIdx => $row) {
+            if ($rowIdx === 1) continue; // Skip header
+
+            $nim = trim($row['A'] ?? '');
+            $name = trim($row['B'] ?? '');
+            $password = trim($row['C'] ?? 'password123');
+            $prodiNameOrId = trim($row['D'] ?? '');
+            $angkatan = (int) ($row['E'] ?? date('Y'));
+            $semester = (int) ($row['F'] ?? 1);
+
+            if (empty($nim) || empty($name)) continue;
+
+            $prodi = null;
+            if (!empty($prodiNameOrId)) {
+                if (is_numeric($prodiNameOrId)) {
+                    $prodi = Prodi::find($prodiNameOrId);
+                } else {
+                    $prodi = Prodi::where('nama', 'like', "%{$prodiNameOrId}%")->first();
                 }
+            }
+            if (!$prodi) {
+                $prodi = auth()->user()->prodi ?? (auth()->user()->fakultas_id ? Prodi::where('fakultas_id', auth()->user()->fakultas_id)->first() : Prodi::first());
+            }
+
+            if (!$prodi) continue;
+
+            DB::transaction(function() use ($nim, $name, $password, $prodi, $angkatan, $semester) {
+                $user = User::updateOrCreate(
+                    ['username' => $nim],
+                    [
+                        'name' => $name,
+                        'email' => $nim . '@mahasiswa.siakad.com',
+                        'password' => Hash::make($password),
+                        'password_plain' => $password,
+                        'role' => 'mahasiswa',
+                    ]
+                );
+
+                Mahasiswa::updateOrCreate(
+                    ['nim' => $nim],
+                    [
+                        'user_id' => $user->id,
+                        'prodi_id' => $prodi->id,
+                        'angkatan' => $angkatan > 2000 ? $angkatan : date('Y'),
+                        'semester_sekarang' => $semester > 0 ? $semester : 1,
+                        'status' => 'aktif',
+                    ]
+                );
             });
-            fclose($handle);
-        }, 'data-mahasiswa-' . date('Y-m-d') . '.csv');
+
+            $imported++;
+        }
+
+        return redirect()->back()->with('success', "{$imported} data Mahasiswa berhasil diimpor.");
     }
 
     public function show(Mahasiswa $mahasiswa)

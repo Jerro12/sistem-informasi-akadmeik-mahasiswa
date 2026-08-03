@@ -86,11 +86,10 @@ class PresensiService
      */
     public function getPresensiByKelas(int $kelasId): Collection
     {
-        $kelas = Kelas::with(['krsDetail.krs.mahasiswa.user'])->findOrFail($kelasId);
-        
-        $mahasiswaList = $kelas->krsDetail
-            ->filter(fn($d) => $d->krs->status === 'approved')
-            ->map(fn($d) => $d->krs->mahasiswa);
+        $mahasiswaList = Mahasiswa::whereHas('krs', function ($q) use ($kelasId) {
+            $q->where('status', 'approved')
+              ->whereHas('krsDetail', fn($q2) => $q2->where('kelas_id', $kelasId));
+        })->with('user')->get()->unique('id')->values();
 
         return $mahasiswaList->map(function ($mahasiswa) use ($kelasId) {
             $rekap = $this->getRekapPresensi($mahasiswa->id, $kelasId);
@@ -115,12 +114,19 @@ class PresensiService
      */
     public function getKelasByDosen(int $dosenId): Collection
     {
-        return Kelas::where('dosen_id', $dosenId)
+        $kelasList = Kelas::where('dosen_id', $dosenId)
             ->with(['mataKuliah', 'jadwal'])
-            ->withCount(['krsDetail as jumlah_mahasiswa' => function ($q) {
-                $q->whereHas('krs', fn($q2) => $q2->where('status', 'approved'));
-            }])
             ->get();
+
+        foreach ($kelasList as $kelas) {
+            $count = Mahasiswa::whereHas('krs', function ($q) use ($kelas) {
+                $q->where('status', 'approved')
+                  ->whereHas('krsDetail', fn($q2) => $q2->where('kelas_id', $kelas->id));
+            })->count();
+            $kelas->jumlah_mahasiswa = $count;
+        }
+
+        return $kelasList;
     }
 
     /**
