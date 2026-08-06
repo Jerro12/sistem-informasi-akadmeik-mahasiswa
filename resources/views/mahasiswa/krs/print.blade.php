@@ -88,7 +88,7 @@
                 <table class="info-table">
                     <tr><td class="label">NAMA MAHASISWA</td><td class="separator">:</td><td>{{ strtoupper($mahasiswa->user->name) }}</td></tr>
                     <tr><td class="label">NIM</td><td class="separator">:</td><td>{{ $mahasiswa->nim }}</td></tr>
-                    <tr><td class="label">TEMPAT, TGL. LAHIR</td><td class="separator">:</td><td>{{ strtoupper($mahasiswa->tempat_lahir ?? '-') }}, {{ $mahasiswa->tanggal_lahir ? $mahasiswa->tanggal_lahir->format('d/m/Y') : '-' }}</td></tr>
+                    <tr><td class="label">TEMPAT, TGL. LAHIR</td><td class="separator">:</td><td>{{ strtoupper($mahasiswa->tempat_lahir ?? '-') }}, {{ $mahasiswa->tanggal_lahir ? \Carbon\Carbon::parse($mahasiswa->tanggal_lahir)->format('d/m/Y') : '-' }}</td></tr>
                     <tr><td class="label">KELAS</td><td class="separator">:</td><td>-</td></tr>
                     <tr><td class="label">KONSENTRASI</td><td class="separator">:</td><td>-</td></tr>
                 </table>

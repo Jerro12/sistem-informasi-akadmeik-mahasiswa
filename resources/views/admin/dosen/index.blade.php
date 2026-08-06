@@ -296,25 +296,28 @@
         }
     </script>
     <!-- Import Dosen Modal -->
-    <div id="importDosenModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md animate-fade-in overflow-hidden">
-            <div class="px-6 py-4 border-b border-siakad-light dark:border-gray-700">
-                <h3 class="text-lg font-semibold text-siakad-dark dark:text-white">Import Data Dosen</h3>
-            </div>
-            <form action="{{ route('admin.dosen.import') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <div class="p-6 space-y-4">
-                    <p class="text-sm text-siakad-secondary dark:text-gray-400">Pilih berkas Excel (.xlsx / .xls / .csv) dengan format kolom: <strong>NIDN, Nama Dosen, Email, Password, Prodi (ID/Nama)</strong>.</p>
-                    <div>
-                        <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Berkas Excel / CSV</label>
-                        <input type="file" name="file" accept=".xlsx,.xls,.csv" required class="input-saas w-full px-4 py-2 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+    <div id="importDosenModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="fixed inset-0 bg-black/40" onclick="closeModal('importDosenModal')"></div>
+            <div class="relative bg-white dark:bg-gray-800 rounded-xl w-full max-w-md animate-fade-in overflow-hidden shadow-xl">
+                <div class="px-6 py-4 border-b border-siakad-light dark:border-gray-700">
+                    <h3 class="text-lg font-semibold text-siakad-dark dark:text-white">Import Data Dosen</h3>
+                </div>
+                <form action="{{ route('admin.dosen.import') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="p-6 space-y-4">
+                        <p class="text-sm text-siakad-secondary dark:text-gray-400">Pilih berkas Excel (.xlsx / .xls / .csv) dengan format kolom: <strong>NIDN, Nama Dosen, Email, Password, Prodi (ID/Nama)</strong>.</p>
+                        <div>
+                            <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Berkas Excel / CSV</label>
+                            <input type="file" name="file" accept=".xlsx,.xls,.csv" required class="input-saas w-full px-4 py-2 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                        </div>
                     </div>
-                </div>
-                <div class="px-6 py-4 border-t border-siakad-light dark:border-gray-700 flex items-center justify-end gap-3">
-                    <button type="button" onclick="document.getElementById('importDosenModal').classList.add('hidden')" class="btn-ghost-saas px-4 py-2 rounded-lg text-sm font-medium dark:text-white">Batal</button>
-                    <button type="submit" class="btn-primary-saas px-4 py-2 rounded-lg text-sm font-medium">Unggah & Import</button>
-                </div>
-            </form>
+                    <div class="px-6 py-4 border-t border-siakad-light dark:border-gray-700 flex items-center justify-end gap-3">
+                        <button type="button" onclick="closeModal('importDosenModal')" class="btn-ghost-saas px-4 py-2 rounded-lg text-sm font-medium dark:text-white">Batal</button>
+                        <button type="submit" class="btn-primary-saas px-4 py-2 rounded-lg text-sm font-medium">Unggah & Import</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </x-app-layout>

@@ -28,6 +28,10 @@ class Dosen extends Model
         'foto',
     ];
 
+    protected $casts = [
+        'tanggal_lahir' => 'date',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

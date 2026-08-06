@@ -32,6 +32,10 @@ class Mahasiswa extends Model
         'foto',
     ];
 
+    protected $casts = [
+        'tanggal_lahir' => 'date',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -46,7 +50,6 @@ class Mahasiswa extends Model
     {
         return $this->belongsTo(Kurikulum::class);
     }
-
 
     public function dosenPa()
     {
@@ -94,5 +97,3 @@ class Mahasiswa extends Model
         return $calc['ipk'];
     }
 }
-
-
