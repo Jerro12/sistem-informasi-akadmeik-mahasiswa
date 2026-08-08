@@ -103,34 +103,63 @@ class AkademikCalculationService
     }
 
     /**
-     * Get transcript data for mahasiswa
+     * Get transcript data for mahasiswa (includes all courses in approved KRS)
      */
     public function getTranscript(Mahasiswa $mahasiswa): array
     {
-        $nilaiList = Nilai::where('mahasiswa_id', $mahasiswa->id)
-            ->with(['kelas.mataKuliah', 'kelas.tahunAkademik'])
+        $krsList = Krs::where('mahasiswa_id', $mahasiswa->id)
+            ->where('status', 'approved')
+            ->with(['tahunAkademik', 'krsDetail.kelas.mataKuliah'])
+            ->orderBy('tahun_akademik_id', 'asc')
             ->get();
 
-        $grouped = $nilaiList->groupBy(function ($nilai) {
-            $ta = $nilai->kelas->tahunAkademik;
-            return $ta ? $ta->tahun . ' - ' . $ta->semester : 'Unknown';
-        });
+        $nilaiMap = Nilai::where('mahasiswa_id', $mahasiswa->id)->get()->keyBy('kelas_id');
 
+        $transcriptSemesters = [];
+        $allCourses = collect();
 
-        $transcript = [];
-        foreach ($grouped as $semester => $nilaiGroup) {
-            $semesterData = $this->calculateIndexFromNilai($nilaiGroup);
-            $transcript[] = [
-                'semester' => $semester,
-                'ips' => $semesterData['ips'],
-                'total_sks' => $semesterData['total_sks'],
-                'courses' => $nilaiGroup->map(fn($n) => [
-                    'kode' => $n->kelas->mataKuliah->kode_mk,
-                    'nama' => $n->kelas->mataKuliah->nama_mk,
-                    'sks' => $n->kelas->mataKuliah->sks,
-                    'nilai_angka' => $n->nilai_angka,
-                    'nilai_huruf' => $n->nilai_huruf,
-                ])
+        foreach ($krsList as $krs) {
+            $ta = $krs->tahunAkademik;
+            $semesterLabel = $ta ? $ta->tahun . ' - ' . ucfirst($ta->semester) : 'Semester ' . $krs->tahun_akademik_id;
+
+            $coursesInSemester = collect();
+            $semTotalSks = 0;
+            $semTotalBobot = 0;
+
+            foreach ($krs->krsDetail as $detail) {
+                $mk = $detail->kelas?->mataKuliah;
+                if (!$mk) continue;
+
+                $nilaiObj = $nilaiMap->get($detail->kelas_id);
+                $nilaiHuruf = $nilaiObj ? ($nilaiObj->nilai_huruf ?? '-') : '-';
+                $nilaiAngka = $nilaiObj ? ($nilaiObj->nilai_angka ?? '-') : '-';
+                $bobot = $nilaiHuruf !== '-' ? $this->getBobot($nilaiHuruf) : 0;
+
+                $semTotalSks += $mk->sks;
+                $semTotalBobot += ($mk->sks * $bobot);
+
+                $courseData = [
+                    'kode' => $mk->kode_mk,
+                    'nama' => $mk->nama_mk,
+                    'sks' => $mk->sks,
+                    'nilai_angka' => $nilaiAngka,
+                    'nilai_huruf' => $nilaiHuruf,
+                    'bobot' => $bobot,
+                    'nilai_bobot' => $bobot * $mk->sks,
+                    'tahun_akademik' => $semesterLabel,
+                ];
+
+                $coursesInSemester->push($courseData);
+                $allCourses->push($courseData);
+            }
+
+            $ips = $semTotalSks > 0 ? round($semTotalBobot / $semTotalSks, 2) : 0;
+
+            $transcriptSemesters[] = [
+                'semester' => $semesterLabel,
+                'ips' => $ips,
+                'total_sks' => $semTotalSks,
+                'courses' => $coursesInSemester,
             ];
         }
 
@@ -138,7 +167,8 @@ class AkademikCalculationService
         
         return [
             'mahasiswa' => $mahasiswa,
-            'semesters' => $transcript,
+            'semesters' => $transcriptSemesters,
+            'all_courses' => $allCourses,
             'ipk' => $ipkData['ips'],
             'total_sks_lulus' => $ipkData['total_sks'],
         ];

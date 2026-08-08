@@ -132,7 +132,8 @@
             <tbody>
                 @foreach($flatCourses as $i => $course)
                 @php
-                    $am = $bobotMap[$course['nilai_huruf']] ?? 0;
+                    $isGraded = $course['nilai_huruf'] !== '-';
+                    $am = $isGraded ? ($bobotMap[$course['nilai_huruf']] ?? 0) : 0;
                     $k = $course['sks'];
                     $mutu = $am * $k;
                     $totalSks += $k;
@@ -142,10 +143,10 @@
                     <td class="center">{{ $i + 1 }}</td>
                     <td class="center">{{ $course['kode'] }}</td>
                     <td>{{ $course['nama'] }}</td>
-                    <td class="center">{{ $am }}</td>
+                    <td class="center">{{ $isGraded ? $am : '-' }}</td>
                     <td class="center">{{ $course['nilai_huruf'] }}</td>
                     <td class="center">{{ $k }}</td>
-                    <td class="center">{{ $mutu }}</td>
+                    <td class="center">{{ $isGraded ? $mutu : '0' }}</td>
                 </tr>
                 @endforeach
             </tbody>

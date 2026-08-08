@@ -59,7 +59,7 @@
                                             <button type="submit" class="p-2 text-green-600 hover:bg-green-100 rounded-lg" title="Aktifkan"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></button>
                                         </form>
                                     @endif
-                                    <button onclick="openEditModal({{ json_encode($ta) }})" class="p-2 text-blue-600 hover:bg-blue-100 rounded-lg" title="Edit"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></button>
+                                    <button data-ta="{{ json_encode($ta) }}" onclick="openEditModal(this)" class="p-2 text-blue-600 hover:bg-blue-100 rounded-lg" title="Edit"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></button>
                                     @if(!$ta->is_active)
                                         <form action="{{ route('admin.tahun-akademik.destroy', $ta) }}" method="POST" class="inline" onsubmit="return confirm('Yakin?')">@csrf @method('DELETE')
                                             <button type="submit" class="p-2 text-red-600 hover:bg-red-100 rounded-lg" title="Hapus"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
@@ -93,7 +93,6 @@
                         <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Semester</label><select name="semester" required class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"><option value="ganjil">Ganjil</option><option value="genap">Genap</option></select></div>
                     </div>
                     <div class="border-t border-siakad-light dark:border-gray-700 pt-4">
-                    <div class="border-t border-siakad-light dark:border-gray-700 pt-4">
                         <p class="text-xs font-medium text-siakad-secondary mb-3 uppercase">Periode KRS</p>
                         <div class="grid grid-cols-2 gap-4">
                             <div><label class="block text-sm font-medium text-siakad-secondary mb-1">KRS Mulai</label><input type="date" name="tanggal_krs_mulai" class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
@@ -118,7 +117,6 @@
                         <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Semester</label><select name="semester" id="editSemester" required class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"><option value="ganjil">Ganjil</option><option value="genap">Genap</option></select></div>
                     </div>
                     <div class="border-t border-siakad-light dark:border-gray-700 pt-4">
-                    <div class="border-t border-siakad-light dark:border-gray-700 pt-4">
                         <p class="text-xs font-medium text-siakad-secondary mb-3 uppercase">Periode KRS</p>
                         <div class="grid grid-cols-2 gap-4">
                             <div><label class="block text-sm font-medium text-siakad-secondary mb-1">KRS Mulai</label><input type="date" name="tanggal_krs_mulai" id="editKrsMulai" class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
@@ -134,7 +132,8 @@
     <script>
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-        function openEditModal(ta) {
+        function openEditModal(btn) {
+            const ta = JSON.parse(btn.dataset.ta);
             document.getElementById('editForm').action = `/admin/tahun-akademik/${ta.id}`;
             document.getElementById('editTahun').value = ta.tahun;
             document.getElementById('editSemester').value = ta.semester;

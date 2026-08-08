@@ -282,6 +282,10 @@ class DosenController extends Controller
             $rowNum++;
         }
 
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
         $fileName = 'dosen_export_' . date('Y-m-d') . '.xlsx';
 
@@ -295,10 +299,15 @@ class DosenController extends Controller
     public function import(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:xlsx,xls,csv|max:5120',
+            'file' => 'required|file|max:10240',
         ]);
 
         $file = $request->file('file');
+        $ext = strtolower($file->getClientOriginalExtension());
+        if (!in_array($ext, ['xlsx', 'xls', 'csv'])) {
+            return redirect()->back()->withErrors(['file' => 'File harus berupa format Excel (.xlsx, .xls) atau CSV (.csv).']);
+        }
+
         $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file->getRealPath());
         $sheetData = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
 
@@ -306,11 +315,41 @@ class DosenController extends Controller
         foreach ($sheetData as $rowIdx => $row) {
             if ($rowIdx === 1) continue; // Skip header
 
-            $nidn = trim($row['A'] ?? '');
-            $name = trim($row['B'] ?? '');
-            $email = trim($row['C'] ?? '');
-            $password = trim($row['D'] ?? 'password123');
-            $prodiNameOrId = trim($row['E'] ?? '');
+            $colA = trim($row['A'] ?? '');
+            $colB = trim($row['B'] ?? '');
+
+            if (empty($colA) && empty($colB)) continue;
+            if (strtolower($colA) === 'nidn' || strtolower($colB) === 'nidn') continue;
+
+            if (is_numeric($colA) || strtolower($colA) === 'no' || strtolower($colA) === 'no.') {
+                $nidn = $colB;
+                $name = trim($row['C'] ?? '');
+                $colD = trim($row['D'] ?? '');
+                
+                if (str_contains($colD, '@')) {
+                    $email = $colD;
+                    $password = trim($row['E'] ?? '') ?: 'password123';
+                    $prodiNameOrId = trim($row['F'] ?? '');
+                } else {
+                    $email = $nidn . '@dosen.siakad.com';
+                    $password = $colD ?: 'password123';
+                    $prodiNameOrId = trim($row['E'] ?? '');
+                }
+            } else {
+                $nidn = $colA;
+                $name = $colB;
+                $colC = trim($row['C'] ?? '');
+
+                if (str_contains($colC, '@')) {
+                    $email = $colC;
+                    $password = trim($row['D'] ?? '') ?: 'password123';
+                    $prodiNameOrId = trim($row['E'] ?? '');
+                } else {
+                    $email = $nidn . '@dosen.siakad.com';
+                    $password = $colC ?: 'password123';
+                    $prodiNameOrId = trim($row['D'] ?? '');
+                }
+            }
 
             if (empty($nidn) || empty($name)) continue;
 

@@ -298,6 +298,10 @@ class MataKuliahController extends Controller
             $rowNum++;
         }
 
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
         $fileName = 'mata_kuliah_export_' . date('Y-m-d') . '.xlsx';
 
@@ -311,10 +315,15 @@ class MataKuliahController extends Controller
     public function import(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:xlsx,xls,csv|max:5120',
+            'file' => 'required|file|max:10240',
         ]);
 
         $file = $request->file('file');
+        $ext = strtolower($file->getClientOriginalExtension());
+        if (!in_array($ext, ['xlsx', 'xls', 'csv'])) {
+            return redirect()->back()->withErrors(['file' => 'File harus berupa format Excel (.xlsx, .xls) atau CSV (.csv).']);
+        }
+
         $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file->getRealPath());
         $sheetData = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
 
@@ -322,14 +331,38 @@ class MataKuliahController extends Controller
         foreach ($sheetData as $rowIdx => $row) {
             if ($rowIdx === 1) continue; // Skip header
 
-            $kode = trim($row['A'] ?? '');
-            $nama = trim($row['B'] ?? '');
-            $sks = (int) ($row['C'] ?? 2);
-            $semester = (int) ($row['D'] ?? 1);
-            $jenis = strtolower(trim($row['E'] ?? 'wajib'));
-            if (!in_array($jenis, ['wajib', 'pilihan'])) $jenis = 'wajib';
+            $colA = trim($row['A'] ?? '');
+            $colB = trim($row['B'] ?? '');
+            
+            if (is_numeric($colA) || strtolower($colA) === 'no' || strtolower($colA) === 'no.') {
+                $kode = $colB;
+                $nama = trim($row['C'] ?? '');
+                $sks = (int) ($row['D'] ?? 2);
+                $semester = (int) ($row['E'] ?? 1);
+                $jenis = strtolower(trim($row['F'] ?? 'wajib'));
+                $prodiName = trim($row['G'] ?? '');
+            } else {
+                $kode = $colA;
+                $nama = $colB;
+                $sks = (int) ($row['C'] ?? 2);
+                $semester = (int) ($row['D'] ?? 1);
+                $jenis = strtolower(trim($row['E'] ?? 'wajib'));
+                $prodiName = trim($row['F'] ?? '');
+            }
 
-            if (empty($kode) || empty($nama)) continue;
+            if (!in_array($jenis, ['wajib', 'pilihan'])) $jenis = 'wajib';
+            if (empty($kode) || empty($nama) || strtolower($kode) === 'kode mk') continue;
+
+            $prodiId = null;
+            if (!empty($prodiName) && strtolower($prodiName) !== 'mata kuliah umum') {
+                $prodi = Prodi::where('nama', 'like', "%{$prodiName}%")->first();
+                if ($prodi) {
+                    $prodiId = $prodi->id;
+                }
+            }
+            if (!$prodiId) {
+                $prodiId = auth()->user()->prodi_id ?? (auth()->user()->fakultas_id ? Prodi::where('fakultas_id', auth()->user()->fakultas_id)->first()?->id : null);
+            }
 
             MataKuliah::updateOrCreate(
                 ['kode_mk' => $kode],
@@ -338,10 +371,17 @@ class MataKuliahController extends Controller
                     'sks' => $sks > 0 ? $sks : 2,
                     'semester' => $semester > 0 ? $semester : 1,
                     'jenis' => $jenis,
-                    'prodi_id' => auth()->user()->prodi_id ?? (auth()->user()->fakultas_id ? Prodi::where('fakultas_id', auth()->user()->fakultas_id)->first()?->id : null),
+                    'prodi_id' => $prodiId,
                 ]
             );
             $imported++;
+        }
+
+        // Clear cache
+        \Illuminate\Support\Facades\Cache::forget('master.mata_kuliah');
+        if (class_exists(\App\Services\CacheService::class)) {
+            $cacheService = app(\App\Services\CacheService::class);
+            $cacheService->clearMataKuliahCache();
         }
 
         return redirect()->back()->with('success', "{$imported} data Mata Kuliah berhasil diimpor.");

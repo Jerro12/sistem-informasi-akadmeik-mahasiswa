@@ -78,14 +78,19 @@ class KhsController extends Controller
                 ->with('error', 'KRS untuk semester ini belum diapprove');
         }
 
-        // Get all grades for this semester
-        $nilaiList = Nilai::where('mahasiswa_id', $mahasiswa->id)
-            ->whereHas('kelas', function ($q) use ($tahunAkademik) {
-                $q->whereHas('krsDetail.krs', fn($q2) => $q2->where('tahun_akademik_id', $tahunAkademik->id));
-            })
-            ->with(['kelas.mataKuliah', 'kelas.dosen.user'])
-            ->get()
-            ->sortBy('kelas.mataKuliah.kode_mk');
+        // Get all courses from approved KRS for this semester (including ungraded ones)
+        $krsDetails = $krs->krsDetail()->with(['kelas.mataKuliah', 'kelas.dosen.user'])->get();
+        $nilaiListMap = Nilai::where('mahasiswa_id', $mahasiswa->id)->get()->keyBy('kelas_id');
+
+        $nilaiList = $krsDetails->map(function ($detail) use ($nilaiListMap) {
+            $nilaiObj = $nilaiListMap->get($detail->kelas_id);
+            return (object) [
+                'id' => $nilaiObj?->id,
+                'kelas' => $detail->kelas,
+                'nilai_angka' => $nilaiObj?->nilai_angka,
+                'nilai_huruf' => $nilaiObj?->nilai_huruf ?? '-',
+            ];
+        })->sortBy('kelas.mataKuliah.kode_mk');
 
         // Calculate IPS for this semester
         $ipsData = $this->calculationService->calculateIPS($mahasiswa, $tahunAkademik->id);

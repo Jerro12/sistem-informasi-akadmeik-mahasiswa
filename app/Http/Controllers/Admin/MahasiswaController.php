@@ -239,7 +239,7 @@ class MahasiswaController extends Controller
         $sheet = $spreadsheet->getActiveSheet();
         
         $sheet->fromArray([
-            ['No', 'NIM', 'Nama Mahasiswa', 'Prodi', 'Angkatan', 'Status', 'IPK']
+            ['No', 'NIM', 'Nama Mahasiswa', 'Email', 'Prodi', 'Angkatan', 'Semester', 'Status']
         ], null, 'A1');
 
         $rowNum = 2;
@@ -248,12 +248,17 @@ class MahasiswaController extends Controller
                 $idx + 1,
                 $mhs->nim,
                 $mhs->user->name ?? '-',
+                $mhs->user->email ?? '-',
                 $mhs->prodi->nama ?? '-',
                 $mhs->angkatan,
+                $mhs->semester_sekarang ?? 1,
                 ucfirst($mhs->status),
-                number_format($mhs->ipk, 2),
             ], null, 'A' . $rowNum);
             $rowNum++;
+        }
+
+        if (ob_get_level()) {
+            ob_end_clean();
         }
 
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
@@ -269,10 +274,15 @@ class MahasiswaController extends Controller
     public function import(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:xlsx,xls,csv|max:5120',
+            'file' => 'required|file|max:10240',
         ]);
 
         $file = $request->file('file');
+        $ext = strtolower($file->getClientOriginalExtension());
+        if (!in_array($ext, ['xlsx', 'xls', 'csv'])) {
+            return redirect()->back()->withErrors(['file' => 'File harus berupa format Excel (.xlsx, .xls) atau CSV (.csv).']);
+        }
+
         $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file->getRealPath());
         $sheetData = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
 
@@ -280,12 +290,49 @@ class MahasiswaController extends Controller
         foreach ($sheetData as $rowIdx => $row) {
             if ($rowIdx === 1) continue; // Skip header
 
-            $nim = trim($row['A'] ?? '');
-            $name = trim($row['B'] ?? '');
-            $password = trim($row['C'] ?? 'password123');
-            $prodiNameOrId = trim($row['D'] ?? '');
-            $angkatan = (int) ($row['E'] ?? date('Y'));
-            $semester = (int) ($row['F'] ?? 1);
+            $colA = trim($row['A'] ?? '');
+            $colB = trim($row['B'] ?? '');
+
+            if (empty($colA) && empty($colB)) continue;
+            if (strtolower($colA) === 'nim' || strtolower($colB) === 'nim') continue;
+
+            if (is_numeric($colA) || strtolower($colA) === 'no' || strtolower($colA) === 'no.') {
+                $nim = $colB;
+                $name = trim($row['C'] ?? '');
+                $colD = trim($row['D'] ?? '');
+                
+                if (str_contains($colD, '@')) {
+                    $email = $colD;
+                    $password = trim($row['E'] ?? '') ?: 'password123';
+                    $prodiNameOrId = trim($row['F'] ?? '');
+                    $angkatan = (int) ($row['G'] ?? date('Y'));
+                    $semester = (int) ($row['H'] ?? 1);
+                } else {
+                    $email = $nim . '@mahasiswa.siakad.com';
+                    $password = $colD ?: 'password123';
+                    $prodiNameOrId = trim($row['E'] ?? '');
+                    $angkatan = (int) ($row['F'] ?? date('Y'));
+                    $semester = (int) ($row['G'] ?? 1);
+                }
+            } else {
+                $nim = $colA;
+                $name = $colB;
+                $colC = trim($row['C'] ?? '');
+
+                if (str_contains($colC, '@')) {
+                    $email = $colC;
+                    $password = trim($row['D'] ?? '') ?: 'password123';
+                    $prodiNameOrId = trim($row['E'] ?? '');
+                    $angkatan = (int) ($row['F'] ?? date('Y'));
+                    $semester = (int) ($row['G'] ?? 1);
+                } else {
+                    $email = $nim . '@mahasiswa.siakad.com';
+                    $password = $colC ?: 'password123';
+                    $prodiNameOrId = trim($row['D'] ?? '');
+                    $angkatan = (int) ($row['E'] ?? date('Y'));
+                    $semester = (int) ($row['F'] ?? 1);
+                }
+            }
 
             if (empty($nim) || empty($name)) continue;
 
@@ -303,12 +350,12 @@ class MahasiswaController extends Controller
 
             if (!$prodi) continue;
 
-            DB::transaction(function() use ($nim, $name, $password, $prodi, $angkatan, $semester) {
+            DB::transaction(function() use ($nim, $name, $email, $password, $prodi, $angkatan, $semester) {
                 $user = User::updateOrCreate(
                     ['username' => $nim],
                     [
                         'name' => $name,
-                        'email' => $nim . '@mahasiswa.siakad.com',
+                        'email' => $email,
                         'password' => Hash::make($password),
                         'password_plain' => $password,
                         'role' => 'mahasiswa',

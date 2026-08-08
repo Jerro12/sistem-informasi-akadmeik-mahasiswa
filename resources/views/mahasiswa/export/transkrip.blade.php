@@ -90,32 +90,29 @@
             </tr>
         </thead>
         <tbody>
-            @php $totalSks = 0; $totalBobot = 0; @endphp
-            @foreach($nilaiList as $index => $nilai)
+            @php 
+                $totalSks = 0; 
+                $totalBobot = 0; 
+                $courses = $transcript['all_courses'] ?? collect();
+            @endphp
+            @forelse($courses as $index => $course)
             @php
-                $mk = $nilai->kelas->mataKuliah;
-                $bobot = match($nilai->nilai_huruf) {
-                    'A' => 4.0,
-                    'B+' => 3.5,
-                    'B' => 3.0,
-                    'C+' => 2.5,
-                    'C' => 2.0,
-                    'D' => 1.0,
-                    default => 0
-                };
-                $nilaiBobot = $bobot * $mk->sks;
-                $totalSks += $mk->sks;
-                $totalBobot += $nilaiBobot;
+                $totalSks += $course['sks'];
+                $totalBobot += $course['nilai_bobot'];
             @endphp
             <tr>
                 <td class="center">{{ $index + 1 }}</td>
-                <td class="center">{{ $mk->kode_mk }}</td>
-                <td>{{ $mk->nama_mk }}</td>
-                <td class="center">{{ $mk->sks }}</td>
-                <td class="center"><strong>{{ $nilai->nilai_huruf ?? '-' }}</strong></td>
-                <td class="center">{{ number_format($nilaiBobot, 1) }}</td>
+                <td class="center">{{ $course['kode'] }}</td>
+                <td>{{ $course['nama'] }}</td>
+                <td class="center">{{ $course['sks'] }}</td>
+                <td class="center"><strong>{{ $course['nilai_huruf'] }}</strong></td>
+                <td class="center">{{ number_format($course['nilai_bobot'], 1) }}</td>
             </tr>
-            @endforeach
+            @empty
+            <tr>
+                <td colspan="6" class="center">Belum ada mata kuliah yang diprogram.</td>
+            </tr>
+            @endforelse
         </tbody>
         <tfoot>
             <tr>
@@ -138,7 +135,7 @@
                 <div class="label">Total SKS</div>
             </div>
             <div class="summary-box">
-                <div class="value">{{ $nilaiList->count() }}</div>
+                <div class="value">{{ $courses->count() }}</div>
                 <div class="label">Mata Kuliah</div>
             </div>
         </div>
