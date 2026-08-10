@@ -153,10 +153,33 @@ class TugasController extends Controller
             abort(403);
         }
 
-        if (!$tugas->file_tugas || !Storage::disk('public')->exists($tugas->file_tugas)) {
+        return $this->downloadFile($tugas->file_tugas);
+    }
+
+    private function downloadFile($filePath, $fileName = null)
+    {
+        if (!$filePath) {
             abort(404, 'File tidak ditemukan');
         }
 
-        return Storage::disk('public')->download($tugas->file_tugas);
+        if (Storage::disk('public')->exists($filePath)) {
+            return Storage::disk('public')->download($filePath, $fileName);
+        }
+
+        if (Storage::disk('local')->exists($filePath)) {
+            return Storage::disk('local')->download($filePath, $fileName);
+        }
+
+        $fullPath = storage_path('app/' . ltrim($filePath, '/'));
+        if (file_exists($fullPath)) {
+            return response()->download($fullPath, $fileName);
+        }
+
+        $fullPublicPath = storage_path('app/public/' . ltrim($filePath, '/'));
+        if (file_exists($fullPublicPath)) {
+            return response()->download($fullPublicPath, $fileName);
+        }
+
+        abort(404, 'File tidak ditemukan di server.');
     }
 }

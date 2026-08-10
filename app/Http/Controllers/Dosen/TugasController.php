@@ -126,11 +126,49 @@ class TugasController extends Controller
             abort(403);
         }
 
-        if (!Storage::exists($submission->file_path)) {
+        return $this->downloadFile($submission->file_path, $submission->file_name);
+    }
+
+    /**
+     * Download task file (soal)
+     */
+    public function downloadTugas($kelasId, Tugas $tugas)
+    {
+        $dosen = Auth::user()->dosen;
+        $kelas = $dosen->kelas()->findOrFail($kelasId);
+
+        if ($tugas->kelas_id != $kelasId) {
+            abort(403);
+        }
+
+        return $this->downloadFile($tugas->file_tugas);
+    }
+
+    private function downloadFile($filePath, $fileName = null)
+    {
+        if (!$filePath) {
             abort(404, 'File tidak ditemukan');
         }
 
-        return Storage::download($submission->file_path, $submission->file_name);
+        if (Storage::disk('public')->exists($filePath)) {
+            return Storage::disk('public')->download($filePath, $fileName);
+        }
+
+        if (Storage::disk('local')->exists($filePath)) {
+            return Storage::disk('local')->download($filePath, $fileName);
+        }
+
+        $fullPath = storage_path('app/' . ltrim($filePath, '/'));
+        if (file_exists($fullPath)) {
+            return response()->download($fullPath, $fileName);
+        }
+
+        $fullPublicPath = storage_path('app/public/' . ltrim($filePath, '/'));
+        if (file_exists($fullPublicPath)) {
+            return response()->download($fullPublicPath, $fileName);
+        }
+
+        abort(404, 'File tidak ditemukan di server.');
     }
 
     /**

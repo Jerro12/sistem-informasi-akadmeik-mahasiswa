@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\MataKuliahController;
 
 Route::middleware(['auth', 'role:admin', 'fakultas.scope'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/mata-kuliah/export', [MataKuliahController::class, 'export'])->name('mata-kuliah.export');
+    Route::get('/mata-kuliah/template', [MataKuliahController::class, 'template'])->name('mata-kuliah.template');
     Route::post('/mata-kuliah/import', [MataKuliahController::class, 'import'])->name('mata-kuliah.import');
     Route::get('/mata-kuliah', [MataKuliahController::class, 'index'])->name('mata-kuliah.index');
     Route::post('/mata-kuliah', [MataKuliahController::class, 'store'])->name('mata-kuliah.store');

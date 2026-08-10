@@ -12,4 +12,5 @@ Route::middleware(['auth', 'role:dosen'])->prefix('dosen')->name('dosen.')->grou
     Route::post('/tugas/{kelas}/{tugas}/toggle', [TugasController::class, 'toggle'])->name('tugas.toggle');
     Route::delete('/tugas/{kelas}/{tugas}', [TugasController::class, 'destroy'])->name('tugas.destroy');
     Route::get('/tugas/{kelas}/submission/{submission}/download', [TugasController::class, 'downloadSubmission'])->name('tugas.submission.download');
+    Route::get('/tugas/{kelas}/download/{tugas}', [TugasController::class, 'downloadTugas'])->name('tugas.download');
 });

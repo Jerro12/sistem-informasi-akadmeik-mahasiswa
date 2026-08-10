@@ -33,10 +33,7 @@ class KrsPrintController extends Controller
         $semesterType = strtolower($krs->tahunAkademik->semester);
         $allMataKuliah = \App\Models\MataKuliah::where(function($q) use ($mahasiswa, $semesterType, $krs, $takenMkIds) {
                 $q->where(function($q2) use ($mahasiswa, $semesterType, $krs) {
-                    $q2->where(function($q3) use ($mahasiswa) {
-                            $q3->where('prodi_id', $mahasiswa->prodi_id)
-                               ->orWhereNull('prodi_id');
-                        })
+                    $q2->where('prodi_id', $mahasiswa->prodi_id)
                         ->where(function($q3) use ($semesterType) {
                             if ($semesterType === 'ganjil') {
                                 $q3->whereRaw('semester % 2 != 0');

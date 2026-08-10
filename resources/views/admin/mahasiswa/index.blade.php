@@ -530,7 +530,14 @@
                 <form action="{{ route('admin.mahasiswa.import') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div class="p-6 space-y-4">
-                        <p class="text-sm text-siakad-secondary dark:text-gray-400">Pilih berkas Excel (.xlsx / .xls / .csv) dengan format kolom: <strong>NIM, Nama, Password, Prodi (ID/Nama), Angkatan, Semester</strong>.</p>
+                        <p class="text-sm text-siakad-secondary dark:text-gray-400">Pilih berkas Excel (.xlsx / .xls / .csv) dengan format kolom: <strong>NIM, Nama, Password, Prodi, Angkatan, Semester</strong>.</p>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg flex items-center justify-between">
+                            <span class="text-xs text-blue-700 dark:text-blue-300 font-medium">Format Excel Standar</span>
+                            <a href="{{ route('admin.mahasiswa.template') }}" class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 underline font-semibold flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                Download Template
+                            </a>
+                        </div>
                         <div>
                             <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Berkas Excel / CSV</label>
                             <input type="file" name="file" accept=".xlsx,.xls,.csv" required class="input-saas w-full px-4 py-2 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">

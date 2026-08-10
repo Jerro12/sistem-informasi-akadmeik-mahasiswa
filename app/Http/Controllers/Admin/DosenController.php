@@ -288,12 +288,40 @@ class DosenController extends Controller
 
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
         $fileName = 'dosen_export_' . date('Y-m-d') . '.xlsx';
+        $tempFile = tempnam(sys_get_temp_dir(), 'exp_dsn_');
+        $writer->save($tempFile);
 
-        return response()->streamDownload(function() use ($writer) {
-            $writer->save('php://output');
-        }, $fileName, [
+        return response()->download($tempFile, $fileName, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        ]);
+        ])->deleteFileAfterSend(true);
+    }
+
+    public function template()
+    {
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        $sheet->fromArray([
+            ['NIDN', 'Nama Dosen', 'Email', 'Password', 'Prodi']
+        ], null, 'A1');
+
+        $sheet->fromArray([
+            ['0912345678', 'Dr. Ahmad Yani, M.T.', 'ahmad@dosen.siakad.com', 'password123', 'Teknik Informatika'],
+            ['0987654321', 'Prof. Dr. Indah, S.Kom., M.Kom.', 'indah@dosen.siakad.com', 'password123', 'Sistem Informasi'],
+        ], null, 'A2');
+
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+
+        $fileName = 'template_import_dosen.xlsx';
+        $tempFile = tempnam(sys_get_temp_dir(), 'tpl_dsn_');
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $writer->save($tempFile);
+
+        return response()->download($tempFile, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ])->deleteFileAfterSend(true);
     }
 
     public function import(Request $request)

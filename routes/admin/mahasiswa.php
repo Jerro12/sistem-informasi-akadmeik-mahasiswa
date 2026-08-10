@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\MahasiswaController;
 
 Route::middleware(['auth', 'role:admin', 'fakultas.scope', 'prodi.scope'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/mahasiswa/export', [MahasiswaController::class, 'export'])->name('mahasiswa.export');
+    Route::get('/mahasiswa/template', [MahasiswaController::class, 'template'])->name('mahasiswa.template');
     Route::post('/mahasiswa/import', [MahasiswaController::class, 'import'])->name('mahasiswa.import');
     Route::get('/mahasiswa', [MahasiswaController::class, 'index'])->name('mahasiswa.index');
     Route::post('/mahasiswa', [MahasiswaController::class, 'store'])->name('mahasiswa.store');

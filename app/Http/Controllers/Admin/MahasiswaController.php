@@ -263,12 +263,40 @@ class MahasiswaController extends Controller
 
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
         $fileName = 'data-mahasiswa-' . date('Y-m-d') . '.xlsx';
+        $tempFile = tempnam(sys_get_temp_dir(), 'exp_mhs_');
+        $writer->save($tempFile);
 
-        return response()->streamDownload(function() use ($writer) {
-            $writer->save('php://output');
-        }, $fileName, [
+        return response()->download($tempFile, $fileName, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        ]);
+        ])->deleteFileAfterSend(true);
+    }
+
+    public function template()
+    {
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        $sheet->fromArray([
+            ['NIM', 'Nama Mahasiswa', 'Email', 'Password', 'Prodi', 'Angkatan', 'Semester', 'Status']
+        ], null, 'A1');
+
+        $sheet->fromArray([
+            ['202401001', 'Budi Santoso', 'budi@mahasiswa.siakad.com', 'password123', 'Teknik Informatika', 2024, 1, 'Aktif'],
+            ['202401002', 'Siti Aminah', 'siti@mahasiswa.siakad.com', 'password123', 'Sistem Informasi', 2024, 1, 'Aktif'],
+        ], null, 'A2');
+
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+
+        $fileName = 'template_import_mahasiswa.xlsx';
+        $tempFile = tempnam(sys_get_temp_dir(), 'tpl_mhs_');
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $writer->save($tempFile);
+
+        return response()->download($tempFile, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ])->deleteFileAfterSend(true);
     }
 
     public function import(Request $request)

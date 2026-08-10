@@ -67,15 +67,42 @@ class MateriController extends Controller
         }
 
         // Verify materi belongs to this kelas
-        $pertemuan = $materi->pertemuan;
-        if ($pertemuan->jadwalKuliah->kelas_id != $kelasId) {
-            abort(403);
+        if ($materi->pertemuan?->jadwalKuliah?->kelas_id != $kelasId) {
+            $pertemuanBelongs = Pertemuan::where('id', $materi->pertemuan_id)
+                ->whereHas('jadwalKuliah', fn($q) => $q->where('kelas_id', $kelasId))
+                ->exists();
+            if (!$pertemuanBelongs) {
+                abort(403, 'Akses ditolak.');
+            }
         }
 
-        if (!$materi->file_path || !Storage::disk('public')->exists($materi->file_path)) {
+        return $this->downloadFile($materi->file_path, $materi->file_name);
+    }
+
+    private function downloadFile($filePath, $fileName = null)
+    {
+        if (!$filePath) {
             abort(404, 'File tidak ditemukan');
         }
 
-        return Storage::disk('public')->download($materi->file_path, $materi->file_name);
+        if (Storage::disk('public')->exists($filePath)) {
+            return Storage::disk('public')->download($filePath, $fileName);
+        }
+
+        if (Storage::disk('local')->exists($filePath)) {
+            return Storage::disk('local')->download($filePath, $fileName);
+        }
+
+        $fullPath = storage_path('app/' . ltrim($filePath, '/'));
+        if (file_exists($fullPath)) {
+            return response()->download($fullPath, $fileName);
+        }
+
+        $fullPublicPath = storage_path('app/public/' . ltrim($filePath, '/'));
+        if (file_exists($fullPublicPath)) {
+            return response()->download($fullPublicPath, $fileName);
+        }
+
+        abort(404, 'File tidak ditemukan di server.');
     }
 }

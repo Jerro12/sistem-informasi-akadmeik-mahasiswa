@@ -304,12 +304,41 @@ class MataKuliahController extends Controller
 
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
         $fileName = 'mata_kuliah_export_' . date('Y-m-d') . '.xlsx';
+        $tempFile = tempnam(sys_get_temp_dir(), 'exp_mk_');
+        $writer->save($tempFile);
 
-        return response()->streamDownload(function() use ($writer) {
-            $writer->save('php://output');
-        }, $fileName, [
+        return response()->download($tempFile, $fileName, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        ]);
+        ])->deleteFileAfterSend(true);
+    }
+
+    public function template()
+    {
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        $sheet->fromArray([
+            ['Kode MK', 'Nama Mata Kuliah', 'SKS', 'Semester', 'Jenis', 'Prodi']
+        ], null, 'A1');
+
+        $sheet->fromArray([
+            ['TIF101', 'Algoritma & Pemrograman', 3, 1, 'Wajib', 'Teknik Informatika'],
+            ['TIF102', 'Struktur Data', 3, 2, 'Wajib', 'Teknik Informatika'],
+            ['UNI101', 'Pendidikan Agama Islam', 2, 1, 'Wajib', 'Mata Kuliah Umum'],
+        ], null, 'A2');
+
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+
+        $fileName = 'template_import_mata_kuliah.xlsx';
+        $tempFile = tempnam(sys_get_temp_dir(), 'tpl_mk_');
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $writer->save($tempFile);
+
+        return response()->download($tempFile, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ])->deleteFileAfterSend(true);
     }
 
     public function import(Request $request)
