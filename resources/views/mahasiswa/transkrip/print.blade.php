@@ -56,8 +56,11 @@
         <!-- Header -->
         <div class="header">
             <div class="header-logo">
-                <img src="{{ asset('images/logo-umpar.png') }}" alt="Logo UMPAR" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                <div style="display:none; width:60px;height:60px;background:#ccc;border-radius:50%;"></div>
+                @php
+                    $logoPath = public_path('images/logo-umpar.png');
+                    $logoSrc = file_exists($logoPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath)) : asset('images/logo-umpar.png');
+                @endphp
+                <img src="{{ $logoSrc }}" alt="Logo UMPAR">
             </div>
             <div class="header-text">
                 <h2>{{ str_starts_with(strtolower($mahasiswa->prodi->fakultas->nama ?? ''), 'fakultas') ? strtoupper($mahasiswa->prodi->fakultas->nama) : 'FAKULTAS ' . strtoupper($mahasiswa->prodi->fakultas->nama ?? 'TEKNIK') }}</h2>
@@ -103,7 +106,7 @@
 
         <!-- Flat List of Courses -->
         @php
-            $bobotMap = ['A' => 4, 'B+' => 3.5, 'B' => 3, 'C+' => 2.5, 'C' => 2, 'D' => 1, 'E' => 0];
+            $bobotMap = ['A' => 4.0, 'B' => 3.0, 'C' => 2.0, 'D' => 1.0, 'E' => 0.0, 'T' => 0.0, '-' => 0.0];
             $flatCourses = [];
             foreach($transcript['semesters'] ?? [] as $sem) {
                 foreach($sem['courses'] as $course) {
@@ -132,8 +135,8 @@
             <tbody>
                 @foreach($flatCourses as $i => $course)
                 @php
-                    $isGraded = $course['nilai_huruf'] !== '-';
-                    $am = $isGraded ? ($bobotMap[$course['nilai_huruf']] ?? 0) : 0;
+                    $isGraded = isset($course['nilai_huruf']) && $course['nilai_huruf'] !== '-' && $course['nilai_huruf'] !== 'T';
+                    $am = $isGraded ? ($bobotMap[$course['nilai_huruf']] ?? (float)($course['bobot'] ?? 0)) : 0.0;
                     $k = $course['sks'];
                     $mutu = $am * $k;
                     $totalSks += $k;
@@ -143,10 +146,10 @@
                     <td class="center">{{ $i + 1 }}</td>
                     <td class="center">{{ $course['kode'] }}</td>
                     <td>{{ $course['nama'] }}</td>
-                    <td class="center">{{ $isGraded ? $am : '-' }}</td>
+                    <td class="center">{{ $isGraded ? number_format($am, 1) : '-' }}</td>
                     <td class="center">{{ $course['nilai_huruf'] }}</td>
                     <td class="center">{{ $k }}</td>
-                    <td class="center">{{ $isGraded ? $mutu : '0' }}</td>
+                    <td class="center">{{ $isGraded ? number_format($mutu, 1) : '0' }}</td>
                 </tr>
                 @endforeach
             </tbody>

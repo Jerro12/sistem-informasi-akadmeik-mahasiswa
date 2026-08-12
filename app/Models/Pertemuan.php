@@ -60,10 +60,14 @@ class Pertemuan extends Model
      */
     public function getMahasiswaList()
     {
-        return Mahasiswa::whereHas('krs', function ($q) {
-            $q->where('status', 'approved')
-              ->whereHas('krsDetail', fn($q2) => $q2->where('kelas_id', $this->jadwalKuliah->kelas_id));
-        })->with('user')->get();
+        $kelasId = $this->jadwalKuliah?->kelas_id;
+        if (!$kelasId) return collect();
+
+        return Mahasiswa::whereHas('krs.krsDetail', fn($q2) => $q2->where('kelas_id', $kelasId))
+            ->with('user')
+            ->get()
+            ->unique('id')
+            ->values();
     }
 
     /**

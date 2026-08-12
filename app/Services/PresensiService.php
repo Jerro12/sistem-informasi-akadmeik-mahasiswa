@@ -86,10 +86,11 @@ class PresensiService
      */
     public function getPresensiByKelas(int $kelasId): Collection
     {
-        $mahasiswaList = Mahasiswa::whereHas('krs', function ($q) use ($kelasId) {
-            $q->where('status', 'approved')
-              ->whereHas('krsDetail', fn($q2) => $q2->where('kelas_id', $kelasId));
-        })->with('user')->get()->unique('id')->values();
+        $mahasiswaList = Mahasiswa::whereHas('krs.krsDetail', fn($q) => $q->where('kelas_id', $kelasId))
+            ->with('user')
+            ->get()
+            ->unique('id')
+            ->values();
 
         return $mahasiswaList->map(function ($mahasiswa) use ($kelasId) {
             $rekap = $this->getRekapPresensi($mahasiswa->id, $kelasId);
@@ -119,10 +120,7 @@ class PresensiService
             ->get();
 
         foreach ($kelasList as $kelas) {
-            $count = Mahasiswa::whereHas('krs', function ($q) use ($kelas) {
-                $q->where('status', 'approved')
-                  ->whereHas('krsDetail', fn($q2) => $q2->where('kelas_id', $kelas->id));
-            })->count();
+            $count = Mahasiswa::whereHas('krs.krsDetail', fn($q) => $q->where('kelas_id', $kelas->id))->count();
             $kelas->jumlah_mahasiswa = $count;
         }
 
@@ -152,13 +150,14 @@ class PresensiService
     }
 
     /**
-     * Get mahasiswa list for a kelas (enrolled with approved KRS)
+     * Get mahasiswa list for a kelas (enrolled with KRS)
      */
     public function getMahasiswaByKelas(int $kelasId): Collection
     {
-        return Mahasiswa::whereHas('krs', function ($q) use ($kelasId) {
-            $q->where('status', 'approved')
-              ->whereHas('krsDetail', fn($q2) => $q2->where('kelas_id', $kelasId));
-        })->with('user')->get();
+        return Mahasiswa::whereHas('krs.krsDetail', fn($q) => $q->where('kelas_id', $kelasId))
+            ->with('user')
+            ->get()
+            ->unique('id')
+            ->values();
     }
 }

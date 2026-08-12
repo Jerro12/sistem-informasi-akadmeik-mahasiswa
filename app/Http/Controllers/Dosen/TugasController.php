@@ -120,7 +120,14 @@ class TugasController extends Controller
     public function downloadSubmission($kelasId, TugasSubmission $submission)
     {
         $dosen = Auth::user()->dosen;
-        $kelas = $dosen->kelas()->findOrFail($kelasId);
+        if (!$dosen) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $kelas = Kelas::where(function ($q) use ($dosen) {
+            $q->where('dosen_id', $dosen->id)
+              ->orWhereHas('jadwal', fn($j) => $j->where('dosen_id', $dosen->id));
+        })->findOrFail($kelasId);
 
         if ($submission->tugas->kelas_id != $kelasId) {
             abort(403);
@@ -135,40 +142,65 @@ class TugasController extends Controller
     public function downloadTugas($kelasId, Tugas $tugas)
     {
         $dosen = Auth::user()->dosen;
-        $kelas = $dosen->kelas()->findOrFail($kelasId);
+        if (!$dosen) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $kelas = Kelas::where(function ($q) use ($dosen) {
+            $q->where('dosen_id', $dosen->id)
+              ->orWhereHas('jadwal', fn($j) => $j->where('dosen_id', $dosen->id));
+        })->findOrFail($kelasId);
 
         if ($tugas->kelas_id != $kelasId) {
             abort(403);
         }
 
-        return $this->downloadFile($tugas->file_tugas);
+        if (!$tugas->file_tugas) {
+            return back()->with('error', 'Tugas ini tidak memiliki file soal.');
+        }
+
+        return $this->downloadFile($tugas->file_tugas, basename($tugas->file_tugas));
     }
 
     private function downloadFile($filePath, $fileName = null)
     {
         if (!$filePath) {
-            abort(404, 'File tidak ditemukan');
+            return back()->with('error', 'File tidak ditemukan atau belum diunggah.');
         }
 
-        if (Storage::disk('public')->exists($filePath)) {
-            return Storage::disk('public')->download($filePath, $fileName);
+        $cleanPath = ltrim($filePath, '/');
+        $cleanPath = preg_replace('/^(public\/|storage\/)+/', '', $cleanPath);
+
+        $pathsToTry = [
+            $filePath,
+            $cleanPath,
+            'public/' . $cleanPath,
+            ltrim($filePath, '/'),
+        ];
+
+        foreach ($pathsToTry as $path) {
+            if (Storage::disk('public')->exists($path)) {
+                return Storage::disk('public')->download($path, $fileName);
+            }
+            if (Storage::disk('local')->exists($path)) {
+                return Storage::disk('local')->download($path, $fileName);
+            }
         }
 
-        if (Storage::disk('local')->exists($filePath)) {
-            return Storage::disk('local')->download($filePath, $fileName);
+        $absolutePaths = [
+            storage_path('app/public/' . $cleanPath),
+            storage_path('app/' . $cleanPath),
+            public_path('storage/' . $cleanPath),
+            storage_path('app/' . ltrim($filePath, '/')),
+        ];
+
+        foreach ($absolutePaths as $absPath) {
+            if (file_exists($absPath) && is_file($absPath)) {
+                return response()->download($absPath, $fileName);
+            }
         }
 
-        $fullPath = storage_path('app/' . ltrim($filePath, '/'));
-        if (file_exists($fullPath)) {
-            return response()->download($fullPath, $fileName);
-        }
-
-        $fullPublicPath = storage_path('app/public/' . ltrim($filePath, '/'));
-        if (file_exists($fullPublicPath)) {
-            return response()->download($fullPublicPath, $fileName);
-        }
-
-        abort(404, 'File tidak ditemukan di server.');
+        return back()->with('error', 'File tidak ditemukan di server.');
     }
 
     /**

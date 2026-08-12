@@ -116,32 +116,38 @@
                     <tr class="bg-siakad-light/30">
                         <th class="text-left py-3 px-5 text-xs font-semibold text-siakad-secondary uppercase tracking-wider">Kode</th>
                         <th class="text-left py-3 px-5 text-xs font-semibold text-siakad-secondary uppercase tracking-wider">Mata Kuliah</th>
-                        <th class="text-center py-3 px-5 text-xs font-semibold text-siakad-secondary uppercase tracking-wider">SKS</th>
-                        <th class="text-center py-3 px-5 text-xs font-semibold text-siakad-secondary uppercase tracking-wider">Nilai</th>
-                        <th class="text-center py-3 px-5 text-xs font-semibold text-siakad-secondary uppercase tracking-wider">Huruf</th>
+                        <th class="text-center py-3 px-5 text-xs font-semibold text-siakad-secondary uppercase tracking-wider">SKS (K)</th>
+                        <th class="text-center py-3 px-5 text-xs font-semibold text-siakad-secondary uppercase tracking-wider">Nilai Huruf (HM)</th>
+                        <th class="text-center py-3 px-5 text-xs font-semibold text-siakad-secondary uppercase tracking-wider">Bobot (AM)</th>
+                        <th class="text-center py-3 px-5 text-xs font-semibold text-siakad-secondary uppercase tracking-wider">Mutu (N x K)</th>
                     </tr>
                 </thead>
                 <tbody>
+                    @php
+                        $bobotMap = ['A' => 4.0, 'B' => 3.0, 'C' => 2.0, 'D' => 1.0, 'E' => 0.0, 'T' => 0.0, '-' => 0.0];
+                    @endphp
                     @foreach($semester['courses'] as $course)
+                    @php
+                        $isGraded = isset($course['nilai_huruf']) && $course['nilai_huruf'] !== '-' && $course['nilai_huruf'] !== 'T';
+                        $am = $isGraded ? ($bobotMap[$course['nilai_huruf']] ?? (float)($course['bobot'] ?? 0)) : 0.0;
+                        $mutu = $am * $course['sks'];
+                        $gradeColors = [
+                            'A' => 'bg-emerald-100 text-emerald-700',
+                            'B' => 'bg-siakad-primary/10 text-siakad-primary',
+                            'C' => 'bg-amber-100 text-amber-700',
+                            'D' => 'bg-red-100 text-red-700',
+                            'E' => 'bg-red-200 text-red-800',
+                        ];
+                    @endphp
                     <tr class="border-b border-siakad-light/50">
                         <td class="py-3 px-5 text-sm font-mono text-siakad-primary">{{ $course['kode'] }}</td>
                         <td class="py-3 px-5 text-sm text-siakad-dark">{{ $course['nama'] }}</td>
                         <td class="py-3 px-5 text-sm text-siakad-secondary text-center">{{ $course['sks'] }}</td>
-                        <td class="py-3 px-5 text-sm text-siakad-secondary text-center">{{ $course['nilai_angka'] }}</td>
                         <td class="py-3 px-5 text-center">
-                            @php
-                                $gradeColors = [
-                                    'A' => 'bg-emerald-100 text-emerald-700',
-                                    'B+' => 'bg-siakad-primary/10 text-siakad-primary',
-                                    'B' => 'bg-siakad-secondary/10 text-siakad-secondary',
-                                    'C+' => 'bg-amber-100 text-amber-700',
-                                    'C' => 'bg-orange-100 text-orange-700',
-                                    'D' => 'bg-red-100 text-red-700',
-                                    'E' => 'bg-red-200 text-red-800',
-                                ];
-                            @endphp
                             <span class="inline-flex px-2 py-0.5 text-xs font-semibold rounded-full {{ $gradeColors[$course['nilai_huruf']] ?? 'bg-slate-100 text-slate-600' }}">{{ $course['nilai_huruf'] }}</span>
                         </td>
+                        <td class="py-3 px-5 text-sm text-siakad-secondary text-center">{{ $isGraded ? number_format($am, 1) : '-' }}</td>
+                        <td class="py-3 px-5 text-sm font-semibold text-siakad-dark text-center">{{ $isGraded ? number_format($mutu, 1) : '0' }}</td>
                     </tr>
                     @endforeach
                 </tbody>

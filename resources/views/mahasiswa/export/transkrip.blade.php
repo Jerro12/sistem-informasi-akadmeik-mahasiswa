@@ -63,8 +63,11 @@
         <!-- Header Kop Surat UMPAR -->
         <div class="header">
             <div class="header-logo">
-                <img src="{{ asset('images/logo-umpar.png') }}" alt="Logo UMPAR" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                <div style="display:none; width:60px;height:60px;background:#ccc;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;">LOGO</div>
+                @php
+                    $logoPath = public_path('images/logo-umpar.png');
+                    $logoSrc = file_exists($logoPath) ? 'data:image/png;base64,' . base64_encode(file_get_contents($logoPath)) : asset('images/logo-umpar.png');
+                @endphp
+                <img src="{{ $logoSrc }}" alt="Logo UMPAR">
             </div>
             <div class="header-text">
                 <h2>{{ str_starts_with(strtolower($mahasiswa->prodi?->fakultas?->nama ?? ''), 'fakultas') ? strtoupper($mahasiswa->prodi?->fakultas?->nama) : 'FAKULTAS ' . strtoupper($mahasiswa->prodi?->fakultas?->nama ?? 'TEKNIK') }}</h2>
@@ -110,12 +113,12 @@
                     $totalSks = 0; 
                     $totalBobot = 0; 
                     $courses = $transcript['all_courses'] ?? collect();
-                    $bobotMap = ['A' => 4.0, 'B+' => 3.5, 'B' => 3.0, 'C+' => 2.5, 'C' => 2.0, 'D' => 1.0, 'E' => 0.0, '-' => 0.0];
+                    $bobotMap = ['A' => 4.0, 'B' => 3.0, 'C' => 2.0, 'D' => 1.0, 'E' => 0.0, 'T' => 0.0, '-' => 0.0];
                 @endphp
                 @forelse($courses as $index => $course)
                 @php
-                    $isGraded = $course['nilai_huruf'] !== '-';
-                    $am = $isGraded ? ($bobotMap[$course['nilai_huruf']] ?? 0.0) : 0.0;
+                    $isGraded = isset($course['nilai_huruf']) && $course['nilai_huruf'] !== '-' && $course['nilai_huruf'] !== 'T';
+                    $am = $isGraded ? ($bobotMap[$course['nilai_huruf']] ?? (float)($course['bobot'] ?? 0)) : 0.0;
                     $mutu = $am * $course['sks'];
                     $totalSks += $course['sks'];
                     $totalBobot += $mutu;
@@ -140,7 +143,7 @@
                     <td colspan="3" class="right">Total SKS & Bobot Mutu</td>
                     <td class="center">{{ $totalSks }}</td>
                     <td colspan="2" class="center">IPK</td>
-                    <td class="center">{{ number_format($ipkData['ips'], 2) }}</td>
+                    <td class="center">{{ $totalSks > 0 ? number_format($totalBobot / $totalSks, 2) : '0.00' }}</td>
                 </tr>
             </tfoot>
         </table>

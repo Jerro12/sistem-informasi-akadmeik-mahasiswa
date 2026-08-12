@@ -201,19 +201,17 @@ class AkademikCalculationService
 
     }
 
-    /**
-     * Get bobot from nilai huruf using config
-     */
-    private function getBobot(string $nilaiHuruf): float
+    public function getBobot(string $nilaiHuruf): float
     {
         $konversi = config('siakad.nilai_konversi', []);
         
         foreach ($konversi as $k) {
-            if ($k['huruf'] === $nilaiHuruf) {
-                return $k['bobot'];
+            if ($k['huruf'] === strtoupper($nilaiHuruf)) {
+                return (float)$k['bobot'];
             }
         }
 
-        return 0;
+        $fallbackMap = ['A' => 4.0, 'B' => 3.0, 'C' => 2.0, 'D' => 1.0, 'E' => 0.0, 'T' => 0.0];
+        return $fallbackMap[strtoupper($nilaiHuruf)] ?? 0.0;
     }
 }
