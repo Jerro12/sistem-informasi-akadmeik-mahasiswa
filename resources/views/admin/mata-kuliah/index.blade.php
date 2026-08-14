@@ -305,133 +305,138 @@
     </div>
     @endif
     </div>
-    <div id="createModal" class="hidden fixed inset-0 bg-black/50 z-50 overflow-y-auto p-4 flex items-center justify-center">
-        <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh] my-auto animate-fade-in min-h-0 overflow-hidden">
-            <div class="px-6 py-4 border-b border-siakad-light dark:border-gray-700 flex items-center justify-between shrink-0">
-                <h3 class="text-lg font-semibold text-siakad-dark dark:text-white">Tambah Mata Kuliah</h3>
-                <button type="button" onclick="document.getElementById('createModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
-            <form action="{{ route('admin.mata-kuliah.store') }}" method="POST" class="flex flex-col flex-1 min-h-0 overflow-hidden">
-                @csrf
-                <div class="p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
-                    @if($isSuperAdmin)
-                    <!-- Fakultas dropdown for superadmin -->
-                    <div>
-                        <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Fakultas</label>
-                        <select name="fakultas_id" id="createFakultasSelect" onchange="filterProdiCreate()" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
-                            <option value="">Pilih Fakultas</option>
-                            @foreach($fakultasList as $fakultas)
-                            <option value="{{ $fakultas->id }}">{{ $fakultas->nama }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    @endif
-                    
-                    <!-- Prodi dropdown -->
-                    <div>
-                        <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Program Studi</label>
-                        <select name="prodi_id" id="createProdiSelect" onchange="filterKurikulumKonsentrasiCreate()" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
-                            <option value="">Pilih Program Studi</option>
-                            <option value="all_faculty">Semua Prodi di Fakultas Ini</option>
-                            @foreach($prodiList as $prodi)
-                            <option value="{{ $prodi->id }}" data-fakultas="{{ $prodi->fakultas_id }}">{{ $prodi->nama }}</option>
-                            @endforeach
-                        </select>
-                    </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+    <!-- Create Modal -->
+    <div id="createModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/50 p-4">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh] my-auto animate-fade-in min-h-0 overflow-hidden">
+                <div class="px-6 py-4 border-b border-siakad-light dark:border-gray-700 flex items-center justify-between shrink-0">
+                    <h3 class="text-lg font-semibold text-siakad-dark dark:text-white">Tambah Mata Kuliah</h3>
+                    <button type="button" onclick="document.getElementById('createModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                <form action="{{ route('admin.mata-kuliah.store') }}" method="POST" class="flex flex-col flex-1 min-h-0 overflow-hidden">
+                    @csrf
+                    <div class="p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
+                        @if($isSuperAdmin)
+                        <!-- Fakultas dropdown for superadmin -->
                         <div>
-                            <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Kurikulum</label>
-                            <select name="kurikulum_id" id="createKurikulumSelect" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
-                                <option value="">Umum / Bebas Kurikulum</option>
-                                @foreach($kurikulumList as $k)
-                                <option value="{{ $k->id }}" data-prodi="{{ $k->prodi_id }}">{{ $k->nama }}</option>
+                            <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Fakultas</label>
+                            <select name="fakultas_id" id="createFakultasSelect" onchange="filterProdiCreate()" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                                <option value="">Pilih Fakultas</option>
+                                @foreach($fakultasList as $fakultas)
+                                <option value="{{ $fakultas->id }}">{{ $fakultas->nama }}</option>
                                 @endforeach
                             </select>
                         </div>
+                        @endif
+                        
+                        <!-- Prodi dropdown -->
                         <div>
-                            <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Konsentrasi</label>
-                            <select name="konsentrasi_id" id="createKonsentrasiSelect" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
-                                <option value="">Umum / Semua Konsentrasi</option>
-                                @foreach($konsentrasiList as $k)
-                                <option value="{{ $k->id }}" data-prodi="{{ $k->prodi_id }}">{{ $k->nama_konsentrasi }}</option>
+                            <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Program Studi</label>
+                            <select name="prodi_id" id="createProdiSelect" onchange="filterKurikulumKonsentrasiCreate()" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
+                                <option value="">Pilih Program Studi</option>
+                                <option value="all_faculty">Semua Prodi di Fakultas Ini</option>
+                                @foreach($prodiList as $prodi)
+                                <option value="{{ $prodi->id }}" data-fakultas="{{ $prodi->fakultas_id }}">{{ $prodi->nama }}</option>
                                 @endforeach
                             </select>
                         </div>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Kode MK</label>
-                        <input type="text" name="kode_mk" class="input-saas w-full px-4 py-2.5 text-sm font-mono dark:bg-gray-900 dark:border-gray-700 dark:text-white" placeholder="Contoh: TI101, SI201, MK001" required>
-                        <p class="text-xs text-siakad-secondary dark:text-gray-400 mt-1">Prefix: TI=Teknik Informatika, SI=Sistem Informasi, MK=Umum, dll</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Nama Mata Kuliah</label>
-                        <input type="text" name="nama_mk" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" placeholder="Masukkan nama mata kuliah" required>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Kurikulum</label>
+                                <select name="kurikulum_id" id="createKurikulumSelect" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                                    <option value="">Umum / Bebas Kurikulum</option>
+                                    @foreach($kurikulumList as $k)
+                                    <option value="{{ $k->id }}" data-prodi="{{ $k->prodi_id }}">{{ $k->nama }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Konsentrasi</label>
+                                <select name="konsentrasi_id" id="createKonsentrasiSelect" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                                    <option value="">Umum / Semua Konsentrasi</option>
+                                    @foreach($konsentrasiList as $k)
+                                    <option value="{{ $k->id }}" data-prodi="{{ $k->prodi_id }}">{{ $k->nama_konsentrasi }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        
                         <div>
-                            <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">SKS</label>
-                            <input type="number" name="sks" min="1" max="6" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" placeholder="3" required>
+                            <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Kode MK</label>
+                            <input type="text" name="kode_mk" class="input-saas w-full px-4 py-2.5 text-sm font-mono dark:bg-gray-900 dark:border-gray-700 dark:text-white" placeholder="Contoh: TI101, SI201, MK001" required>
+                            <p class="text-xs text-siakad-secondary dark:text-gray-400 mt-1">Prefix: TI=Teknik Informatika, SI=Sistem Informasi, MK=Umum, dll</p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Semester</label>
-                            <input type="number" name="semester" min="1" max="8" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" placeholder="1" required>
+                            <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Nama Mata Kuliah</label>
+                            <input type="text" name="nama_mk" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" placeholder="Masukkan nama mata kuliah" required>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">SKS</label>
+                                <input type="number" name="sks" min="1" max="6" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" placeholder="3" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Semester</label>
+                                <input type="number" name="semester" min="1" max="8" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" placeholder="1" required>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Jenis Mata Kuliah</label>
+                            <select name="jenis" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
+                                <option value="wajib">WAJIB</option>
+                                <option value="pilihan">PILIHAN</option>
+                            </select>
                         </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Jenis Mata Kuliah</label>
-                        <select name="jenis" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
-                            <option value="wajib">WAJIB</option>
-                            <option value="pilihan">PILIHAN</option>
-                        </select>
+                    <div class="px-6 py-4 border-t border-siakad-light dark:border-gray-700 flex items-center justify-end gap-3 shrink-0">
+                        <button type="button" onclick="document.getElementById('createModal').classList.add('hidden')" class="btn-ghost-saas px-4 py-2 rounded-lg text-sm font-medium dark:text-white">Batal</button>
+                        <button type="submit" class="btn-primary-saas px-4 py-2 rounded-lg text-sm font-medium">Simpan</button>
                     </div>
-                </div>
-                <div class="px-6 py-4 border-t border-siakad-light dark:border-gray-700 flex items-center justify-end gap-3 shrink-0">
-                    <button type="button" onclick="document.getElementById('createModal').classList.add('hidden')" class="btn-ghost-saas px-4 py-2 rounded-lg text-sm font-medium dark:text-white">Batal</button>
-                    <button type="submit" class="btn-primary-saas px-4 py-2 rounded-lg text-sm font-medium">Simpan</button>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
 
     <!-- Edit Modal -->
-    <div id="editModal" class="hidden fixed inset-0 bg-black/50 z-50 overflow-y-auto p-4 flex items-center justify-center">
-        <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh] my-auto animate-fade-in min-h-0 overflow-hidden">
-            <div class="px-6 py-4 border-b border-siakad-light dark:border-gray-700 flex items-center justify-between shrink-0">
-                <h3 class="text-lg font-semibold text-siakad-dark dark:text-white">Edit Mata Kuliah</h3>
-                <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
-            <form id="editForm" method="POST" class="flex flex-col flex-1 min-h-0 overflow-hidden">
-                @csrf @method('PUT')
-                <div class="p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
-                    @if($isSuperAdmin)
-                    <!-- Fakultas dropdown for superadmin -->
-                    <div>
-                        <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Fakultas</label>
-                        <select id="editFakultasSelect" onchange="filterProdiEdit()" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
-                            <option value="">Pilih Fakultas</option>
-                            @foreach($fakultasList as $fakultas)
-                            <option value="{{ $fakultas->id }}">{{ $fakultas->nama }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    @endif
-                    
-                    <!-- Prodi dropdown -->
-                    <div>
-                        <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Program Studi</label>
-                        <select name="prodi_id" id="editProdiSelect" onchange="filterKurikulumKonsentrasiEdit()" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
-                            <option value="">Pilih Program Studi</option>
-                            @foreach($prodiList as $prodi)
-                            <option value="{{ $prodi->id }}" data-fakultas="{{ $prodi->fakultas_id }}">{{ $prodi->nama }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+    <div id="editModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/50 p-4">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh] my-auto animate-fade-in min-h-0 overflow-hidden">
+                <div class="px-6 py-4 border-b border-siakad-light dark:border-gray-700 flex items-center justify-between shrink-0">
+                    <h3 class="text-lg font-semibold text-siakad-dark dark:text-white">Edit Mata Kuliah</h3>
+                    <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                <form id="editForm" method="POST" class="flex flex-col flex-1 min-h-0 overflow-hidden">
+                    @csrf @method('PUT')
+                    <div class="p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
+                        @if($isSuperAdmin)
+                        <!-- Fakultas dropdown for superadmin -->
+                        <div>
+                            <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Fakultas</label>
+                            <select id="editFakultasSelect" onchange="filterProdiEdit()" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                                <option value="">Pilih Fakultas</option>
+                                @foreach($fakultasList as $fakultas)
+                                <option value="{{ $fakultas->id }}">{{ $fakultas->nama }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        @endif
+                        
+                        <!-- Prodi dropdown -->
+                        <div>
+                            <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Program Studi</label>
+                            <select name="prodi_id" id="editProdiSelect" onchange="filterKurikulumKonsentrasiEdit()" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
+                                <option value="">Pilih Program Studi</option>
+                                @foreach($prodiList as $prodi)
+                                <option value="{{ $prodi->id }}" data-fakultas="{{ $prodi->fakultas_id }}">{{ $prodi->nama }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div>
@@ -576,32 +581,34 @@
     </script>
 
     <!-- Import Modal -->
-    <div id="importModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md animate-fade-in overflow-hidden">
-            <div class="px-6 py-4 border-b border-siakad-light dark:border-gray-700">
-                <h3 class="text-lg font-semibold text-siakad-dark dark:text-white">Import Data Mata Kuliah</h3>
+    <div id="importModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/40 p-4">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md animate-fade-in overflow-hidden shadow-xl">
+                <div class="px-6 py-4 border-b border-siakad-light dark:border-gray-700">
+                    <h3 class="text-lg font-semibold text-siakad-dark dark:text-white">Import Data Mata Kuliah</h3>
+                </div>
+                <form action="{{ route('admin.mata-kuliah.import') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="p-6 space-y-4">
+                        <p class="text-sm text-siakad-secondary dark:text-gray-400">Pilih berkas Excel (.xlsx / .xls / .csv) dengan kolom: <strong>Kode MK, Nama MK, SKS, Semester, Jenis (Wajib/Pilihan)</strong>.</p>
+                        <div class="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg flex items-center justify-between">
+                            <span class="text-xs text-blue-700 dark:text-blue-300 font-medium">Format Excel Standar</span>
+                            <a href="{{ route('admin.mata-kuliah.template') }}" class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 underline font-semibold flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                Download Template
+                            </a>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Berkas Excel / CSV</label>
+                            <input type="file" name="file" accept=".xlsx,.xls,.csv" required class="input-saas w-full px-4 py-2 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
+                        </div>
+                    </div>
+                    <div class="px-6 py-4 border-t border-siakad-light dark:border-gray-700 flex items-center justify-end gap-3">
+                        <button type="button" onclick="document.getElementById('importModal').classList.add('hidden')" class="btn-ghost-saas px-4 py-2 rounded-lg text-sm font-medium dark:text-white">Batal</button>
+                        <button type="submit" class="btn-primary-saas px-4 py-2 rounded-lg text-sm font-medium">Unggah & Import</button>
+                    </div>
+                </form>
             </div>
-            <form action="{{ route('admin.mata-kuliah.import') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <div class="p-6 space-y-4">
-                    <p class="text-sm text-siakad-secondary dark:text-gray-400">Pilih berkas Excel (.xlsx / .xls / .csv) dengan kolom: <strong>Kode MK, Nama MK, SKS, Semester, Jenis (Wajib/Pilihan)</strong>.</p>
-                    <div class="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg flex items-center justify-between">
-                        <span class="text-xs text-blue-700 dark:text-blue-300 font-medium">Format Excel Standar</span>
-                        <a href="{{ route('admin.mata-kuliah.template') }}" class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 underline font-semibold flex items-center gap-1">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                            Download Template
-                        </a>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-siakad-dark dark:text-gray-300 mb-2">Berkas Excel / CSV</label>
-                        <input type="file" name="file" accept=".xlsx,.xls,.csv" required class="input-saas w-full px-4 py-2 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
-                    </div>
-                </div>
-                <div class="px-6 py-4 border-t border-siakad-light dark:border-gray-700 flex items-center justify-end gap-3">
-                    <button type="button" onclick="document.getElementById('importModal').classList.add('hidden')" class="btn-ghost-saas px-4 py-2 rounded-lg text-sm font-medium dark:text-white">Batal</button>
-                    <button type="submit" class="btn-primary-saas px-4 py-2 rounded-lg text-sm font-medium">Unggah & Import</button>
-                </div>
-            </form>
         </div>
     </div>
 </x-app-layout>
