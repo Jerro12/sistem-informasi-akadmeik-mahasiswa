@@ -94,25 +94,17 @@ class DosenController extends Controller
             'name' => 'required|string|max:255',
             'password' => 'required|string|min:8',
             'nidn' => 'required|string|unique:dosen,nidn|unique:users,username',
-            'prodi_id' => 'nullable|string',
+            'prodi_id' => 'nullable|exists:prodi,id',
+            'cakupan_mengajar' => 'nullable|in:pt,perguruan_tinggi,fakultas,prodi',
         ]);
 
-        $prodiId = null;
+        $prodiId = $request->filled('prodi_id') ? (int) $request->input('prodi_id') : null;
+        $cakupan = $request->input('cakupan_mengajar', 'prodi');
         $fakultasId = null;
 
-        if ($request->filled('prodi_id')) {
-            $val = $request->input('prodi_id');
-            if (str_starts_with($val, 'fakultas_')) {
-                $fakultasId = (int) str_replace('fakultas_', '', $val);
-                if (!\App\Models\Fakultas::where('id', $fakultasId)->exists()) {
-                    return back()->withErrors(['prodi_id' => 'Fakultas tidak valid.']);
-                }
-            } else {
-                $prodiId = (int) $val;
-                $prodi = Prodi::find($prodiId);
-                if (!$prodi) {
-                    return back()->withErrors(['prodi_id' => 'Prodi tidak valid.']);
-                }
+        if ($prodiId) {
+            $prodi = Prodi::find($prodiId);
+            if ($cakupan === 'fakultas' && $prodi) {
                 $fakultasId = $prodi->fakultas_id;
             }
         }
@@ -145,26 +137,18 @@ class DosenController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'nidn' => 'required|string|unique:dosen,nidn,' . $dosen->id . '|unique:users,username,' . $dosen->user_id,
-            'prodi_id' => 'nullable|string',
+            'prodi_id' => 'nullable|exists:prodi,id',
+            'cakupan_mengajar' => 'nullable|in:pt,perguruan_tinggi,fakultas,prodi',
             'password' => 'nullable|string|min:8',
         ]);
 
-        $prodiId = null;
+        $prodiId = $request->filled('prodi_id') ? (int) $request->input('prodi_id') : null;
+        $cakupan = $request->input('cakupan_mengajar', 'prodi');
         $fakultasId = null;
 
-        if ($request->filled('prodi_id')) {
-            $val = $request->input('prodi_id');
-            if (str_starts_with($val, 'fakultas_')) {
-                $fakultasId = (int) str_replace('fakultas_', '', $val);
-                if (!\App\Models\Fakultas::where('id', $fakultasId)->exists()) {
-                    return back()->withErrors(['prodi_id' => 'Fakultas tidak valid.']);
-                }
-            } else {
-                $prodiId = (int) $val;
-                $prodi = Prodi::find($prodiId);
-                if (!$prodi) {
-                    return back()->withErrors(['prodi_id' => 'Prodi tidak valid.']);
-                }
+        if ($prodiId) {
+            $prodi = Prodi::find($prodiId);
+            if ($cakupan === 'fakultas' && $prodi) {
                 $fakultasId = $prodi->fakultas_id;
             }
         }

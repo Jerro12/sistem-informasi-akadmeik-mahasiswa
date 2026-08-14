@@ -39,7 +39,7 @@
                     <div class="flex items-center gap-2 mb-2">
                         <span class="text-[11px] font-medium opacity-80 uppercase tracking-wide">IPK</span>
                     </div>
-                    <p class="text-2xl font-bold">{{ number_format($ipkData['ips'], 2) }}</p>
+                    <p class="text-2xl font-bold">{{ number_format($ipkData['ipk'] ?? $ipkData['ips'] ?? 0, 2) }}</p>
                     <p class="text-[10px] opacity-70 mt-1">Indeks Kumulatif</p>
                 </div>
 
@@ -56,7 +56,7 @@
             <div class="mt-5 pt-4 border-t border-siakad-light/50">
                 <div class="flex items-center justify-between text-sm">
                     <span class="text-siakad-secondary">Total SKS Lulus</span>
-                    <span class="font-semibold text-siakad-dark">{{ $ipkData['total_sks'] }} SKS</span>
+                    <span class="font-semibold text-siakad-dark">{{ $ipkData['total_sks_lulus'] ?? $ipkData['total_sks'] }} SKS</span>
                 </div>
                 <div class="flex items-center justify-between text-sm mt-2">
                     <span class="text-siakad-secondary">Maks SKS Semester Depan</span>

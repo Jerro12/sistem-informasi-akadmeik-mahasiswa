@@ -60,7 +60,7 @@
             <div class="w-12 h-12 rounded-xl bg-[#234C6A]/10 flex items-center justify-center mx-auto mb-3">
                 <svg class="w-6 h-6 text-[#234C6A]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
             </div>
-            <p class="text-2xl font-bold text-siakad-dark">{{ number_format($ipkData['ips'], 2) }}</p>
+            <p class="text-2xl font-bold text-siakad-dark">{{ number_format($ipkData['ipk'] ?? $ipkData['ips'] ?? 0, 2) }}</p>
             <p class="text-sm text-siakad-secondary">IPK Kumulatif</p>
         </div>
         <div class="card-saas p-5 text-center">

@@ -265,6 +265,65 @@
                 outline: none;
             }
 
+            /* TomSelect Custom Styling for Light & Dark Mode */
+            .ts-control {
+                border: 1px solid var(--siakad-light) !important;
+                border-radius: 8px !important;
+                padding: 10px 14px !important;
+                background-color: var(--bg-card) !important;
+                color: var(--text-primary) !important;
+                font-size: 0.875rem !important;
+                box-shadow: none !important;
+            }
+            .ts-control input {
+                color: var(--text-primary) !important;
+                font-size: 0.875rem !important;
+            }
+            .ts-control .item {
+                color: var(--text-primary) !important;
+            }
+            .dark .ts-control {
+                background-color: #111827 !important;
+                border-color: #374151 !important;
+                color: #F9FAFB !important;
+            }
+            .dark .ts-control input {
+                color: #F9FAFB !important;
+            }
+            .dark .ts-control .item {
+                color: #F9FAFB !important;
+            }
+            .ts-dropdown {
+                background-color: var(--bg-card) !important;
+                border: 1px solid var(--border-color) !important;
+                border-radius: 8px !important;
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+                z-index: 9999 !important;
+            }
+            .dark .ts-dropdown {
+                background-color: #1F2937 !important;
+                border-color: #374151 !important;
+                color: #F9FAFB !important;
+            }
+            .ts-dropdown .option {
+                padding: 10px 14px !important;
+                color: var(--text-primary) !important;
+                border-bottom: 1px solid rgba(0,0,0,0.04) !important;
+            }
+            .dark .ts-dropdown .option {
+                color: #F3F4F6 !important;
+                border-bottom: 1px solid #374151 !important;
+            }
+            .ts-dropdown .active {
+                background-color: rgba(35, 76, 106, 0.1) !important;
+                color: var(--siakad-primary) !important;
+            }
+            .dark .ts-dropdown .active {
+                background-color: #374151 !important;
+                color: #60A5FA !important;
+            }
+
+
             /* Scrollbar */
             ::-webkit-scrollbar {
                 width: 6px;

@@ -306,11 +306,10 @@ class KelasController extends Controller
         // agar admin dapat mencari dan memilih dosen Mata Kuliah Umum (MKU) dari prodi/fakultas lain.
 
         $dosenList = $query->limit(50)->get()->map(function($d) {
-            $category = ($d->prodi_id || $d->fakultas_id) ? '[Dosen Fakultas/Teknik] ' : '[Dosen Umum/MKU] ';
-            $prodiText = $d->prodi ? ' - ' . $d->prodi->nama : ($d->fakultas ? ' - ' . $d->fakultas->nama : ' (Dosen Umum / MKU)');
+            $category = ($d->prodi_id || $d->fakultas_id) ? ($d->prodi ? '[' . $d->prodi->nama . '] ' : '[' . $d->fakultas->nama . '] ') : '[Dosen Umum / MKU] ';
             return [
                 'id' => $d->id,
-                'name' => $category . ($d->user->name ?? 'Tanpa Nama') . $prodiText,
+                'name' => $category . ($d->user->name ?? 'Tanpa Nama') . ($d->nidn ? ' (NIDN: ' . $d->nidn . ')' : ''),
                 'nidn' => $d->nidn,
                 'prodi' => $d->prodi->nama ?? ($d->fakultas->nama ?? 'Dosen Umum / MKU'),
             ];

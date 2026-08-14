@@ -21,29 +21,37 @@
                         <span class="text-sm font-semibold text-siakad-dark dark:text-gray-200 text-right">{{ $dosen->user?->email ?? '-' }}</span>
                     </div>
                     <div class="flex items-center justify-between p-3 rounded-xl bg-siakad-light/30 dark:bg-gray-700/30">
-                        <span class="text-xs font-medium text-siakad-secondary dark:text-gray-400 uppercase tracking-wider">Prodi</span>
+                        <span class="text-xs font-medium text-siakad-secondary dark:text-gray-400 uppercase tracking-wider">Homebase Prodi</span>
                         <span class="text-sm font-semibold text-siakad-dark dark:text-gray-200 text-right">
-                            @if($dosen->prodi)
-                                {{ $dosen->prodi->nama }}
-                            @elseif($dosen->fakultas)
-                                Semua Prodi
-                            @else
-                                Perguruan Tinggi
-                            @endif
+                            {{ $dosen->prodi?->nama ?? 'Perguruan Tinggi' }}
                         </span>
                     </div>
                     <div class="flex items-center justify-between p-3 rounded-xl bg-siakad-light/30 dark:bg-gray-700/30">
+                        <span class="text-xs font-medium text-siakad-secondary dark:text-gray-400 uppercase tracking-wider">Cakupan Mengajar</span>
+                        <div class="text-right">
+                            @if($dosen->fakultas_id)
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-lg">
+                                    Fakultas {{ $dosen->fakultas->nama ?? '' }}
+                                </span>
+                            @elseif(!$dosen->prodi_id)
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 rounded-lg">
+                                    Perguruan Tinggi (MKU/Umum)
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 rounded-lg">
+                                    Program Studi
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+                    @if($dosen->prodi?->fakultas || $dosen->fakultas)
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-siakad-light/30 dark:bg-gray-700/30">
                         <span class="text-xs font-medium text-siakad-secondary dark:text-gray-400 uppercase tracking-wider">Fakultas</span>
                         <span class="text-sm font-semibold text-siakad-dark dark:text-gray-200 text-right">
-                            @if($dosen->prodi)
-                                {{ $dosen->prodi->fakultas->nama }}
-                            @elseif($dosen->fakultas)
-                                {{ $dosen->fakultas->nama }}
-                            @else
-                                Perguruan Tinggi
-                            @endif
+                            {{ $dosen->prodi?->fakultas?->nama ?? $dosen->fakultas?->nama }}
                         </span>
                     </div>
+                    @endif
                 </div>
             </div>
 

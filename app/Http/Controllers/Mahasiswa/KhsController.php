@@ -43,9 +43,7 @@ class KhsController extends Controller
                     'tahun_akademik' => $krs->tahunAkademik,
                     'ips' => $ipsData['ips'],
                     'total_sks' => $ipsData['total_sks'],
-                    'jumlah_mk' => Nilai::where('mahasiswa_id', $mahasiswa->id)
-                        ->whereHas('kelas', fn($q) => $q->whereHas('krsDetail.krs', fn($q2) => $q2->where('tahun_akademik_id', $krs->tahun_akademik_id)))
-                        ->count(),
+                    'jumlah_mk' => $krs->krsDetail()->count(),
                 ];
             });
 

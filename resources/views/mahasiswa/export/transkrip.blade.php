@@ -110,24 +110,34 @@
             </thead>
             <tbody>
                 @php 
-                    $totalSks = 0; 
+                    $totalSks = 0;
+                    $totalSksDinilai = 0;
+                    $totalSksLulus = 0;
                     $totalBobot = 0; 
                     $courses = $transcript['all_courses'] ?? collect();
-                    $bobotMap = ['A' => 4.0, 'B' => 3.0, 'C' => 2.0, 'D' => 1.0, 'E' => 0.0, 'T' => 0.0, '-' => 0.0];
+                    $bobotMap = ['A' => 4.0, 'B+' => 3.5, 'B' => 3.0, 'C+' => 2.5, 'C' => 2.0, 'D' => 1.0, 'E' => 0.0, 'T' => 0.0, '-' => 0.0];
                 @endphp
                 @forelse($courses as $index => $course)
                 @php
-                    $isGraded = isset($course['nilai_huruf']) && $course['nilai_huruf'] !== '-' && $course['nilai_huruf'] !== 'T';
-                    $am = $isGraded ? ($bobotMap[$course['nilai_huruf']] ?? (float)($course['bobot'] ?? 0)) : 0.0;
-                    $mutu = $am * $course['sks'];
-                    $totalSks += $course['sks'];
-                    $totalBobot += $mutu;
+                    $huruf = isset($course['nilai_huruf']) ? strtoupper(trim($course['nilai_huruf'])) : '';
+                    $isGraded = $huruf !== '' && $huruf !== '-' && $huruf !== 'T';
+                    $am = $isGraded ? ($bobotMap[$huruf] ?? (float)($course['bobot'] ?? 0)) : 0.0;
+                    $k = (int) ($course['sks'] ?? 0);
+                    $mutu = $am * $k;
+                    $totalSks += $k;
+                    if ($isGraded) {
+                        $totalSksDinilai += $k;
+                        $totalBobot += $mutu;
+                        if (in_array($huruf, ['A', 'B+', 'B', 'C+', 'C', 'D'])) {
+                            $totalSksLulus += $k;
+                        }
+                    }
                 @endphp
                 <tr>
                     <td class="center">{{ $index + 1 }}</td>
                     <td class="center">{{ $course['kode'] }}</td>
                     <td>{{ $course['nama'] }}</td>
-                    <td class="center">{{ $course['sks'] }}</td>
+                    <td class="center">{{ $k }}</td>
                     <td class="center"><strong>{{ $course['nilai_huruf'] }}</strong></td>
                     <td class="center">{{ $isGraded ? number_format($am, 1) : '-' }}</td>
                     <td class="center">{{ $isGraded ? number_format($mutu, 1) : '0' }}</td>
@@ -139,18 +149,21 @@
                 @endforelse
             </tbody>
             <tfoot>
+                @php
+                    $calculatedIpk = $totalSksDinilai > 0 ? round($totalBobot / $totalSksDinilai, 2) : 0.00;
+                @endphp
                 <tr style="background-color: #f3f4f6; font-weight: bold;">
                     <td colspan="3" class="right">Total SKS & Bobot Mutu</td>
                     <td class="center">{{ $totalSks }}</td>
                     <td colspan="2" class="center">IPK</td>
-                    <td class="center">{{ $totalSks > 0 ? number_format($totalBobot / $totalSks, 2) : '0.00' }}</td>
+                    <td class="center">{{ number_format($calculatedIpk, 2) }}</td>
                 </tr>
             </tfoot>
         </table>
 
         <!-- Summary -->
         @php
-            $ipk = $ipkData['ips'] ?? 0;
+            $ipk = $calculatedIpk;
             $predikat = 'Cukup';
             if ($ipk >= 3.51) $predikat = 'DENGAN PUJIAN (CUMLAUDE)';
             elseif ($ipk >= 2.76) $predikat = 'SANGAT MEMUASKAN';
@@ -159,9 +172,10 @@
         <div class="summary-container">
             <table class="summary-table">
                 <tr><td class="label">Jumlah Matakuliah Diprogram</td><td class="separator">:</td><td>{{ $courses->count() }}</td></tr>
-                <tr><td class="label">Total Satuan Kredit Semester (SKS)</td><td class="separator">:</td><td>{{ $totalSks }}</td></tr>
+                <tr><td class="label">Total Satuan Kredit Semester (SKS) Diprogram</td><td class="separator">:</td><td>{{ $totalSks }} SKS</td></tr>
+                <tr><td class="label">Total SKS Lulus</td><td class="separator">:</td><td>{{ $totalSksLulus }} SKS</td></tr>
                 <tr><td class="label">Total Nilai Mutu</td><td class="separator">:</td><td>{{ number_format($totalBobot, 1) }}</td></tr>
-                <tr><td class="label">Indeks Prestasi Kumulatif (IPK)</td><td class="separator">:</td><td>{{ number_format($ipk, 2, ',', '.') }}</td></tr>
+                <tr><td class="label">Indeks Prestasi Kumulatif (IPK)</td><td class="separator">:</td><td><strong>{{ number_format($ipk, 2, ',', '.') }}</strong></td></tr>
                 <tr><td class="label">Predikat Kelulusan</td><td class="separator">:</td><td>{{ $predikat }}</td></tr>
             </table>
         </div>

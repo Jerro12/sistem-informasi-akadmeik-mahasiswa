@@ -133,14 +133,28 @@
                 </tr>
             </thead>
             <tbody>
+                @php
+                    $totalSks = 0;
+                    $totalSksDinilai = 0;
+                    $totalSksLulus = 0;
+                    $totalMutu = 0;
+                    $bobotMap = ['A' => 4.0, 'B+' => 3.5, 'B' => 3.0, 'C+' => 2.5, 'C' => 2.0, 'D' => 1.0, 'E' => 0.0, 'T' => 0.0, '-' => 0.0];
+                @endphp
                 @foreach($flatCourses as $i => $course)
                 @php
-                    $isGraded = isset($course['nilai_huruf']) && $course['nilai_huruf'] !== '-' && $course['nilai_huruf'] !== 'T';
-                    $am = $isGraded ? ($bobotMap[$course['nilai_huruf']] ?? (float)($course['bobot'] ?? 0)) : 0.0;
-                    $k = $course['sks'];
+                    $huruf = isset($course['nilai_huruf']) ? strtoupper(trim($course['nilai_huruf'])) : '';
+                    $isGraded = $huruf !== '' && $huruf !== '-' && $huruf !== 'T';
+                    $am = $isGraded ? ($bobotMap[$huruf] ?? (float)($course['bobot'] ?? 0)) : 0.0;
+                    $k = (int) ($course['sks'] ?? 0);
                     $mutu = $am * $k;
                     $totalSks += $k;
-                    $totalMutu += $mutu;
+                    if ($isGraded) {
+                        $totalSksDinilai += $k;
+                        $totalMutu += $mutu;
+                        if (in_array($huruf, ['A', 'B+', 'B', 'C+', 'C', 'D'])) {
+                            $totalSksLulus += $k;
+                        }
+                    }
                 @endphp
                 <tr>
                     <td class="center">{{ $i + 1 }}</td>
@@ -157,7 +171,7 @@
 
         <!-- Summary -->
         @php
-            $ipk = $totalSks > 0 ? $totalMutu / $totalSks : 0;
+            $ipk = $totalSksDinilai > 0 ? round($totalMutu / $totalSksDinilai, 2) : 0.00;
             $predikat = 'Cukup';
             if ($ipk >= 3.51) $predikat = 'DENGAN PUJIAN (CUMLAUDE)';
             elseif ($ipk >= 2.76) $predikat = 'SANGAT MEMUASKAN (B)';
@@ -171,23 +185,30 @@
                     <td>{{ count($flatCourses) }}</td>
                 </tr>
                 <tr>
-                    <td class="label">Total Satuan Kredit Semester (SKS)</td>
+                    <td class="label">Total Satuan Kredit Semester (SKS) Diprogram</td>
                     <td class="separator">:</td>
-                    <td>{{ $totalSks }}</td>
+                    <td>{{ $totalSks }} SKS</td>
                 </tr>
                 <tr>
-                    <td class="label">Total Nilai</td>
+                    <td class="label">Total SKS Lulus</td>
                     <td class="separator">:</td>
-                    <td>{{ $totalMutu }}</td>
+                    <td>{{ $totalSksLulus }} SKS</td>
                 </tr>
                 <tr>
-                    <td class="label">Indeks Prestasi (IP)</td>
+                    <td class="label">Total Nilai Mutu</td>
                     <td class="separator">:</td>
-                    <td>{{ number_format($ipk, 2, ',', '.') }}</td>
+                    <td>{{ number_format($totalMutu, 1) }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Indeks Prestasi Kumulatif (IPK)</td>
+                    <td class="separator">:</td>
+                    <td><strong>{{ number_format($ipk, 2, ',', '.') }}</strong></td>
                 </tr>
                 <tr>
                     <td class="label">Predikat Kelulusan</td>
                     <td class="separator">:</td>
+                    <td>{{ $predikat }}</td>
+                </tr>
                     <td>{{ $predikat }}</td>
                 </tr>
                 <tr>

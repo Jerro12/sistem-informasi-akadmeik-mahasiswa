@@ -305,16 +305,17 @@
     </div>
     @endif
     </div>
-    <!-- Create Modal -->
-    <div id="createModal" class="hidden fixed inset-0 bg-black/40 z-50 p-4">
-        <div class="flex items-center justify-center min-h-screen">
-            <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md animate-fade-in">
-            <div class="px-6 py-4 border-b border-siakad-light dark:border-gray-700">
+    <div id="createModal" class="hidden fixed inset-0 bg-black/50 z-50 overflow-y-auto p-4 flex items-center justify-center">
+        <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh] my-auto animate-fade-in min-h-0 overflow-hidden">
+            <div class="px-6 py-4 border-b border-siakad-light dark:border-gray-700 flex items-center justify-between shrink-0">
                 <h3 class="text-lg font-semibold text-siakad-dark dark:text-white">Tambah Mata Kuliah</h3>
+                <button type="button" onclick="document.getElementById('createModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
             </div>
-            <form action="{{ route('admin.mata-kuliah.store') }}" method="POST">
+            <form action="{{ route('admin.mata-kuliah.store') }}" method="POST" class="flex flex-col flex-1 min-h-0 overflow-hidden">
                 @csrf
-                <div class="p-6 space-y-4">
+                <div class="p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
                     @if($isSuperAdmin)
                     <!-- Fakultas dropdown for superadmin -->
                     <div>
@@ -388,25 +389,26 @@
                         </select>
                     </div>
                 </div>
-                <div class="px-6 py-4 border-t border-siakad-light dark:border-gray-700 flex items-center justify-end gap-3">
+                <div class="px-6 py-4 border-t border-siakad-light dark:border-gray-700 flex items-center justify-end gap-3 shrink-0">
                     <button type="button" onclick="document.getElementById('createModal').classList.add('hidden')" class="btn-ghost-saas px-4 py-2 rounded-lg text-sm font-medium dark:text-white">Batal</button>
                     <button type="submit" class="btn-primary-saas px-4 py-2 rounded-lg text-sm font-medium">Simpan</button>
                 </div>
             </form>
         </div>
     </div>
-</div>
 
     <!-- Edit Modal -->
-    <div id="editModal" class="hidden fixed inset-0 bg-black/40 z-50 p-4">
-        <div class="flex items-center justify-center min-h-screen">
-            <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-md animate-fade-in">
-            <div class="px-6 py-4 border-b border-siakad-light dark:border-gray-700">
+    <div id="editModal" class="hidden fixed inset-0 bg-black/50 z-50 overflow-y-auto p-4 flex items-center justify-center">
+        <div class="bg-white dark:bg-gray-800 rounded-xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh] my-auto animate-fade-in min-h-0 overflow-hidden">
+            <div class="px-6 py-4 border-b border-siakad-light dark:border-gray-700 flex items-center justify-between shrink-0">
                 <h3 class="text-lg font-semibold text-siakad-dark dark:text-white">Edit Mata Kuliah</h3>
+                <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
             </div>
-            <form id="editForm" method="POST">
+            <form id="editForm" method="POST" class="flex flex-col flex-1 min-h-0 overflow-hidden">
                 @csrf @method('PUT')
-                <div class="p-6 space-y-4">
+                <div class="p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
                     @if($isSuperAdmin)
                     <!-- Fakultas dropdown for superadmin -->
                     <div>
@@ -478,7 +480,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="px-6 py-4 border-t border-siakad-light dark:border-gray-700 flex items-center justify-end gap-3">
+                <div class="px-6 py-4 border-t border-siakad-light dark:border-gray-700 flex items-center justify-end gap-3 shrink-0">
                     <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="btn-ghost-saas px-4 py-2 rounded-lg text-sm font-medium dark:text-white">Batal</button>
                     <button type="submit" class="btn-primary-saas px-4 py-2 rounded-lg text-sm font-medium">Simpan</button>
                 </div>

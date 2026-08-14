@@ -8,20 +8,20 @@
 
     <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-            <p class="text-sm text-siakad-secondary dark:text-gray-400">Kelola data dosen dalam sistem</p>
+            <p class="text-sm text-siakad-secondary dark:text-gray-400">Kelola data dosen dan cakupan mengajar dalam sistem</p>
         </div>
         <div class="flex items-center gap-3">
             <form method="GET" class="flex items-center gap-3">
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama atau NIDN..." class="input-saas px-4 py-2 text-sm w-64 dark:bg-gray-900 dark:border-gray-700 dark:text-white">
                 <select name="prodi_id" class="input-saas px-4 py-2 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white">
-                    <option value="">Semua Prodi</option>
+                    <option value="">Semua Cakupan Mengajar</option>
                     @if(!request()->get('fakultas_scoped'))
-                    <option value="perguruan_tinggi" {{ request('prodi_id') === 'perguruan_tinggi' ? 'selected' : '' }}>Perguruan Tinggi</option>
+                    <option value="perguruan_tinggi" {{ request('prodi_id') === 'perguruan_tinggi' ? 'selected' : '' }}>Universitas (Perguruan Tinggi / MKU)</option>
                     @endif
                     @foreach($fakultasList as $f)
-                    <option value="fakultas_{{ $f->id }}" {{ request('prodi_id') === 'fakultas_'.$f->id ? 'selected' : '' }}>Semua Prodi ({{ $f->nama }})</option>
+                    <option value="fakultas_{{ $f->id }}" {{ request('prodi_id') === 'fakultas_'.$f->id ? 'selected' : '' }}>Fakultas: {{ $f->nama }}</option>
                     @foreach($prodiList->where('fakultas_id', $f->id) as $p)
-                    <option value="{{ $p->id }}" {{ request('prodi_id') == $p->id ? 'selected' : '' }}>&nbsp;&nbsp;&nbsp;&nbsp;{{ $p->nama }}</option>
+                    <option value="{{ $p->id }}" {{ request('prodi_id') == $p->id ? 'selected' : '' }}>&nbsp;&nbsp;&nbsp;&nbsp;Prodi: {{ $p->nama }}</option>
                     @endforeach
                     @endforeach
                 </select>
@@ -73,15 +73,14 @@
                             </a>
                         </th>
 
-                        <!-- Sortable: Prodi -->
+                        <!-- Homebase -->
                         <th class="text-left py-3 px-5 text-xs font-semibold text-siakad-secondary dark:text-gray-400 uppercase tracking-wider">
-                            <a href="{{ route('admin.dosen.index', array_merge(request()->all(), ['sort' => 'prodi', 'order' => request('sort') == 'prodi' && request('order') == 'asc' ? 'desc' : 'asc'])) }}" class="group flex items-center gap-1 hover:text-siakad-primary transition">
-                                Prodi
-                                <span class="flex flex-col text-[10px] leading-none {{ request('sort') == 'prodi' ? 'text-siakad-primary' : 'text-gray-300' }}">
-                                    <i class="opacity-{{ request('sort') == 'prodi' && request('order') == 'asc' ? '100' : '40' }}">▲</i>
-                                    <i class="opacity-{{ request('sort') == 'prodi' && request('order') == 'desc' ? '100' : '40' }}">▼</i>
-                                </span>
-                            </a>
+                            Homebase
+                        </th>
+
+                        <!-- Cakupan Mengajar -->
+                        <th class="text-left py-3 px-5 text-xs font-semibold text-siakad-secondary dark:text-gray-400 uppercase tracking-wider">
+                            Cakupan Mengajar
                         </th>
 
                         <th class="text-left py-3 px-5 text-xs font-semibold text-siakad-secondary dark:text-gray-400 uppercase tracking-wider">Kelas Diampu</th>
@@ -96,25 +95,37 @@
                         <td class="py-4 px-5 text-sm text-siakad-secondary dark:text-gray-400">{{ $dosen->firstItem() + $index }}</td>
                         <td class="py-4 px-5">
                             <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-lg bg-siakad-secondary dark:bg-gray-700 flex items-center justify-center text-white text-sm font-semibold">
+                                <div class="w-9 h-9 rounded-lg bg-siakad-primary/10 text-siakad-primary dark:bg-blue-900/40 dark:text-blue-200 flex items-center justify-center text-sm font-semibold">
                                     {{ strtoupper(substr($d->user?->name ?? '-', 0, 1)) }}
                                 </div>
-                                <span class="text-sm font-medium text-siakad-dark dark:text-white">{{ $d->user?->name ?? '-' }}</span>
+                                <span class="text-sm font-semibold text-slate-800 dark:text-slate-100">{{ $d->user?->name ?? '-' }}</span>
                             </div>
                         </td>
                         <td class="py-4 px-5">
                             <span class="text-sm font-mono text-siakad-secondary dark:text-gray-400">{{ $d->nidn }}</span>
                         </td>
                         <td class="py-4 px-5">
-                            <span class="text-sm text-siakad-secondary dark:text-gray-400">
-                                @if($d->prodi)
-                                    {{ $d->prodi->nama }}
-                                @elseif($d->fakultas)
-                                    Semua Prodi ({{ $d->fakultas->nama }})
-                                @else
-                                    Perguruan Tinggi
-                                @endif
+                            <span class="text-sm text-slate-700 dark:text-gray-300 font-medium">
+                                {{ $d->prodi->nama ?? '-' }}
                             </span>
+                        </td>
+                        <td class="py-4 px-5">
+                            @if($d->fakultas_id)
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded-lg border border-blue-200/50 dark:border-blue-800/50">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                                    Fakultas {{ $d->fakultas->nama ?? '' }}
+                                </span>
+                            @elseif(!$d->prodi_id)
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 rounded-lg border border-purple-200/50 dark:border-purple-800/50">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                                    Perguruan Tinggi (MKU)
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 rounded-lg border border-emerald-200/50 dark:border-emerald-800/50">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                    Program Studi
+                                </span>
+                            @endif
                         </td>
                         <td class="py-4 px-5">
                             <span class="inline-flex px-2.5 py-1 text-xs font-medium bg-siakad-primary/10 text-siakad-primary dark:bg-blue-500/10 dark:text-blue-400 rounded-full">{{ $d->kelas_count ?? $d->kelas->count() }}</span>
@@ -147,7 +158,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="py-12 text-center">
+                        <td colspan="9" class="py-12 text-center">
                             <div class="flex flex-col items-center">
                                 <div class="w-12 h-12 bg-siakad-light/50 dark:bg-gray-700/50 rounded-xl flex items-center justify-center mb-3">
                                     <svg class="w-6 h-6 text-siakad-secondary dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
@@ -179,15 +190,21 @@
             </div>
 
             <div class="grid grid-cols-2 gap-2 text-sm text-siakad-secondary dark:text-gray-400 mb-4">
-                <div class="col-span-2">
-                    <span class="block text-xs text-gray-400">Prodi</span>
+                <div>
+                    <span class="block text-xs text-gray-400">Homebase</span>
                     <span class="font-medium text-siakad-dark dark:text-gray-200">
-                        @if($d->prodi)
-                            {{ $d->prodi->nama }}
-                        @elseif($d->fakultas)
-                            Semua Prodi ({{ $d->fakultas->nama }})
+                        {{ $d->prodi->nama ?? '-' }}
+                    </span>
+                </div>
+                <div>
+                    <span class="block text-xs text-gray-400">Cakupan Mengajar</span>
+                    <span class="font-medium text-siakad-dark dark:text-gray-200">
+                        @if($d->fakultas_id)
+                            Fakultas ({{ $d->fakultas->nama ?? '' }})
+                        @elseif(!$d->prodi_id)
+                            Perguruan Tinggi (MKU)
                         @else
-                            Perguruan Tinggi
+                            Program Studi
                         @endif
                     </span>
                 </div>
@@ -220,28 +237,45 @@
 
     <!-- Create Modal -->
     <div id="createModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
-        <div class="flex items-center justify-center min-h-screen px-4">
+        <div class="flex items-center justify-center min-h-screen px-4 py-6">
             <div class="fixed inset-0 bg-black/50" onclick="closeModal('createModal')"></div>
-            <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md p-6">
+            <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md p-6 overflow-hidden">
                 <h3 class="text-lg font-semibold text-siakad-dark dark:text-white mb-4">Tambah Dosen</h3>
                 <form action="{{ route('admin.dosen.store') }}" method="POST" class="space-y-4">@csrf
-                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Nama</label><input type="text" name="name" required class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
-                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Password</label><input type="password" name="password" required minlength="8" class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
-                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">NIDN</label><input type="text" name="nidn" required class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
-                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Prodi / Tingkatan</label>
+                    <div>
+                        <label class="block text-sm font-medium text-siakad-secondary dark:text-gray-300 mb-1">Nama Dosen</label>
+                        <input type="text" name="name" placeholder="Nama lengkap & gelar..." required class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-siakad-secondary dark:text-gray-300 mb-1">Password</label>
+                        <input type="password" name="password" required minlength="8" placeholder="Minimal 8 karakter..." class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-siakad-secondary dark:text-gray-300 mb-1">NIDN</label>
+                        <input type="text" name="nidn" placeholder="Nomor Induk Dosen..." required class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-siakad-secondary dark:text-gray-300 mb-1">Homebase / Program Studi</label>
                         <select name="prodi_id" class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                            @if(!request()->get('fakultas_scoped'))
-                            <option value="">Perguruan Tinggi</option>
-                            @endif
-                            @foreach($fakultasList as $f)
-                            <option value="fakultas_{{ $f->id }}">Semua Prodi ({{ $f->nama }})</option>
-                            @foreach($prodiList->where('fakultas_id', $f->id) as $p)
-                            <option value="{{ $p->id }}">&nbsp;&nbsp;&nbsp;&nbsp;{{ $p->nama }}</option>
-                            @endforeach
+                            <option value="">-- Pilih Homebase Prodi --</option>
+                            @foreach($prodiList as $p)
+                            <option value="{{ $p->id }}">{{ $p->nama }} ({{ $p->fakultas->nama ?? '' }})</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="flex justify-end gap-3"><button type="button" onclick="closeModal('createModal')" class="px-4 py-2 text-sm text-siakad-secondary hover:bg-gray-100 rounded-lg">Batal</button><button type="submit" class="btn-primary-saas px-4 py-2 rounded-lg text-sm">Simpan</button></div>
+                    <div>
+                        <label class="block text-sm font-medium text-siakad-secondary dark:text-gray-300 mb-1">Cakupan Mengajar</label>
+                        <select name="cakupan_mengajar" class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white font-medium">
+                            <option value="prodi">Program Studi (Hanya di Prodi Homebase)</option>
+                            <option value="fakultas">Fakultas (Seluruh Prodi dalam Fakultas Homebase)</option>
+                            <option value="pt">Perguruan Tinggi (MKU / Lintas Fakultas Universitas)</option>
+                        </select>
+                        <p class="text-[11px] text-gray-400 mt-1">Mengatur jangkauan mata kuliah dan kelas yang dapat diampu dosen ini.</p>
+                    </div>
+                    <div class="flex justify-end gap-3 pt-2">
+                        <button type="button" onclick="closeModal('createModal')" class="px-4 py-2 text-sm text-siakad-secondary hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">Batal</button>
+                        <button type="submit" class="btn-primary-saas px-4 py-2 rounded-lg text-sm font-medium">Simpan</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -249,28 +283,45 @@
 
     <!-- Edit Modal -->
     <div id="editModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
-        <div class="flex items-center justify-center min-h-screen px-4">
+        <div class="flex items-center justify-center min-h-screen px-4 py-6">
             <div class="fixed inset-0 bg-black/50" onclick="closeModal('editModal')"></div>
-            <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md p-6">
+            <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md p-6 overflow-hidden">
                 <h3 class="text-lg font-semibold text-siakad-dark dark:text-white mb-4">Edit Dosen</h3>
                 <form id="editForm" method="POST" class="space-y-4">@csrf @method('PUT')
-                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Nama</label><input type="text" name="name" id="editName" required class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
-                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Password (kosongkan jika tidak diubah)</label><input type="password" name="password" minlength="8" class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
-                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">NIDN</label><input type="text" name="nidn" id="editNidn" required class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"></div>
-                    <div><label class="block text-sm font-medium text-siakad-secondary mb-1">Prodi / Tingkatan</label>
+                    <div>
+                        <label class="block text-sm font-medium text-siakad-secondary dark:text-gray-300 mb-1">Nama Dosen</label>
+                        <input type="text" name="name" id="editName" required class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-siakad-secondary dark:text-gray-300 mb-1">Password (kosongkan jika tidak diubah)</label>
+                        <input type="password" name="password" minlength="8" placeholder="••••••••" class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-siakad-secondary dark:text-gray-300 mb-1">NIDN</label>
+                        <input type="text" name="nidn" id="editNidn" required class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-siakad-secondary dark:text-gray-300 mb-1">Homebase / Program Studi</label>
                         <select name="prodi_id" id="editProdiId" class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                            @if(!request()->get('fakultas_scoped'))
-                            <option value="">Perguruan Tinggi</option>
-                            @endif
-                            @foreach($fakultasList as $f)
-                            <option value="fakultas_{{ $f->id }}">Semua Prodi ({{ $f->nama }})</option>
-                            @foreach($prodiList->where('fakultas_id', $f->id) as $p)
-                            <option value="{{ $p->id }}">&nbsp;&nbsp;&nbsp;&nbsp;{{ $p->nama }}</option>
-                            @endforeach
+                            <option value="">-- Pilih Homebase Prodi --</option>
+                            @foreach($prodiList as $p)
+                            <option value="{{ $p->id }}">{{ $p->nama }} ({{ $p->fakultas->nama ?? '' }})</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="flex justify-end gap-3"><button type="button" onclick="closeModal('editModal')" class="px-4 py-2 text-sm text-siakad-secondary hover:bg-gray-100 rounded-lg">Batal</button><button type="submit" class="btn-primary-saas px-4 py-2 rounded-lg text-sm">Simpan</button></div>
+                    <div>
+                        <label class="block text-sm font-medium text-siakad-secondary dark:text-gray-300 mb-1">Cakupan Mengajar</label>
+                        <select name="cakupan_mengajar" id="editCakupan" class="input-saas w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white font-medium">
+                            <option value="prodi">Program Studi (Hanya di Prodi Homebase)</option>
+                            <option value="fakultas">Fakultas (Seluruh Prodi dalam Fakultas Homebase)</option>
+                            <option value="pt">Perguruan Tinggi (MKU / Lintas Fakultas Universitas)</option>
+                        </select>
+                        <p class="text-[11px] text-gray-400 mt-1">Mengatur jangkauan mata kuliah dan kelas yang dapat diampu dosen ini.</p>
+                    </div>
+                    <div class="flex justify-end gap-3 pt-2">
+                        <button type="button" onclick="closeModal('editModal')" class="px-4 py-2 text-sm text-siakad-secondary hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">Batal</button>
+                        <button type="submit" class="btn-primary-saas px-4 py-2 rounded-lg text-sm font-medium">Simpan</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -283,14 +334,17 @@
             document.getElementById('editForm').action = `/admin/dosen/${d.id}`;
             document.getElementById('editName').value = d.name;
             document.getElementById('editNidn').value = d.nidn;
+            document.getElementById('editProdiId').value = d.prodi_id || '';
             
-            let val = '';
-            if (d.prodi_id) {
-                val = d.prodi_id;
-            } else if (d.fakultas_id) {
-                val = 'fakultas_' + d.fakultas_id;
+            let cakupan = 'prodi';
+            if (d.fakultas_id) {
+                cakupan = 'fakultas';
+            } else if (!d.prodi_id) {
+                cakupan = 'pt';
+            } else {
+                cakupan = 'prodi';
             }
-            document.getElementById('editProdiId').value = val;
+            document.getElementById('editCakupan').value = cakupan;
             
             openModal('editModal');
         }

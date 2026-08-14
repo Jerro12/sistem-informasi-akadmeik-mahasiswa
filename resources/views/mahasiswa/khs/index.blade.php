@@ -13,8 +13,8 @@
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-sm text-white/70">Indeks Prestasi Kumulatif (IPK)</p>
-                <p class="text-4xl font-bold mt-2 text-white">{{ number_format($ipkData['ips'], 2) }}</p>
-                <p class="text-sm text-white/50 mt-1">Total {{ $ipkData['total_sks'] }} SKS dari {{ $semesterList->count() }} semester</p>
+                <p class="text-4xl font-bold mt-2 text-white">{{ number_format($ipkData['ipk'] ?? $ipkData['ips'] ?? 0, 2) }}</p>
+                <p class="text-sm text-white/50 mt-1">Total {{ $ipkData['total_sks_lulus'] ?? $ipkData['total_sks'] }} SKS dari {{ $semesterList->count() }} semester</p>
             </div>
             <div class="w-20 h-20 rounded-full bg-white/10 flex items-center justify-center">
                 <svg class="w-10 h-10 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>

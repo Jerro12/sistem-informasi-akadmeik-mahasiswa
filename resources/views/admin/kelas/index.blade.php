@@ -124,7 +124,12 @@
                             </span>
                         </td>
                         <td class="py-4 px-5">
-                            <span class="text-sm text-siakad-secondary dark:text-gray-400">{{ $k->dosen->user->name ?? '-' }}</span>
+                            <div class="flex items-center gap-2">
+                                <div class="w-6 h-6 rounded-full bg-[#1B3C53]/10 text-[#1B3C53] dark:bg-blue-900/40 dark:text-blue-200 flex items-center justify-center text-xs font-bold shrink-0">
+                                    {{ strtoupper(substr($k->dosen->user->name ?? 'D', 0, 1)) }}
+                                </div>
+                                <span class="text-sm font-semibold text-slate-800 dark:text-slate-100">{{ $k->dosen->user->name ?? '-' }}</span>
+                            </div>
                         </td>
                         <td class="py-4 px-5">
                             @if($jadwal)
@@ -203,7 +208,12 @@
             <div class="space-y-3 mb-4">
                 <div>
                     <p class="text-xs text-siakad-secondary dark:text-gray-400 mb-1">Dosen Pengampu</p>
-                    <p class="text-sm font-medium text-siakad-dark dark:text-white">{{ $k->dosen->user->name ?? '-' }}</p>
+                    <div class="flex items-center gap-2">
+                        <div class="w-5 h-5 rounded-full bg-[#1B3C53]/10 text-[#1B3C53] dark:bg-blue-900/40 dark:text-blue-200 flex items-center justify-center text-[10px] font-bold shrink-0">
+                            {{ strtoupper(substr($k->dosen->user->name ?? 'D', 0, 1)) }}
+                        </div>
+                        <p class="text-sm font-semibold text-slate-800 dark:text-slate-100">{{ $k->dosen->user->name ?? '-' }}</p>
+                    </div>
                 </div>
                 
                 <div class="flex items-start gap-4">
@@ -633,6 +643,39 @@
             document.getElementById('editModal').style.display = 'flex';
         }
     </script>
+    <style>
+        .ts-control {
+            border-radius: 0.5rem !important;
+            padding: 0.5rem 0.75rem !important;
+            border-color: #e2e8f0 !important;
+            color: #1e293b !important;
+            font-weight: 500 !important;
+        }
+        .dark .ts-control {
+            background-color: #111827 !important;
+            border-color: #374151 !important;
+            color: #f9fafb !important;
+        }
+        .ts-dropdown {
+            border-radius: 0.5rem !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+            border-color: #e2e8f0 !important;
+            z-index: 9999 !important;
+        }
+        .dark .ts-dropdown {
+            background-color: #1f2937 !important;
+            border-color: #374151 !important;
+            color: #f9fafb !important;
+        }
+        .ts-dropdown .active {
+            background-color: #f1f5f9 !important;
+            color: #0f172a !important;
+        }
+        .dark .ts-dropdown .active {
+            background-color: #374151 !important;
+            color: #ffffff !important;
+        }
+    </style>
     @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -650,7 +693,7 @@
                             .then(json => {
                                 callback(json.map(item => ({
                                     id: item.id,
-                                    name: item.name + (item.nidn ? ` (NIDN: ${item.nidn})` : '')
+                                    name: item.name
                                 })));
                             }).catch(()=>{
                                 callback();
@@ -658,12 +701,12 @@
                     },
                     render: {
                         option: function(item, escape) {
-                            return `<div class="py-2 px-3">
-                                <div class="font-medium text-sm text-gray-800 dark:text-white">${escape(item.name)}</div>
+                            return `<div class="py-2.5 px-3 border-b border-gray-100 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-gray-700/60 cursor-pointer">
+                                <div class="font-semibold text-sm text-gray-900 dark:text-gray-100">${escape(item.name)}</div>
                             </div>`;
                         },
                         item: function(item, escape) {
-                            return `<div class="font-medium text-sm text-gray-800 dark:text-white">${escape(item.name)}</div>`;
+                            return `<div class="font-semibold text-sm text-gray-900 dark:text-gray-100">${escape(item.name)}</div>`;
                         }
                     }
                 });

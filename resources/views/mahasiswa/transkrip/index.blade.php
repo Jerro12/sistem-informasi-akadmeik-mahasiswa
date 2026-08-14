@@ -124,16 +124,19 @@
                 </thead>
                 <tbody>
                     @php
-                        $bobotMap = ['A' => 4.0, 'B' => 3.0, 'C' => 2.0, 'D' => 1.0, 'E' => 0.0, 'T' => 0.0, '-' => 0.0];
+                        $bobotMap = ['A' => 4.0, 'B+' => 3.5, 'B' => 3.0, 'C+' => 2.5, 'C' => 2.0, 'D' => 1.0, 'E' => 0.0, 'T' => 0.0, '-' => 0.0];
                     @endphp
                     @foreach($semester['courses'] as $course)
                     @php
-                        $isGraded = isset($course['nilai_huruf']) && $course['nilai_huruf'] !== '-' && $course['nilai_huruf'] !== 'T';
-                        $am = $isGraded ? ($bobotMap[$course['nilai_huruf']] ?? (float)($course['bobot'] ?? 0)) : 0.0;
+                        $huruf = isset($course['nilai_huruf']) ? strtoupper(trim($course['nilai_huruf'])) : '';
+                        $isGraded = $huruf !== '' && $huruf !== '-' && $huruf !== 'T';
+                        $am = $isGraded ? ($bobotMap[$huruf] ?? (float)($course['bobot'] ?? 0)) : 0.0;
                         $mutu = $am * $course['sks'];
                         $gradeColors = [
                             'A' => 'bg-emerald-100 text-emerald-700',
+                            'B+' => 'bg-blue-100 text-blue-700',
                             'B' => 'bg-siakad-primary/10 text-siakad-primary',
+                            'C+' => 'bg-amber-100 text-amber-700',
                             'C' => 'bg-amber-100 text-amber-700',
                             'D' => 'bg-red-100 text-red-700',
                             'E' => 'bg-red-200 text-red-800',

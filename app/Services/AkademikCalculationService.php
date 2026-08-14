@@ -18,16 +18,23 @@ class AkademikCalculationService
         $tahunAkademikId = $tahunAkademikId ?? TahunAkademik::where('is_active', true)->first()?->id;
         
         if (!$tahunAkademikId) {
-            return ['ips' => 0, 'total_sks' => 0, 'total_bobot' => 0];
+            return ['ips' => 0, 'ipk' => 0, 'total_sks' => 0, 'total_sks_lulus' => 0, 'total_bobot' => 0];
         }
 
         $nilaiList = Nilai::where('mahasiswa_id', $mahasiswa->id)
-            ->whereHas('kelas', function ($q) use ($tahunAkademikId) {
-                $q->where('tahun_akademik_id', $tahunAkademikId);
+            ->where(function ($query) use ($tahunAkademikId, $mahasiswa) {
+                $query->whereHas('kelas', function ($q) use ($tahunAkademikId) {
+                    $q->where('tahun_akademik_id', $tahunAkademikId);
+                })
+                ->orWhereHas('kelas.krsDetail', function ($q) use ($tahunAkademikId, $mahasiswa) {
+                    $q->whereHas('krs', function ($q2) use ($tahunAkademikId, $mahasiswa) {
+                        $q2->where('tahun_akademik_id', $tahunAkademikId)
+                           ->where('mahasiswa_id', $mahasiswa->id);
+                    });
+                });
             })
             ->with('kelas.mataKuliah')
             ->get();
-
 
         return $this->calculateIndexFromNilai($nilaiList);
     }
@@ -41,7 +48,23 @@ class AkademikCalculationService
             ->with('kelas.mataKuliah')
             ->get();
 
-        return $this->calculateIndexFromNilai($nilaiList);
+        // If a student repeated a subject, keep the best grade for IPK calculation
+        $groupedByMk = [];
+        foreach ($nilaiList as $nilai) {
+            $mkId = $nilai->kelas?->mata_kuliah_id;
+            if (!$mkId) continue;
+            
+            $bobot = $this->getBobot($nilai->nilai_huruf ?? '');
+            if (!isset($groupedByMk[$mkId]) || $bobot > $groupedByMk[$mkId]['bobot']) {
+                $groupedByMk[$mkId] = [
+                    'nilai' => $nilai,
+                    'bobot' => $bobot,
+                ];
+            }
+        }
+
+        $filteredNilai = collect(array_column($groupedByMk, 'nilai'));
+        return $this->calculateIndexFromNilai($filteredNilai);
     }
 
     /**
@@ -133,7 +156,7 @@ class AkademikCalculationService
                 $nilaiObj = $nilaiMap->get($detail->kelas_id);
                 $nilaiHuruf = $nilaiObj ? ($nilaiObj->nilai_huruf ?? '-') : '-';
                 $nilaiAngka = $nilaiObj ? ($nilaiObj->nilai_angka ?? '-') : '-';
-                $bobot = $nilaiHuruf !== '-' ? $this->getBobot($nilaiHuruf) : 0;
+                $bobot = ($nilaiHuruf !== '-' && $nilaiHuruf !== 'T') ? $this->getBobot($nilaiHuruf) : 0;
 
                 $semTotalSks += $mk->sks;
                 $semTotalBobot += ($mk->sks * $bobot);
@@ -169,8 +192,11 @@ class AkademikCalculationService
             'mahasiswa' => $mahasiswa,
             'semesters' => $transcriptSemesters,
             'all_courses' => $allCourses,
-            'ipk' => $ipkData['ips'],
-            'total_sks_lulus' => $ipkData['total_sks'],
+            'ipk' => $ipkData['ipk'],
+            'ips' => $ipkData['ipk'],
+            'total_sks' => $ipkData['total_sks'],
+            'total_sks_lulus' => $ipkData['total_sks_lulus'],
+            'total_bobot' => $ipkData['total_bobot'],
         ];
     }
 
@@ -180,25 +206,38 @@ class AkademikCalculationService
     private function calculateIndexFromNilai(Collection $nilaiList): array
     {
         $totalSks = 0;
+        $totalSksLulus = 0;
         $totalBobot = 0;
 
         foreach ($nilaiList as $nilai) {
-            $sks = $nilai->kelas->mataKuliah->sks;
-            $bobot = $this->getBobot($nilai->nilai_huruf);
+            $mk = $nilai->kelas?->mataKuliah;
+            if (!$mk) continue;
             
-            $totalSks += $sks;
-            $totalBobot += ($sks * $bobot);
+            $sks = (int) $mk->sks;
+            $huruf = $nilai->nilai_huruf ? strtoupper(trim($nilai->nilai_huruf)) : '';
+            $bobot = $this->getBobot($huruf);
+            
+            // Only count if course has a valid letter grade
+            if ($huruf !== '' && $huruf !== '-' && $huruf !== 'T') {
+                $totalSks += $sks;
+                $totalBobot += ($sks * $bobot);
+
+                // Passing grade check (A, B+, B, C+, C, D)
+                if (in_array($huruf, ['A', 'B+', 'B', 'C+', 'C', 'D'])) {
+                    $totalSksLulus += $sks;
+                }
+            }
         }
 
-        $index = $totalSks > 0 ? round($totalBobot / $totalSks, 2) : 0;
+        $index = $totalSks > 0 ? round($totalBobot / $totalSks, 2) : 0.00;
 
         return [
             'ipk' => $index,
             'ips' => $index,
             'total_sks' => $totalSks,
+            'total_sks_lulus' => $totalSksLulus,
             'total_bobot' => $totalBobot,
         ];
-
     }
 
     public function getBobot(string $nilaiHuruf): float
