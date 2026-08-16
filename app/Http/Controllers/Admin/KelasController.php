@@ -295,23 +295,39 @@ class KelasController extends Controller
     {
         $q = $request->get('q', '');
 
-        $query = \App\Models\Dosen::with(['user', 'prodi'])
+        $query = \App\Models\Dosen::with(['user', 'prodi.fakultas', 'fakultas'])
             ->where(function($qBuilder) use ($q) {
                 $qBuilder->whereHas('user', fn($uq) => $uq->where('name', 'like', "%{$q}%")
                     ->orWhere('email', 'like', "%{$q}%"))
                 ->orWhere('nidn', 'like', "%{$q}%");
             });
 
-        // Semua filter prodi dan fakultas (termasuk role scope) dihapus 
-        // agar admin dapat mencari dan memilih dosen Mata Kuliah Umum (MKU) dari prodi/fakultas lain.
-
         $dosenList = $query->limit(50)->get()->map(function($d) {
-            $category = ($d->prodi_id || $d->fakultas_id) ? ($d->prodi ? '[' . $d->prodi->nama . '] ' : '[' . $d->fakultas->nama . '] ') : '[Dosen Umum / MKU] ';
+            $prodiName = $d->prodi?->nama;
+            $fakultasName = $d->prodi?->fakultas?->nama ?? $d->fakultas?->nama;
+            
+            if ($prodiName) {
+                $badge = '[Prodi: ' . $prodiName . ']';
+                $badgeType = 'prodi';
+                $badgeText = $prodiName;
+            } elseif ($fakultasName) {
+                $badge = '[Fakultas: ' . $fakultasName . ']';
+                $badgeType = 'fakultas';
+                $badgeText = $fakultasName;
+            } else {
+                $badge = '[Dosen Umum / MKU]';
+                $badgeType = 'umum';
+                $badgeText = 'Dosen Umum / MKU';
+            }
+
             return [
                 'id' => $d->id,
-                'name' => $category . ($d->user->name ?? 'Tanpa Nama') . ($d->nidn ? ' (NIDN: ' . $d->nidn . ')' : ''),
+                'name' => $badge . ' ' . ($d->user->name ?? 'Tanpa Nama') . ($d->nidn ? ' (NIDN: ' . $d->nidn . ')' : ''),
+                'raw_name' => $d->user->name ?? 'Tanpa Nama',
                 'nidn' => $d->nidn,
-                'prodi' => $d->prodi->nama ?? ($d->fakultas->nama ?? 'Dosen Umum / MKU'),
+                'badge_type' => $badgeType,
+                'badge_text' => $badgeText,
+                'prodi' => $badgeText,
             ];
         });
 

@@ -46,7 +46,7 @@ class AkademikService
     public function getAllMataKuliah() 
     { 
         return Cache::remember('master.mata_kuliah', self::CACHE_TTL, function () {
-            return MataKuliah::all();
+            return MataKuliah::with('prodi.fakultas')->orderBy('semester')->orderBy('nama_mk')->get();
         });
     }
     

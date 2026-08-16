@@ -331,7 +331,13 @@
                         <select name="mata_kuliah_id" id="createClassMKSelect" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
                             <option value="">Pilih Mata Kuliah</option>
                             @foreach($mataKuliah as $mk)
-                            <option value="{{ $mk->id }}" data-prodi="{{ $mk->prodi_id ?? '' }}" data-semester="{{ $mk->semester }}">{{ $mk->kode_mk }} - {{ $mk->nama_mk }} (Sem {{ $mk->semester }})</option>
+                            @php
+                                $categoryTag = $mk->prodi ? '[' . $mk->prodi->nama . '] ' : '[MKU / Umum] ';
+                                $jenisTag = $mk->jenis ? ' • ' . ucfirst($mk->jenis) : '';
+                            @endphp
+                            <option value="{{ $mk->id }}" data-prodi="{{ $mk->prodi_id ?? '' }}" data-semester="{{ $mk->semester }}">
+                                {{ $categoryTag }}{{ $mk->kode_mk }} - {{ $mk->nama_mk }} (Sem {{ $mk->semester }}, {{ $mk->sks }} SKS{{ $jenisTag }})
+                            </option>
                             @endforeach
                         </select>
                     </div>
@@ -435,7 +441,13 @@
                         <select name="mata_kuliah_id" id="editMK" class="input-saas w-full px-4 py-2.5 text-sm dark:bg-gray-900 dark:border-gray-700 dark:text-white" required>
                             <option value="">Pilih Mata Kuliah</option>
                             @foreach($mataKuliah as $mk)
-                            <option value="{{ $mk->id }}" data-prodi="{{ $mk->prodi_id ?? '' }}" data-semester="{{ $mk->semester }}">{{ $mk->kode_mk }} - {{ $mk->nama_mk }} (Sem {{ $mk->semester }})</option>
+                            @php
+                                $categoryTag = $mk->prodi ? '[' . $mk->prodi->nama . '] ' : '[MKU / Umum] ';
+                                $jenisTag = $mk->jenis ? ' • ' . ucfirst($mk->jenis) : '';
+                            @endphp
+                            <option value="{{ $mk->id }}" data-prodi="{{ $mk->prodi_id ?? '' }}" data-semester="{{ $mk->semester }}">
+                                {{ $categoryTag }}{{ $mk->kode_mk }} - {{ $mk->nama_mk }} (Sem {{ $mk->semester }}, {{ $mk->sks }} SKS{{ $jenisTag }})
+                            </option>
                             @endforeach
                         </select>
                     </div>
@@ -546,7 +558,7 @@
                 const optProdiId = opt.getAttribute('data-prodi');
                 const optSemester = parseInt(opt.getAttribute('data-semester'));
                 
-                const matchesProdi = (prodiId === '' || optProdiId === prodiId);
+                const matchesProdi = (prodiId === '' || optProdiId === prodiId || optProdiId === '');
                 
                 let matchesSemester = false;
                 if (semester !== '') {
@@ -582,7 +594,7 @@
                 const optProdiId = opt.getAttribute('data-prodi');
                 const optSemester = parseInt(opt.getAttribute('data-semester'));
                 
-                const matchesProdi = (prodiId === '' || optProdiId === prodiId);
+                const matchesProdi = (prodiId === '' || optProdiId === prodiId || optProdiId === '');
                 
                 let matchesSemester = false;
                 if (semester !== '') {
@@ -633,7 +645,13 @@
             const dosenSelectEl = document.getElementById('editDosen');
             if (dosenSelectEl.tomselect && data.dosen_id) {
                 const ts = dosenSelectEl.tomselect;
-                ts.addOption({id: data.dosen_id, name: data.dosen_name || 'Tanpa Nama'});
+                ts.addOption({
+                    id: data.dosen_id,
+                    name: data.dosen_name || 'Tanpa Nama',
+                    raw_name: data.dosen_name || 'Tanpa Nama',
+                    badge_type: 'prodi',
+                    badge_text: 'Dosen'
+                });
                 ts.setValue(data.dosen_id);
             }
             
@@ -684,25 +702,38 @@
                 new TomSelect(select, {
                     valueField: 'id',
                     labelField: 'name',
-                    searchField: 'name',
-                    placeholder: 'Ketik nama dosen...',
+                    searchField: ['name', 'raw_name', 'nidn', 'badge_text'],
+                    placeholder: 'Ketik nama dosen / homebase / NIDN...',
                     preload: true,
                     load: function(query, callback) {
                         fetch(`{{ route('admin.dosen.search') }}?q=${encodeURIComponent(query)}`)
                             .then(response => response.json())
                             .then(json => {
-                                callback(json.map(item => ({
-                                    id: item.id,
-                                    name: item.name
-                                })));
+                                callback(json);
                             }).catch(()=>{
                                 callback();
                             });
                     },
                     render: {
                         option: function(item, escape) {
-                            return `<div class="py-2.5 px-3 border-b border-gray-100 dark:border-gray-700 hover:bg-blue-50 dark:hover:bg-gray-700/60 cursor-pointer">
-                                <div class="font-semibold text-sm text-gray-900 dark:text-gray-100">${escape(item.name)}</div>
+                            let badgeHtml = '';
+                            if (item.badge_type === 'prodi') {
+                                badgeHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 mr-2">[Prodi: ${escape(item.badge_text)}]</span>`;
+                            } else if (item.badge_type === 'fakultas') {
+                                badgeHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300 mr-2">[Fakultas: ${escape(item.badge_text)}]</span>`;
+                            } else {
+                                badgeHtml = `<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 mr-2">[MKU / Umum]</span>`;
+                            }
+                            
+                            const nidnHtml = item.nidn ? `<span class="text-xs text-gray-500 dark:text-gray-400 ml-1.5">(NIDN: ${escape(item.nidn)})</span>` : '';
+                            const lecturerName = escape(item.raw_name || item.name);
+
+                            return `<div class="py-2.5 px-3 border-b border-gray-100 dark:border-gray-700/60 hover:bg-siakad-light/40 dark:hover:bg-gray-700/60 cursor-pointer flex items-center justify-between">
+                                <div class="flex items-center flex-wrap gap-1">
+                                    ${badgeHtml}
+                                    <span class="font-medium text-sm text-gray-900 dark:text-gray-100">${lecturerName}</span>
+                                    ${nidnHtml}
+                                </div>
                             </div>`;
                         },
                         item: function(item, escape) {

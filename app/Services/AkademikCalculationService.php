@@ -21,6 +21,51 @@ class AkademikCalculationService
             return ['ips' => 0, 'ipk' => 0, 'total_sks' => 0, 'total_sks_lulus' => 0, 'total_bobot' => 0];
         }
 
+        // Get approved KRS for this semester
+        $krs = Krs::where('mahasiswa_id', $mahasiswa->id)
+            ->where('tahun_akademik_id', $tahunAkademikId)
+            ->where('status', 'approved')
+            ->with(['krsDetail.kelas.mataKuliah'])
+            ->first();
+
+        if ($krs && $krs->krsDetail->isNotEmpty()) {
+            $nilaiMap = Nilai::where('mahasiswa_id', $mahasiswa->id)->get()->keyBy('kelas_id');
+            
+            $totalSks = 0;
+            $totalSksLulus = 0;
+            $totalBobot = 0;
+
+            foreach ($krs->krsDetail as $detail) {
+                $mk = $detail->kelas?->mataKuliah;
+                if (!$mk) continue;
+
+                $sks = (int) $mk->sks;
+                $totalSks += $sks;
+
+                $nilaiObj = $nilaiMap->get($detail->kelas_id);
+                $huruf = $nilaiObj && $nilaiObj->nilai_huruf ? strtoupper(trim($nilaiObj->nilai_huruf)) : '';
+                $bobot = ($huruf !== '' && $huruf !== '-' && $huruf !== 'T') ? $this->getBobot($huruf) : 0.0;
+
+                if ($huruf !== '' && $huruf !== '-' && $huruf !== 'T') {
+                    $totalBobot += ($sks * $bobot);
+
+                    if (in_array($huruf, ['A', 'B+', 'B', 'C+', 'C', 'D'])) {
+                        $totalSksLulus += $sks;
+                    }
+                }
+            }
+
+            $ips = $totalSks > 0 ? round($totalBobot / $totalSks, 2) : 0.00;
+
+            return [
+                'ips' => $ips,
+                'ipk' => $ips,
+                'total_sks' => $totalSks,
+                'total_sks_lulus' => $totalSksLulus,
+                'total_bobot' => $totalBobot,
+            ];
+        }
+
         $nilaiList = Nilai::where('mahasiswa_id', $mahasiswa->id)
             ->where(function ($query) use ($tahunAkademikId, $mahasiswa) {
                 $query->whereHas('kelas', function ($q) use ($tahunAkademikId) {
@@ -44,6 +89,69 @@ class AkademikCalculationService
      */
     public function calculateIPK(Mahasiswa $mahasiswa): array
     {
+        $krsList = Krs::where('mahasiswa_id', $mahasiswa->id)
+            ->where('status', 'approved')
+            ->with(['krsDetail.kelas.mataKuliah'])
+            ->get();
+
+        if ($krsList->isNotEmpty()) {
+            $nilaiMap = Nilai::where('mahasiswa_id', $mahasiswa->id)->get()->keyBy('kelas_id');
+            
+            // Group by unique mata_kuliah_id to take best grade if course was repeated
+            $groupedByMk = [];
+            
+            foreach ($krsList as $krs) {
+                foreach ($krs->krsDetail as $detail) {
+                    $mk = $detail->kelas?->mataKuliah;
+                    if (!$mk) continue;
+
+                    $nilaiObj = $nilaiMap->get($detail->kelas_id);
+                    $huruf = $nilaiObj && $nilaiObj->nilai_huruf ? strtoupper(trim($nilaiObj->nilai_huruf)) : '';
+                    $bobot = ($huruf !== '' && $huruf !== '-' && $huruf !== 'T') ? $this->getBobot($huruf) : 0.0;
+                    $isGraded = ($huruf !== '' && $huruf !== '-' && $huruf !== 'T');
+
+                    if (!isset($groupedByMk[$mk->id])) {
+                        $groupedByMk[$mk->id] = [
+                            'sks' => (int) $mk->sks,
+                            'huruf' => $huruf,
+                            'bobot' => $bobot,
+                            'isGraded' => $isGraded,
+                        ];
+                    } else {
+                        // If repeated, keep the best grade
+                        if ($bobot > $groupedByMk[$mk->id]['bobot']) {
+                            $groupedByMk[$mk->id]['huruf'] = $huruf;
+                            $groupedByMk[$mk->id]['bobot'] = $bobot;
+                            $groupedByMk[$mk->id]['isGraded'] = $isGraded;
+                        }
+                    }
+                }
+            }
+
+            $totalSks = 0;
+            $totalSksLulus = 0;
+            $totalBobot = 0;
+
+            foreach ($groupedByMk as $mkData) {
+                $totalSks += $mkData['sks'];
+                $totalBobot += ($mkData['sks'] * $mkData['bobot']);
+
+                if ($mkData['isGraded'] && in_array($mkData['huruf'], ['A', 'B+', 'B', 'C+', 'C', 'D'])) {
+                    $totalSksLulus += $mkData['sks'];
+                }
+            }
+
+            $ipk = $totalSks > 0 ? round($totalBobot / $totalSks, 2) : 0.00;
+
+            return [
+                'ipk' => $ipk,
+                'ips' => $ipk,
+                'total_sks' => $totalSks,
+                'total_sks_lulus' => $totalSksLulus,
+                'total_bobot' => $totalBobot,
+            ];
+        }
+
         $nilaiList = Nilai::where('mahasiswa_id', $mahasiswa->id)
             ->with('kelas.mataKuliah')
             ->get();

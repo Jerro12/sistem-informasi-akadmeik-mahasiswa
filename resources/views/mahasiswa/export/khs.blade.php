@@ -145,7 +145,7 @@
                     <td colspan="3" class="right">Total</td>
                     <td class="center">{{ $totalSks }}</td>
                     <td colspan="2" class="center">IPS</td>
-                    <td class="center">{{ number_format($ipsData['ips'], 2) }}</td>
+                    <td class="center">{{ number_format($totalSks > 0 ? ($totalMutu / $totalSks) : 0, 2) }}</td>
                     <td></td>
                 </tr>
             </tfoot>
