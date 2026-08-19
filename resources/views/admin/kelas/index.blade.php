@@ -332,11 +332,10 @@
                             <option value="">Pilih Mata Kuliah</option>
                             @foreach($mataKuliah as $mk)
                             @php
-                                $categoryTag = $mk->prodi ? '[' . $mk->prodi->nama . '] ' : '[MKU / Umum] ';
                                 $jenisTag = $mk->jenis ? ' • ' . ucfirst($mk->jenis) : '';
                             @endphp
                             <option value="{{ $mk->id }}" data-prodi="{{ $mk->prodi_id ?? '' }}" data-semester="{{ $mk->semester }}">
-                                {{ $categoryTag }}{{ $mk->kode_mk }} - {{ $mk->nama_mk }} (Sem {{ $mk->semester }}, {{ $mk->sks }} SKS{{ $jenisTag }})
+                                {{ $mk->kode_mk }} - {{ $mk->nama_mk }} (Sem {{ $mk->semester }}, {{ $mk->sks }} SKS{{ $jenisTag }})
                             </option>
                             @endforeach
                         </select>
@@ -442,11 +441,10 @@
                             <option value="">Pilih Mata Kuliah</option>
                             @foreach($mataKuliah as $mk)
                             @php
-                                $categoryTag = $mk->prodi ? '[' . $mk->prodi->nama . '] ' : '[MKU / Umum] ';
                                 $jenisTag = $mk->jenis ? ' • ' . ucfirst($mk->jenis) : '';
                             @endphp
                             <option value="{{ $mk->id }}" data-prodi="{{ $mk->prodi_id ?? '' }}" data-semester="{{ $mk->semester }}">
-                                {{ $categoryTag }}{{ $mk->kode_mk }} - {{ $mk->nama_mk }} (Sem {{ $mk->semester }}, {{ $mk->sks }} SKS{{ $jenisTag }})
+                                {{ $mk->kode_mk }} - {{ $mk->nama_mk }} (Sem {{ $mk->semester }}, {{ $mk->sks }} SKS{{ $jenisTag }})
                             </option>
                             @endforeach
                         </select>
@@ -558,7 +556,7 @@
                 const optProdiId = opt.getAttribute('data-prodi');
                 const optSemester = parseInt(opt.getAttribute('data-semester'));
                 
-                const matchesProdi = (prodiId === '' || optProdiId === prodiId || optProdiId === '');
+                const matchesProdi = (prodiId === '' || optProdiId === prodiId);
                 
                 let matchesSemester = false;
                 if (semester !== '') {
@@ -594,7 +592,7 @@
                 const optProdiId = opt.getAttribute('data-prodi');
                 const optSemester = parseInt(opt.getAttribute('data-semester'));
                 
-                const matchesProdi = (prodiId === '' || optProdiId === prodiId || optProdiId === '');
+                const matchesProdi = (prodiId === '' || optProdiId === prodiId);
                 
                 let matchesSemester = false;
                 if (semester !== '') {

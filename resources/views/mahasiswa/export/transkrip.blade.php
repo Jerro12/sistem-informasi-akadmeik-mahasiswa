@@ -150,7 +150,7 @@
             </tbody>
             <tfoot>
                 @php
-                    $calculatedIpk = $totalSksDinilai > 0 ? round($totalBobot / $totalSksDinilai, 2) : 0.00;
+                    $calculatedIpk = $totalSks > 0 ? round($totalBobot / $totalSks, 2) : 0.00;
                 @endphp
                 <tr style="background-color: #f3f4f6; font-weight: bold;">
                     <td colspan="3" class="right">Total SKS & Bobot Mutu</td>

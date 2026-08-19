@@ -171,7 +171,7 @@
 
         <!-- Summary -->
         @php
-            $ipk = $totalSksDinilai > 0 ? round($totalMutu / $totalSksDinilai, 2) : 0.00;
+            $ipk = $totalSks > 0 ? round($totalMutu / $totalSks, 2) : 0.00;
             $predikat = 'Cukup';
             if ($ipk >= 3.51) $predikat = 'DENGAN PUJIAN (CUMLAUDE)';
             elseif ($ipk >= 2.76) $predikat = 'SANGAT MEMUASKAN (B)';
